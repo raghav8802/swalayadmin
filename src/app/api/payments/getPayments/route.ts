@@ -1,6 +1,7 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
-import PaymentRequest, { PaymentStatus } from "@/models/paymentRequest";
+// import PaymentRequest, { PaymentStatus } from "@/models/paymentRequest";
+import PaymentRequest ,{PaymentStatus} from "@/models/paymentRequest";
 import Payment from "@/models/Payments";
 import TotalBalance from "@/models/totalBalance";
 
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate total payout balance from PaymentRequest collection where status is 'COMPLETED'
     const totalPayout = await PaymentRequest.aggregate([
-      { $match: { labelId, status: PaymentStatus.COMPLETED } },
+      { $match: { labelId, status: PaymentStatus.APPROVED } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
