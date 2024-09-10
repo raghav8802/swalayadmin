@@ -36,7 +36,12 @@ export async function GET(request: NextRequest) {
         })
 
 
-    } catch (error) {
+    } catch (error) { 
+        return NextResponse.json({
+            status: 500,
+            message: "Invalid ",
+            success: false
+        })
 
     }
 
