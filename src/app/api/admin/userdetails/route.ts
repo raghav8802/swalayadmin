@@ -18,9 +18,10 @@ export async function GET(request: NextRequest) {
         const userid = cookieData.id;
 
         const UserData = await Admin.findById(userid).select('-password');
-
+          console.log("invaild user why");
+            console.log(UserData);
         if (!UserData) {
-
+           
             return NextResponse.json({
                 status: 400,
                 message: "Invalid User",
@@ -37,6 +38,8 @@ export async function GET(request: NextRequest) {
 
 
     } catch (error) { 
+        console.log("invaild user catch admin/usr");
+        console.log(error);
         return NextResponse.json({
             status: 500,
             message: "Invalid ",

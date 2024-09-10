@@ -20,6 +20,8 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const fetchUserDetails = async () => {
     try {
       const response = await apiGet('/api/admin/userdetails');
+      console.log("invaild user why");
+      console.log(response);
       if (response.success) {
         const userInfo: User = response.data;
         setUser({ ...userInfo });

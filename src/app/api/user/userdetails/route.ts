@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
         const UserData = await Label.findById(userid).select('-password');
 
         if (!UserData) {
+            console.log("invaild user why user/api");
+            console.log(UserData);
 
             return NextResponse.json({
                 status: 400,
@@ -36,8 +38,11 @@ export async function GET(request: NextRequest) {
 
 
     } catch (error) {
+        console.log("invaild user catch user/api catch"); 
+        console.log(error);
 
         return NextResponse.json({
+           
             status: 500,
             message: "Invalid ",
             success: false
