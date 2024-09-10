@@ -1,4 +1,5 @@
 'use client'
+import React from "react"
 import Image from "next/image"
 import Style from "../../styles/Profile.module.css"
 import toast from "react-hot-toast"
