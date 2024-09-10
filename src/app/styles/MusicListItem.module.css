@@ -1,0 +1,72 @@
+.musicItem{
+    /* border: 2px solid rgb(35, 119, 245); */
+    display: flex;
+    width: 100%;
+    padding: 12px 15px;
+    /* background-color: #fff; */
+    border-bottom: 1.5px solid #f1f1f1;
+    cursor: pointer;
+}
+
+
+.musicItem ul{
+    /* border: 2px solid rgb(11, 162, 34); */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+}
+.musicItem ul li{
+    /* margin-left: 2px; */
+    width: 15%;
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    font-size: 16px;
+}
+
+.sno{
+    font-weight: 600;
+}
+
+.albumLink{
+    color: blue;
+    font-size: 18px;
+}
+.liveStatus{
+    padding: 2px 7px;
+    color: #fff;
+    background-color: green;
+    font-size: 11px;
+    border-radius: 3px;
+}
+
+.rejectedStatus{
+    padding: 2px 7px;
+    color: #fff;
+    background-color: red;
+     font-size: 11px;
+    border-radius: 3px;
+}
+
+.submitedStatus{
+    padding: 2px 7px;
+    color: #fff;
+    background-color: rgb(32, 32, 207);
+     font-size: 11px;
+    border-radius: 3px;
+}
+
+.processingStatus{
+    padding: 2px 7px;
+    color: #fff;
+    background-color: rgb(199, 170, 6);
+     font-size: 11px;
+    border-radius: 3px;
+}
+
+
+
+
+

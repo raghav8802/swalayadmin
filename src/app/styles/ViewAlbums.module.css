@@ -1,0 +1,436 @@
+.albumContainer{
+    width: 100%;
+    display: flex;
+    /* align-items: center; */
+    justify-content:space-between;
+    /* border: 2px solid blueviolet; */
+    /* height: 350px; */
+
+}
+
+.albumThumbnailContainer {
+    width: 35%;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the image within the container */
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #b0afafc4;
+    height: 550px;
+    overflow: hidden; /* Ensure the image does not overflow */
+    padding: 3px;
+}
+
+.albumThumbnail {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover; /* Ensure the image fits within the container while maintaining its aspect ratio */
+}
+
+
+
+
+.albumDetails{
+    /* border: 2px solid rgb(34, 226, 111); */
+    width: 64%;
+    height: 550px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items:flex-start;
+    justify-content:flex-start;
+    background-color: #fff;
+    border: 1px solid #b0afafc4;
+
+}
+
+.albumTitle{
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 5px;
+    color: #1c1c1cef;
+}
+
+.albumGenre{
+    background-color: #33bc66;
+    border-radius: 15px;
+    padding: 1px 10px;
+}
+.albumGenre span{
+    font-size: 14px;
+    color: #fff;
+    font-size: 500;
+    margin: 0 5px;
+}
+.albumArtist{
+    font-size: 16px;
+    font-weight: 500;
+    /* color: #1c1c1cda; */
+    color: #828282;
+}
+
+.albumEditBtn{
+    background-color: black;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.albumSuccessBtn{
+    
+    background-color: #399918;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+
+}
+
+.deleteBtn{
+    background-color: #ed5e68;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+
+}
+
+
+.albumAddTrack{
+    background: linear-gradient(to right, #F47A9A, #CC71E7, #7FAFF9);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.subheading{
+    font-size: 18px;
+    font-weight: 600;
+    color: #030712;
+}
+
+/* .subheading i{
+    color: #3270ff;
+} */
+
+.trackContainer{
+    /* border: 2px solid red; */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    
+    /* padding: 20px; */
+    /* background-color: #fff;
+    border-radius: 10px; */
+
+}
+
+.tracksContainer{
+    width: 65%;
+    /* border: 2px solid rgb(15, 82, 217); */
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #b0afafc4;
+}
+.trackDetails{
+    /* border: 2px solid rgb(20, 144, 34); */
+    width: 34%;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #b0afafc4;
+}
+.trackDetailsTop{
+    /* border: 2px solid red; */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.trackDetailsIconGroup{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.trackDetailsIconGroup i{
+    font-size: 20px;
+    margin-left: 17px;
+    cursor: pointer;
+}
+
+.trackList{
+    padding: 2px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.trackItem{
+    /* border: 2px solid rebeccapurple; */
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 5px;
+    border-radius: 10px;
+    transition: 0.2s all ease-out;
+}
+
+.active{
+    background: linear-gradient(to right, #F47A9A, #CC71E7, #7FAFF9);
+    color: #fff;    
+}
+
+.trackItemNumberActive{
+    color : #fff!important;
+} 
+
+.trackItemIconBoxActive{
+    color : #fff!important;
+} 
+
+.trackItemTrackNameActive{
+    color : #fff!important;
+} 
+
+.trackItemIconBoxActive{
+    background-color: #fff!important;
+}
+
+.trackItemIconBoxIconActive {
+    color: #CC71E7!important;
+}
+.trackItemNumberActive {
+    color: #fff!important;
+}
+
+.trackItem:hover{
+    background: linear-gradient(to right, #F47A9A, #CC71E7, #7FAFF9);
+    color: #fff;
+}
+.trackItem:hover .trackItemNumber{
+    color: #fff;
+}
+
+.trackItem:hover .trackItemIconBox{
+    background-color: #fff;
+}
+.trackItem:hover .trackItemTrackName{
+    color: #fff;
+}
+
+.trackItem:hover .trackItemIconBox i{
+    color: #CC71E7;
+}
+
+.trackItemNumber{
+    font-weight: 800;
+    font-size: 17;
+    color: #a0a0a0;
+    transition: 0.2s all ease-out;
+}
+
+.trackItemIconBox{
+    width: 50px;
+    height: 45px;
+    border-radius: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #7d7d7d;
+    transition: 0.2s all ease-out;
+}
+.trackItemIconBox i{
+    font-size: 23px;
+    color: #fff;
+    transition: 0.2s all ease-out;
+}
+.trackItemTrackName{
+    font-size: 17px;
+    font-weight: 600;
+    color: #1c1c1cef;
+    transition: 0.2s all ease-out;
+}
+
+.trackItemTrackSingerName{
+    font-size: 15px;
+}
+
+.trackItemInfo{
+    /* border: 4px solid green; */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.controllers{
+    /* border: 2px solid red; */
+    display: flex;
+    align-items: center;
+    width: 50%;
+    justify-content: space-between;
+}
+.controllersItem{
+    width: 38%;
+}
+
+
+.controllers span{
+    font-size: 15px;
+}
+
+.controllers i{
+    font-size: 30px;
+}
+
+.currentTrackDetails{
+    /* border: 2px solid red; */
+    height: 70vh;
+    background-color: #fff;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.trackInfoTrackName{
+    font-size: 16px;
+    color: #030712;;
+    font-weight: 600;
+
+}
+
+.trackNameIcon{
+    font-size: 25px;
+    color: #3270ff;
+}
+
+
+
+
+
+
+
+.MusicPlayerBox{
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* music player  */
+
+.MusicPlayercontainer{
+    bottom: 2%;
+    position: fixed;
+    width: 92%;
+    display: flex;
+    margin: 0 auto;
+    border-radius: 11px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 20px;
+}
+
+
+.trackControllerButtonGroup{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    
+}
+
+.trackControllerButtonGroup i{
+    color: #3270ff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.trackControllerMusicPlayRound{
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #3270ff;
+     
+}
+.trackControllerMusicPlayRound i{
+    color: #fff;
+    font-size: 22px;
+}
+
+.rangeContainer{
+    width: 60%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* border: 2px solid red; */
+}
+
+.rangeContainer span{
+    font-size: 15px;
+}
+
+.progress {
+    /* background: linear-gradient(to right, #F47A9A, #CC71E7, #7FAFF9); */
+    background: linear-gradient(to right, #F47A9A 0%, #7FAFF9 40%, #7FAFF9 40%, #7FAFF9 100%);
+    border-radius: 8px;
+    /* border: solid 2px #82CFD0; */
+    height: 10px;
+    width: 100%;
+    outline: none;
+    transition: background 450ms ease-in;
+    -webkit-appearance: none;
+  }
+  
+  .progress::-webkit-slider-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    -webkit-appearance: none;
+    cursor: ew-resize;
+    background: #3270ff;
+  }
+
+
+
+  .playingTrack{
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+    width: 20%;
+    text-align: left;
+  }
+
+  .stopwatchIcon{
+    font-size: 16px!important;
+}
+
+
+
+.albumInfoList{
+    /* border: 2px solid red; */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.albumInfoItem{
+    /* border: 2px solid blueviolet; */
+    width: 49%;
+}
+
+
+
+.trackInfoListContainer{
+    /* border: 2px solid red; */
+    min-height: 200px;
+    background-color: #f1f5f9;
+    border-radius: 0.5rem;
+}
+
+
+

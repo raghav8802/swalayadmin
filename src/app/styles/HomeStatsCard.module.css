@@ -1,0 +1,65 @@
+.greetContainer {
+    /* border: 2px solid white; */
+    display: flex;
+    flex-direction: column;
+    padding: 7px;
+}
+
+.heading {
+    color: #fff;
+    font-size: 2rem;
+}
+
+.para {
+    color: #fff;
+    font-size: 16px;
+}
+
+.statsContainer {
+    background: linear-gradient(135deg, #415BCD, #C657BD, #ECA986);
+    width: 100%;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+}
+
+.statusCardContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 45%;
+
+}
+
+.statusCard {
+    background-color: #773FA4;
+    width: 30%;
+    padding: 6px 12px;
+    margin: 4px;
+    border-radius: 5px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* border: 2px solid wheat; */
+}
+
+.statIcon {
+    font-size: 30px;
+    margin-right: 8px;
+    opacity: 0.8;
+}
+
+.statCardDetails .statNumber {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.statCardDetails .statLabel {
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.7;
+}

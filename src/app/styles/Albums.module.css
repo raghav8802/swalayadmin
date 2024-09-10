@@ -1,0 +1,121 @@
+.topbar {
+
+    /* border: 2px solid red; */
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-image: url("/images/banner.jpg");
+    height: 80px;
+    background-position: "center";
+    background-attachment: "contain";
+    background-size: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tagLineBox {
+    /* border: 2px solid black; */
+    padding: 1px;
+}
+
+.titleLabel {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+.taglineLabel{
+    color: #fff;
+    font-size: 1rem;
+}
+
+.exportBtnGroup{
+    /* border: 2px solid black; */
+    display: flex;
+    align-items: center;
+}
+
+.importButton {
+    color: #2e82f0;
+    background-color: #fff;
+    padding: 10px 12px;
+    border-radius: 5px;
+}
+
+.ytExportButton {
+    color: #2e82f0;
+    background-color: #fff;
+    padding: 10px 12px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ytExportButton i{
+    color: red;
+}
+
+
+.newReleseContainer{
+    /* border: 2px solid black; */
+    display: flex;
+    flex-direction: column;
+}
+.spaceBetween{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.titleHeading{
+    font-size: 1.2rem;
+    text-transform: capitalize;
+    font-weight: 600;
+}
+.slideController{
+    display: flex;
+    align-items: center;
+ 
+}
+.slideController i{
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.albumContainer{
+    border: 2px solid rgb(245, 12, 12);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.musicList{
+    /* border: 2px solid red; */
+    padding: 1px;
+}
+
+.musicItemLabel{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 3px;
+    border-bottom: 1.5px solid #a1a0a0;
+}
+
+
+.musicItemLabel li{
+    font-weight: 600;
+    text-transform: capitalize;
+    color: #1c1c1c;
+    /* text-align: center; */
+    /* border: 2px solid black; */
+    /* margin: auto; */
+ }
+
+
+
+

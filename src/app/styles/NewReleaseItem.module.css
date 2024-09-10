@@ -1,0 +1,36 @@
+.newReleaseItem{
+    width: 225px;
+    height: 260px;
+    cursor: pointer;
+    background-color: #fff;
+    padding: 3px;
+    border-radius: 3px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    /* border: 2px solid red; */
+    position: relative;
+}
+
+.albumStatusBadge{
+    position: absolute;
+    right: 5%;
+    top: 5%;
+}
+
+.albumImage{
+    border-radius: 3px;
+    display: flex;
+    margin: auto;
+    height: 200px;
+}
+
+.albumName{
+    text-transform: capitalize;
+    color: #000;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.albumArtistName{
+    text-transform: capitalize;
+    font-size: 0.8rem;
+    color: #3b3a3a;
+}

@@ -1,0 +1,57 @@
+
+.toolRed {
+    /* width: 45%; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fe0000;
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    /* font-size: 17px; */
+
+}
+.toolBlue {
+    /* width: 45%; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(114, 161, 255);
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    /* font-size: 25px; */
+    
+}
+.toolPurple {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color:#773FA4;
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 17px;
+}
+.toolYellow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(245, 221, 10);
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+}

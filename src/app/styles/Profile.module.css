@@ -1,0 +1,77 @@
+.profileSidebar {
+    border: 1px solid #b0afafc4;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.profileContainer {
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #b0afafc4;
+    padding: 10px;
+}
+
+.profileImgContainer {
+    background: linear-gradient(to right, #F47A9A, #CC71E7, #7FAFF9);
+    width: 258px;
+    height: 258px;
+    overflow: hidden;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin: 0 auto;
+}
+
+.profileImage {
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.labelName {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #01010a;
+    text-transform: capitalize;
+    text-align: center;
+}
+
+.labelUserName {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #625f67;
+    text-transform: capitalize;
+}
+
+.labelDescription {
+    font-size: 1rem;
+    text-align: justify;
+}
+
+
+.labelHeader{
+    font-size: 1.3rem;
+    text-transform: capitalize;
+    font-weight: 600;
+    color: #01010a;
+}
+
+.labelSubHeader{
+    font-size: 1rem;
+    text-transform: capitalize;
+    font-weight: 600;
+    color: #58555e;
+}
+
+.editIcon{
+    font-size: 1.5rem;
+    color: #0d5ed6;
+    cursor: pointer;
+}
+
