@@ -3,53 +3,57 @@ import Admin from "@/models/admin";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
-
 interface TokenPayload {
     id: string;
 }
 
 export async function GET(request: NextRequest) {
-    await connect()
+    await connect();
 
     try {
-
         const token = request.cookies.get('authtoken')?.value || '';
-        const cookieData = jwt.verify(token, process.env.TOKEN_SECRET!) as TokenPayload;
+        if (!token) {
+            return NextResponse.json({
+                status: 401,
+                message: "No token provided",
+                success: false
+            });
+        }
+
+        const secret = process.env.TOKEN_SECRET;
+        if (!secret) {
+            return NextResponse.json({
+                status: 500,
+                message: "Token secret not configured",
+                success: false
+            });
+        }
+
+        const cookieData = jwt.verify(token, secret) as TokenPayload;
         const userid = cookieData.id;
 
         const UserData = await Admin.findById(userid).select('-password');
-          console.log("invaild user why");
-            console.log(UserData);
         if (!UserData) {
-           
             return NextResponse.json({
-                status: 400,
-                message: "Invalid User",
+                status: 404,
+                message: "User not found",
                 success: false
-            })
+            });
         }
 
         return NextResponse.json({
             status: 200,
             data: UserData,
-            message: "user find successfully",
+            message: "User found successfully",
             success: true
-        })
+        });
 
-
-    } catch (error) { 
-        console.log("invaild user catch admin/usr");
-        console.log(error);
+    } catch (error) {
+        console.error("Error verifying token or finding user", error);
         return NextResponse.json({
-            status: 500,
-            message: "Invalid ",
+            status: 401,
+            message: "Invalid token or user",
             success: false
-        })
-
+        });
     }
-
 }
-
-
-
-
