@@ -1,4 +1,4 @@
-'use client';
+'use client' 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { apiGet } from '@/helpers/axiosRequest';
 import toast from 'react-hot-toast';
