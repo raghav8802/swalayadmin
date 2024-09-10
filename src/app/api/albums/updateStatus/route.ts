@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Fixed the syntax: The update parameters should be passed as the second argument, not as part of a filter.
-    const album = await Album.findByIdAndUpdate(
-      id,
-      { status, comment }
-    );
+    // const album = await Album.findByIdAndUpdate(
+    //   id,
+    //   { status, comment }
+    // );
 
     return NextResponse.json({
       message: "Album status updated successfully",

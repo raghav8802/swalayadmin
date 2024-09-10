@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Create and save the new artist
     const newartist = new Artist(reqBody);
-    const savedartist = await newartist.save();
+    // const savedartist = await newartist.save();
     console.log("saved artist data")
 
     return NextResponse.json({

@@ -16,9 +16,13 @@
     "react": {
       "version": "detect"
     }
+  
   },
   "rules": {
     // Your custom rules can go here, like:
     // "semi": ["error", "always"]
   }
+
+
+  
 }

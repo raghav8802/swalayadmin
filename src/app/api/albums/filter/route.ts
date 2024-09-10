@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
+
 import Album, { AlbumStatus } from '@/models/albums';
 import { connect } from '@/dbConfig/dbConfig';
 
