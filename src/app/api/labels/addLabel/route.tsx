@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from 'bcryptjs'
-import { sendEmail } from "@/helpers/mailer";
+
 // import User from "@/models/Label";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
+import fetch from 'node-fetch';
 
 
 export async function POST(request: NextRequest) {
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
         const savedUser = await newUser.save();
 
         // mail send to user is here 
-        await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id })
+        // await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id })
 
         return NextResponse.json({
             message: "User signup successfully",

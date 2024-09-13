@@ -7,6 +7,8 @@ import Track from '@/models/track';
 import ApiResponse from '@/lib/apiResponse';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
+import axios from 'axios';
+
 
 // Function to generate MD5 checksum
 const generateMD5Checksum = (buffer: Buffer): string => {
@@ -47,7 +49,6 @@ const uploadFileToSignedUrl = async (signedUrl: string, fileBuffer: Buffer, cont
   if (!response.ok) {
     throw new Error(`Failed to upload file to ${signedUrl}. Status: ${response.status}`);
   }
-
   console.log(`File uploaded successfully to ${signedUrl}`);
 };
 
@@ -59,6 +60,32 @@ const fetchFileFromS3 = async (s3Url: string): Promise<Buffer> => {
   const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
 };
+
+
+const verifyAlbumMeta = async (token: string, albumId: string) => {
+  try {
+    const verifyMetaResponse = await axios.get('http://pdl.gaonaweb.com/v2.0/album/verify/meta', {
+      params: {
+        album_id: "",
+        label_id: '61b990392d56b657a5c186d7',  // Replace with the actual label_id
+        token: token,
+      },
+       
+      headers: {
+        Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiRHVwbGljYXRlVXBsb2FkZXIiLCJMYWJlbCIsIkFkdmFuY2VNZXRhZGF0YSJdLCJleHRyYSI6e30sImV4cCI6MTc1NjQ1NTM1OCwiaWF0IjoxNzI1MzUxMzU4LCJpc3MiOiJUU00iLCJzdWIiOiI2MWI5OTIxZDJkNTZiNjU3YTVjMTg5ZmMifQ.OeCKVxGHLjAudvs_kRdNxNXRItYKCtPjWzUXh_MjOpcG8j5uSiR96zM6orAu21KFCbF5W890ELoS501-yllj8vVjLqQPEVNUrEaZBNGjhICjMgaUATn9RJz37C9gz51LkWXsilYPwa3l-uOkGbtt43AVN3oYqgc7BvHscwG637FL30CslB2_OX__Tx8nnuQpruGT1m4xSEZbYrKGCnMm0O-a8DaC5N8DJrI9GBFtM6RWdd-qydc2Mox4bZnGL8m1-OMFU5sHcOBebUAUQ_H6aIowB7qAj14Rdt8MvrXDNcRtCK_O1tXHAluM55-MkMxk9pF_ZJIuMuXJa0qZJZwDVw`,  // Replace with your Bearer token
+      },
+
+    });
+    console.log('Verify Meta Response:', verifyMetaResponse.data);
+    return verifyMetaResponse.data;
+  } catch (error) {
+    console.error('Error during verification:', error);
+    throw new Error('Failed to verify album metadata');
+  }
+};
+
+
+
 
 export async function POST(req: Request) {
   try {
@@ -78,10 +105,15 @@ export async function POST(req: Request) {
       return ApiResponse(404, null, false, 'Album not found').nextResponse;
     }
 
+    
+
+
     let artistDetails = null;
     if (album.artist && mongoose.Types.ObjectId.isValid(album.artist)) {
       artistDetails = await Artist.findById(album.artist).select('_id artistName profileImage isSinger isLyricist isComposer isProducer');
     }
+
+
 
     const tracks = await Track.find({ albumId: album._id });
 
@@ -127,7 +159,7 @@ export async function POST(req: Request) {
             sub_genre : track.category || "",
             mood: "",
             isrc: track.isrc || "",
-            label : "SwaLay Digital",
+            label :  "xyz" ,
             publisher : "TalantonCore India Publishing ",
             track_duration : "" , 
             time_for_crbt_cut: track.crbt || "",
@@ -204,7 +236,8 @@ export async function POST(req: Request) {
           uploaded_via: "AdvanceMetaData",
           is_update: false,
           name: "Gangster-Raju-1724771189421-32",
-          label: "SwaLay Digital",
+          label: "Swalay Digital",
+          sub_label:"xyz",
           label_id: "",
           c_line: album.cline || "",
           upc_id: "",
@@ -260,7 +293,17 @@ export async function POST(req: Request) {
       await uploadFileToSignedUrl(signed_albums[0].songs[i].media.signed_url, trackBuffer, 'audio/mp4');
     }
 
-    return NextResponse.json({ message: 'Suceess album saved', data: responseData , success: true, status: 201});
+
+    console.log('externalApiResponse' , responseData);
+
+    const token = responseData.data?.token;
+    if (!token) {
+      throw new Error('Token not found in the response');
+    }
+
+    const verifiedMeta = await verifyAlbumMeta(token, albumId);
+
+    return NextResponse.json({ message: 'Success', data: verifiedMeta, success: true, status: 201 });
   
   } catch (error: any) {
     console.error('Internal Server Error:', error.message);

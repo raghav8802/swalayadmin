@@ -27,9 +27,6 @@
     object-fit: cover; /* Ensure the image fits within the container while maintaining its aspect ratio */
 }
 
-
-
-
 .albumDetails{
     /* border: 2px solid rgb(34, 226, 111); */
     width: 64%;
