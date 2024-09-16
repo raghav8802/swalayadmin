@@ -161,6 +161,9 @@ const albums = ({ params }: { params: { albumid: string } }) => {
           )}
           <h2 className={Style.albumTitle}>
             {albumDetails && albumDetails.title}
+             
+            <i className="bi bi-download ms-4"></i>
+
           </h2>
           <p className={`${Style.albumArtist} mb-2`}>
             {albumDetails && albumDetails.artist}
