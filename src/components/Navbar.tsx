@@ -256,6 +256,15 @@ const Navbar = () => {
                 </Link>
 
                 <Link
+                  href="/labels"
+                  className="nav__link "
+                  onClick={handleLinkClick}
+                >
+                  <i className="bi bi-people nav__icon"></i>
+                  <span className="nav__name">Lables</span>
+                </Link>
+
+                <Link
                   href="/artists"
                   className="nav__link "
                   onClick={handleLinkClick}
@@ -263,6 +272,16 @@ const Navbar = () => {
                   <i className="bi bi bi-mic nav__icon"></i>
                   <span className="nav__name">Artists</span>
                 </Link>
+
+                <Link
+                  href="/notifications"
+                  className="nav__link "
+                  onClick={handleLinkClick}
+                >
+                  <i className="bi bi-bell nav__icon"></i>
+                  <span className="nav__name">Notification</span>
+                </Link>
+
                 <Link
                   href="/profile"
                   className="nav__link "
