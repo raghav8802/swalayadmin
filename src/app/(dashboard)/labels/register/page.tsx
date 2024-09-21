@@ -123,7 +123,7 @@ const LabelRegistrationForm: React.FC = () => {
   //       [name]: checked,
   //     });
   //   } else {
-  //     setFormData({
+  //     setFormData({+
   //       ...formData,
   //       [name]: value,
   //     });
