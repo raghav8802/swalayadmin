@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import Style from "../../../../../styles/ViewAlbums.module.css";
@@ -8,10 +9,16 @@ import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { onShare } from "@/helpers/urlShare";
+import { MouseEvent } from 'react';
+import uploadFile from "@/app/api/recognition/route";
 
 interface TrackListProps {
   trackId: string;
   onFetchDetails: (songName: string, url: string) => void;
+}
+
+interface Props {
+  trackId: string;
 }
 
 interface ArtistDetail {
@@ -44,6 +51,7 @@ interface TrackDetail {
   trackType: string | null;
   trackOrderNumber: string | null;
 }
+
 
 const TrackDetails: React.FC<TrackListProps> = ({
   trackId,
@@ -131,8 +139,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
-
-
   const uploadToComos = async (albumId :any ) => {
     console.log("Action continued");
     toast.loading("Uploading to cosmos");
@@ -152,6 +158,28 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   };
 
+  // const handleRecognizeClick = async () => {
+  //   try {
+  //     const response = await apiGet(
+  //       `/api/track/getTrackDetails?trackId=${trackId}`
+  //     );
+  //     setTrackDetails(response.data);
+      
+  //     const audioUrl = `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${response.data.albumId}ba3/tracks/${response.data.audioFile}`;
+  //     const fileUrl = audioUrl;
+  //     console.log("Recognize button clicked. File URL:", fileUrl); // Log file URL
+  //     const result = await uploadFile(fileUrl);
+  //     if (result) {
+  //       console.log("File recognition successful. File ID:", result);
+  //     } else {
+  //       console.log("File recognition failed.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error in handleRecognizeClick:", error); // Log any errors that might occur
+  //   }
+  // };
+
+  
 
 
 
@@ -161,7 +189,17 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
 
         <div className={Style.trackDetailsIconGroup}>
+
+
+        {/* <button
+      className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
+      onClick={handleRecognizeClick}
+    >
+      Recognize
+    </button> */}
+
           {trackDetails?.audioFile && (
+
             <i
               className="bi bi-link-45deg"
               onClick={() =>
@@ -187,7 +225,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
                 download={trackDetails.audioFile as string}
                 style={{ display: "none" }}
-                target="_blank" 
               >
                 Download
               </a>

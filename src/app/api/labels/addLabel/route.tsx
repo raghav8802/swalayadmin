@@ -12,6 +12,7 @@ interface RazorpayResponse {
   contact: Number;
 }
 
+
 export async function POST(request: NextRequest) {
   await connect();
 
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     const {
       username,
       email,
-      password,
+      password = "swalay@123",
       contact,
       lable,
       usertype,
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
           name: username,
           email: email,
           contact: contact,
-          type: usertype || "vendor",
+          type:  "vendor",
           reference_id: reference_id || "",
           notes: notes || {},
         }),
@@ -107,6 +108,8 @@ export async function POST(request: NextRequest) {
     const razorpayContactId = razorpayData.id;
 
     console.log("Razorpay CONTACT_ID:", razorpayContactId);
+
+    
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
