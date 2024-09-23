@@ -1,0 +1,15 @@
+.profileBtn{
+    background-color: #4f46e5;
+    padding: 7px 15px;
+    border-radius: 4px;
+    color: #fff;
+    outline: none;
+    border: none;
+}
+
+
+.heading{
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0f172a;
+}
