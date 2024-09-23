@@ -145,13 +145,12 @@ const TrackList: React.FC<TrackListProps> = ({ albumId, onTrackClick }) => {
                       {formatDuration(track.duration)} {/* Display formatted duration */}
                     </span>
                   </div>
-
-                  {/* <div className="flex justify-end">
-                    <i className="bi bi-play-fill"></i>
-                  </div> */}
+                 
+                 
                 </div>
               </div>
             </li>
+            
           );
         })
       ) : (
