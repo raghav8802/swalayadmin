@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { onShare } from "@/helpers/urlShare";
 import { MouseEvent } from 'react';
-import uploadFile from "@/app/api/recognition/route";
+
 
 interface TrackListProps {
   trackId: string;
@@ -86,9 +86,10 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
-  // useEffect(() => {
-  //   fetchTrackDetails();
-  // }, []);
+
+  
+
+  
 
   useEffect(() => {
     console.log("trackId changed:", trackId);
@@ -158,26 +159,47 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   };
 
-  // const handleRecognizeClick = async () => {
-  //   try {
-  //     const response = await apiGet(
-  //       `/api/track/getTrackDetails?trackId=${trackId}`
-  //     );
-  //     setTrackDetails(response.data);
+  
+
+  const onRecognize = async (audioFileUrl: string) => {
+    toast.loading("Uploading to ACRCloud...");
+  
+    try {
+      // Call the recognition API and pass the audio file URL and trackId
+      const response = await apiPost('/api/recognition', {
+        trackId, 
+        fileUrl: audioFileUrl
+      });
+  
+      console.log("Response from recognition API:", response);
+  
+      // Handle the response and show appropriate toast messages
+      if (response.success) {
+        toast.dismiss(); // Dismiss the loading toast
+  
+        // Display success toast with message and relevant details
+        // toast.success(`Success: ${response.message}. File ID: ${response.fileId}`);
+        
+        // Optionally, if you want to display the file details
+        const fileDetails = response.fileDetails;
+        if (fileDetails) {
+          toast.success(`File Name: ${fileDetails.name}, File Size: ${fileDetails.size} KB`);
+        }
+  
+      } else {
+        toast.dismiss(); // Dismiss the loading toast
+  
+        // Display error toast if recognition fails
+        toast.error(`Error: ${response.message}`);
+      }
       
-  //     const audioUrl = `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${response.data.albumId}ba3/tracks/${response.data.audioFile}`;
-  //     const fileUrl = audioUrl;
-  //     console.log("Recognize button clicked. File URL:", fileUrl); // Log file URL
-  //     const result = await uploadFile(fileUrl);
-  //     if (result) {
-  //       console.log("File recognition successful. File ID:", result);
-  //     } else {
-  //       console.log("File recognition failed.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error in handleRecognizeClick:", error); // Log any errors that might occur
-  //   }
-  // };
+    } catch (error) {
+      // Handle internal server error
+      toast.dismiss(); // Dismiss the loading toast
+      toast.error("Internal server error");
+    }
+  };
+  
 
   
 
@@ -191,12 +213,10 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <div className={Style.trackDetailsIconGroup}>
 
 
-        {/* <button
-      className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
-      onClick={handleRecognizeClick}
-    >
-      Recognize
-    </button> */}
+        <button className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
+            onClick={() => onRecognize(`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string)}
+            >Recognization</button>
+
 
           {trackDetails?.audioFile && (
 
@@ -209,6 +229,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
               }
             ></i>
           )}
+
+          
 
           <Link href={`/albums/edittrack/${btoa(trackId)}`}>
             <i className="bi bi-pencil-square" title="Edit track"></i>
@@ -226,7 +248,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 download={trackDetails.audioFile as string}
                 style={{ display: "none" }}
               >
-                Download
+                Download  
               </a>
 
               {/* Hidden audio tag (if you still need to keep it) */}
