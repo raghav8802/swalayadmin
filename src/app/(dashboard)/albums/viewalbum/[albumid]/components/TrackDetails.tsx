@@ -126,7 +126,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     console.log(trackId);
 
     try {
-      const response = await apiPost("/api/track/deleteTrack", { trackId });
+      const response:any = await apiPost("/api/track/deleteTrack", { trackId });
 
       if (response.success) {
         toast.success("Success! Your album is deleted");
@@ -161,6 +161,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   
 
+
+  
   const onRecognize = async (audioFileUrl: string) => {
     toast.loading("Uploading to ACRCloud...");
   
@@ -173,34 +175,47 @@ const TrackDetails: React.FC<TrackListProps> = ({
   
       console.log("Response from recognition API:", response);
   
-      // Handle the response and show appropriate toast messages
-      if (response.success) {
-        toast.dismiss(); // Dismiss the loading toast
+      // Dismiss the loading toast once the response is received
+      toast.dismiss();
   
-        // Display success toast with message and relevant details
-        // toast.success(`Success: ${response.message}. File ID: ${response.fileId}`);
-        
-        // Optionally, if you want to display the file details
+      // Check if the API returned a success
+      if (response && response.success) {
+        // Check for the file details
         const fileDetails = response.fileDetails;
-        if (fileDetails) {
-          toast.success(`File Name: ${fileDetails.name}, File Size: ${fileDetails.size} KB`);
+  
+        if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
+          const fileData = fileDetails.data[0];
+  
+          // Check if the engine_status and cover_songs fields exist
+          if (fileData.engine_status && fileData.engine_status.cover_songs !== undefined) {
+            // Check if the song is copyright free based on `cover_songs`
+            if (fileData.engine_status.cover_songs === 0) {
+              toast.success("Your song is copyright free!");
+            } else {
+              toast.success(`Cover song detected. Detail: ${fileData.detail || 'No additional details.'}`);
+            }
+          } else {
+            toast.error("Cover song status not found.");
+          }
+  
+          // Optionally, display the file name and duration in the toast
+          toast.success(`File Name: ${fileData.name}, Duration: ${fileData.duration} seconds`);
+        } else {
+          toast.error("File details not found.");
         }
   
       } else {
-        toast.dismiss(); // Dismiss the loading toast
-  
         // Display error toast if recognition fails
-        toast.error(`Error: ${response.message}`);
+        toast.error(`Error: ${response.message || 'Recognition failed'}`);
       }
-      
+  
     } catch (error) {
-      // Handle internal server error
-      toast.dismiss(); // Dismiss the loading toast
+      // Dismiss loading toast and show error toast
+      toast.dismiss();
       toast.error("Internal server error");
+      console.error("Error:", error);
     }
   };
-  
-
   
 
 
