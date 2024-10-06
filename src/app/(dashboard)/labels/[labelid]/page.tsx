@@ -229,7 +229,7 @@ const page = ({ params }: { params: { labelid: string } }) => {
             </div>
             <div className={`mb-3 col-span-4 `}>
               <Link
-              href={`/agreement/${btoa(labelId)}`}
+              href={`/labels/agreement/${btoa(labelId)}`}
               target="_blank"
               className="px-3 py-3 rounded text-white bg-blue-400">Download Agreement
               </Link>

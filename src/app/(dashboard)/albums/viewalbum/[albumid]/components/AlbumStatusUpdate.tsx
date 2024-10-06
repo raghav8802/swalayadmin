@@ -6,11 +6,13 @@ import toast from "react-hot-toast";
 
 interface AlbumStatusProps {
   albumid: string;
+  albumName: string;
   onUpdate: () => void;
 }
 
 const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
   albumid,
+  albumName,
   onUpdate,
 }) => {
   const [status, setStatus] = useState<string>("");
@@ -30,6 +32,7 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
       
       const payload = {
         id: albumid,
+        albumName,
         status:  parseInt(status),
         comment: message,
       };

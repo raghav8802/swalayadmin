@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Marketing from "@/models/Marketing";
+import Notification from "@/models/notification";
 
 export async function POST(request: NextRequest) {
-  console.log("herer");
-
   await connect();
-  console.log("herer s");
 
   try {
     const reqBody = await request.json();
-
-    console.log(reqBody);
 
     const { marketingId, message } = reqBody;
     const result = await Marketing.findByIdAndUpdate(
@@ -20,7 +16,12 @@ export async function POST(request: NextRequest) {
       { new: true }
     );
 
-    console.log(result);
+    const newNotification = new Notification({
+      labels: reqBody.labelId, //id
+      category: "Updates",
+      message: `Extra file requested for marketing: ${reqBody.albumName}`,
+    });
+    await newNotification.save();
 
     if (result) {
       return NextResponse.json({
@@ -35,8 +36,6 @@ export async function POST(request: NextRequest) {
         status: 400,
       });
     }
-
-    
   } catch (error: any) {
     console.log("error :: ");
     console.log(error);

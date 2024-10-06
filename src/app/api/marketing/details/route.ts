@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
     await connect();
 
     const albumId = req.nextUrl.searchParams.get("albumId");
+    
 
     // Validate albumId
     if (!albumId || typeof albumId !== "string") {
@@ -52,10 +53,7 @@ export async function GET(req: NextRequest) {
 
     const labelData = await Label.findById(album.labelId).select('_id username usertype lable');
 
-    console.log("labelData");
-    console.log(labelData);
     
-
     let labelName = '';
     
     if (labelData?.usertype === 'normal') {
@@ -66,20 +64,19 @@ export async function GET(req: NextRequest) {
 
 let labelType = labelData?.usertype || ''; // Fallback to empty string if usertype is null
     
-    // console.log("labelName", labelName);
-    console.log(album);
 
 
 
     // Fetch all tracks related to the albumId
     const tracks = await Track.find({ albumId });
-    if (!tracks || tracks.length === 0) {
-      return NextResponse.json({
-        message: "No tracks found for this album",
-        success: false,
-        status: 404,
-      });
-    }
+
+    // if (!tracks || tracks.length === 0) {
+    //   return NextResponse.json({
+    //     message: "No tracks found for this album",
+    //     success: false,
+    //     status: 404,
+    //   });
+    // }
 
     // Function to fetch artist details by their IDs
     const fetchArtistDetails = async (artistIds: string[]) => {
@@ -118,6 +115,7 @@ let labelType = labelData?.usertype || ''; // Fallback to empty string if userty
       lyricist: track.lyricists?.map((id:any) => artistMap[id]) || [],
       composer: track.composers?.map((id:any) => artistMap[id]) || [],
       isrc: track.isrc, // Assuming 'isrc' exists in your Track model
+      audioFile: track.audioFile, // Assuming 'isrc' exists in your Track model
     }));
 
     // Construct a response with marketing and album details along with formatted tracks

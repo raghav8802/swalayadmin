@@ -2,16 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import mongoose from "mongoose";
 import Album, { AlbumStatus } from "@/models/albums";
 import { connect } from "@/dbConfig/dbConfig";
+import Notification from '@/models/notification';
+
 
 
 export async function POST(req: NextRequest) {
 
+
   await connect();
 
   try {
-    const { id, status, comment } = await req.json();
+    const { id, albumName, status, comment } = await req.json();
 
-    console.log("status : ", status);
     
     if (!id || status === undefined || (status === AlbumStatus.Rejected && !comment)) {
       return NextResponse.json({
@@ -40,6 +42,28 @@ export async function POST(req: NextRequest) {
       { status, comment },
       { new: true } 
     );
+
+let message = ''
+    switch (status) {
+      case 2: //Approved
+        message = `Album <b>${albumName}</b> is approved`
+        break;
+        case 3: // Rejected
+        message = `Album <b>${albumName}</b> is Rejected due to ${comment}`
+        break;
+        case 4: // Live
+        message = `Album <b>${albumName}</b> is Live Now`
+        break;
+    }
+
+    // send notification 
+    const newNotification = new Notification({
+      labels: [id.toString()], //id
+      category: "Updates",
+      message
+    });
+    await newNotification.save();
+
 
     return NextResponse.json({
       message: "Album status updated successfully",

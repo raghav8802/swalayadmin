@@ -9,8 +9,7 @@ export async function POST(req: NextRequest) {
     await connect();
 
     const body = await req.json();
-    console.log("body -------------------");
-    console.log(body);
+
 
     const { labels, category, message } = body;
 

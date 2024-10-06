@@ -210,8 +210,8 @@ const Navbar = () => {
                       <Link href="/albums/all" className="nav__dropdown-item">
                         Albums
                       </Link>
-                      <Link href="/albums/draft" className="nav__dropdown-item">
-                        Draft Albums
+                      <Link href="/albums/approved" className="nav__dropdown-item">
+                        Approved
                       </Link>
                       <Link href="/albums/live" className="nav__dropdown-item">
                         Live albums
@@ -220,7 +220,7 @@ const Navbar = () => {
                         href="/albums/rejected"
                         className="nav__dropdown-item"
                       >
-                        Rejeted albums
+                        Rejected albums
                       </Link>
                     </div>
                   </div>

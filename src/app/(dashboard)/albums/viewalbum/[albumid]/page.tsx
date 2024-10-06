@@ -44,6 +44,7 @@ enum AlbumProcessingStatus {
 }
 
 const albums = ({ params }: { params: { albumid: string } }) => {
+  
   const albumIdParams = params.albumid;
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +95,7 @@ const albums = ({ params }: { params: { albumid: string } }) => {
   const handleContinue = async () => {
     const payload = {
       id: albumId,
+      albumName: albumDetails?.title,
       status: AlbumProcessingStatus.Processing,
       comment: "",
     };
@@ -273,6 +275,7 @@ const albums = ({ params }: { params: { albumid: string } }) => {
           {albumId && (
             <AlbumStatusUpdate
               albumid={albumId}
+              albumName={albumDetails?.title as string}
               onUpdate={() => fetchAlbumDetails(albumId)}
             />
           )}
