@@ -1,11 +1,9 @@
-"use client";
+'use client'
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import toast from "react-hot-toast";
-import { apiGet } from "@/helpers/axiosRequest";
-import Image from "next/image";
 
 interface User {
   _id: string;
@@ -15,7 +13,6 @@ interface User {
   email: string;
   contact: number;
   joinedAt: Date;
-  signature: string;
 }
 
 function Agreement({ params }: { params: { labelid: string } }) {
@@ -25,49 +22,55 @@ function Agreement({ params }: { params: { labelid: string } }) {
   const [signatureURL, setSignatureURL] = useState<string | null>(null);
   const [uploadDate, setUploadDate] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const labelIdParams = params.labelid;
-
-  useEffect(() => {
-    const labelIdParams = params.labelid;
-
-    try {
-      const decodedLabelId = atob(labelIdParams);
-      setLabelId(decodedLabelId);
-    } catch (e) {
-      setError("Invalid Url");
-      console.error("Decoding error:", e);
-    }
-  }, [labelIdParams]);
-
-  useEffect(() => {
-    if (labelId) {
-      fetchUserDetails();
-    }
-  }, [labelId]);
 
   // Fetch user details (dummy data fetching function)
-  const fetchUserDetails = async () => {
-    if (!labelId) return; // Avoid making API calls if albumId is null
-    setIsLoading(true);
-    try {
-      const response = await apiGet(`/api/labels/details?labelId=${labelId}`);
-      if (response.success) {
-        setUser(response.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      toast.error("Internal server down");
-      console.log(error);
+  // const fetchUserDetails = async () => {
+  //   try {
+  //     // Dummy fetch simulation
+  //     const response = {
+  //       success: true,
+  //       data: {
+  //         username: "User A",
+  //         usertype: "super",
+  //         lable: "Label A",
+  //         joinedAt: new Date(),
+  //       },
+  //     };
+  //     if (response.success) {
+  //       // const userInfo: User = response.data;
+  //       // const userInfo = response.data;
+  //       setUser(response.data);
+  //     } else {
+  //       setUser(null);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error("Error in loading current user");
+  //     setUser(null);
+  //   }
+  // };
+
+  // React.useEffect(() => {
+  //   fetchUserDetails();
+  // }, []);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setSignatureURL(result);
+        setUploadDate(new Date().toISOString());
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  React.useEffect(() => {
-    fetchUserDetails();
-  }, []);
-
+  const clearSignature = () => {
+    setSignatureURL(null);
+    setUploadDate(null);
+  };
 
   // Convert the marked content to PDF
   const handleDownload = async () => {
@@ -103,33 +106,27 @@ function Agreement({ params }: { params: { labelid: string } }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-700 p-8">
-      <div className="bg-white text-gray-900 rounded-lg shadow-2xl p-12 w-full max-w-5xl" 
-      id="content-to-pdf"
-      >
-        <div ref={contentRef} className="p-12" >
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-700 p-8">
+      <div className="bg-white text-gray-900 rounded-lg shadow-2xl p-12 w-full max-w-5xl">
+        <div ref={contentRef} id="content-to-pdf">
           <h1 className="text-4xl font-bold text-center mb-8">
             TO WHOMSOEVER IT MAY CONCERN
           </h1>
 
+          {/* Displaying user data */}
           <p className="mb-6 text-lg leading-relaxed">
             This is to inform that we{" "}
             <strong>
-              “{" "}
               {user?.usertype === "normal"
                 ? user?.username
                 : user?.usertype === "super"
                 ? user?.lable || user?.username
-                : null}{" "}
-              ”
+                : null}
             </strong>{" "}
             have licensed our content Exclusively to{" "}
-            <strong>“ SwaLay Digital ” </strong> for monetization of content
-            across any and all platforms and services including but not limited
-            to CRBT, IVR Full Tracks (Operator Based) and OTT platforms
-            (international, domestic), streaming services, video
-            streaming/download etc across various services and all telecom
-            operators for the territory of world, on terms as detailed below –
+            <strong>“SwaLay Digital”</strong> for monetization across platforms
+            and services, including but not limited to CRBT, IVR, Full Tracks,
+            etc.
           </p>
           <p className="mb-4 text-lg">
             <strong>License Type</strong> – Exclusive
@@ -142,46 +139,32 @@ function Agreement({ params }: { params: { labelid: string } }) {
             <strong>Territory</strong> – Worldwide
           </p>
           <p className="mb-4 text-lg">
-            <strong>Date of Signing </strong> – 03/10/2024
+            <strong>Term</strong> – Valid from the Date of Signing and
+            auto-renewed annually unless terminated by both parties.
           </p>
           <p className="mb-4 text-lg">
-            <strong>Term</strong> – This B2B is valid from Date of Signing of
-            this Document and valid till two year and will be auto renewed if
-            not requested and agreed for termination on or before sixty days of
-            expiry of this document in written by both the parties.
+            <strong>Start Date</strong> –{" "}
+            {user?.joinedAt
+              ? new Date(user.joinedAt).toLocaleDateString()
+              : "N/A"}
           </p>
 
-          <p className="mt-8 text-lg">
-            <strong>Regards,</strong>
+          <p className="mt-8 text-lg">Regards,</p>
+          <p className="mb-8 text-lg">
+            For <strong>{user?.lable || user?.username}</strong>
           </p>
-          <p className="mb-8 text-lg">{user?.lable || user?.username}</p>
-          <p className="mt-4 text-lg">
-            <strong>Sign</strong>
-          </p>
-          {user?.signature && (
-            <Image
-              width={200}
-              height={200}
-              src={`https://swalay-music-files.s3.ap-south-1.amazonaws.com/labels/signature/${user?.signature}`}
-              alt="signature"
-            />
-          )}
+
         </div>
 
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleDownload}
+            className="px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-700 transition"
+          >
+            Download as PDF
+          </button>
+        </div>
       </div>
-
-
-      <div className="flex justify-center mt-8">
-          {user?.signature && (
-            <button
-              onClick={handleDownload}
-              className="px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-700 transition"
-            >
-              Download as PDF
-            </button>
-          )}
-        </div>
-
     </div>
   );
 }
