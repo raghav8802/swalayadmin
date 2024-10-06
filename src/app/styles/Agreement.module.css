@@ -1,0 +1,23 @@
+.hiddenContent {
+    display: none; /* Hide the block from the UI */
+    padding: 3px;
+  }
+  
+  @media print {
+    .hiddenContent {
+      display: block;
+    }
+  }
+  
+  /* Add any custom styles for the PDF content */
+  .hiddenContent h1 {
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .hiddenContent p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+  }
+  

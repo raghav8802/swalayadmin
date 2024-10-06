@@ -1,0 +1,157 @@
+.heading {
+    color: #fff;
+    font-size: 22px;
+}
+
+.para {
+    color: #fff;
+    font-size: 15px;
+}
+
+
+
+
+.toolContainer {
+    /* border: 2px solid red; */
+    display: flex;
+    justify-content: space-between;
+}
+
+.toolBox {
+    /* width: 80%; */
+    background-color: #fff;
+    border-radius: 5px;
+    
+}
+.toolList{
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.toolRed {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #22c55e;
+    border-radius: 5px;
+    height: 120px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 17px;
+
+}
+.toolBlue {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(114, 161, 255);
+    border-radius: 5px;
+    height: 120px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 17px;
+    
+}
+.toolPurple {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color:#773FA4;
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 17px;
+}
+.toolYellow {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: red;
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 17px;
+}
+.toolPink {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color:#ada2ff;
+    border-radius: 5px;
+    height: 150px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 17px;
+}
+
+.toolIcon{
+    font-size: 23px;
+}
+
+
+
+.notesBook {
+    border-radius: 5px;
+    width: 100%;
+    /* border: 2px solid rgb(169, 18, 219); */
+    background-color: #fff;
+}
+
+.headingLabel {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.noteItem {
+    border: 2px solid #f1f1f1;
+}
+
+.noteType {
+    background-color: #773FA4;
+    color: #fff;
+    font-size: 15px;
+    padding: 5px 7px;
+    border-radius: 5px;
+}
+
+.noteItemTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.noteController {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+}
+
+.noteController .editBtn {
+    color: #607aee;
+}
+
+.noteController .deleteBtn {
+    color: #dd0606;
+}
+

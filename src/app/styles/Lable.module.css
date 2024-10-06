@@ -1,0 +1,210 @@
+.labelBannerContainer {
+    /* border: 2px solid red; */
+    position: relative;
+    width: 100%;
+    height: 300px;
+    /* Or any other desired height */
+
+}
+
+
+.labelBannerImg {
+    object-fit: cover;
+}
+
+.labelInfoContainer{
+    /* border: 2px solid black; */
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 99;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 11px;
+    background-color: #5858588b;
+}
+.labelDataContainer{
+    /* border: 2px solid red; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.superLabelHeadning{
+    font-size: 3rem;
+    font-weight: 800;
+    /* color: #030712; */
+    color: #fff;
+    text-transform: capitalize;
+}
+.labelOwnerHeadning{
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #fff;
+}
+
+
+.subheading{
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.sliderContainer{
+    /* border: 2px solid black; */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.trackList{
+    padding: 2px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.trackItem{
+    /* border: 2px solid rebeccapurple; */
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 5px;
+    border-radius: 10px;
+    transition: 0.2s all ease-out;
+}
+
+.trackItem:hover{
+    background: linear-gradient(to right, #F47A9A, #CC71E7, #7FAFF9);
+    color: #fff;
+}
+.trackItem:hover .trackItemNumber{
+    color: #fff;
+}
+
+.trackItem:hover .trackItemIconBox{
+    background-color: #fff;
+}
+.trackItem:hover .trackItemTrackName{
+    color: #fff;
+}
+
+.trackItem:hover .trackItemIconBox i{
+    color: #CC71E7;
+}
+
+.trackItemNumber{
+    font-weight: 800;
+    font-size: 17;
+    color: #a0a0a0;
+    transition: 0.2s all ease-out;
+}
+
+.trackItemIconBox{
+    width: 50px;
+    height: 45px;
+    border-radius: 60%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #7d7d7d;
+    transition: 0.2s all ease-out;
+}
+.trackItemIconBox i{
+    font-size: 23px;
+    color: #fff;
+    transition: 0.2s all ease-out;
+}
+.trackItemTrackName{
+    font-size: 17px;
+    font-weight: 600;
+    color: #1c1c1cef;
+    transition: 0.2s all ease-out;
+}
+
+.trackItemTrackSingerName{
+    font-size: 15px;
+}
+
+
+.trackItemInfo{
+    /* border: 4px solid green; */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.controllers{
+    /* border: 2px solid red; */
+    display: flex;
+    align-items: center;
+    width: 30%;
+    justify-content: space-around;
+}
+
+.controllers span{
+    font-size: 15px;
+}
+
+.controllers i{
+    font-size: 30px;
+}
+
+.currentTrackDetails{
+    /* border: 2px solid red; */
+    height: 70vh;
+    background-color: #fff;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.trackInfoTrackName{
+    font-size: 16px;
+    color: #030712;;
+    font-weight: 600;
+
+}
+
+.trackNameIcon{
+    font-size: 25px;
+    color: #3270ff;
+}
+
+
+.albumContainer{
+    /* width: 65%; */
+    /* border: 2px solid rgb(15, 82, 217); */
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #b0afafc4;
+}
+
+.stopwatchIcon{
+    font-size: 16px!important;
+}
+
+.editBtn{
+    color: #3270ff;
+    font-size: 17px;
+}
+
+.viewBtn{
+    background-color: #3270ff;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 5px;
+}
+
+
+
+.upp{
+    z-index: 9999;
+}
+
+
