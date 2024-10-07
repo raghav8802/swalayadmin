@@ -58,14 +58,14 @@ const lables = () => {
       </Breadcrumb>
 
       <div className="flex justify-between items-center mt-3">
-        <h3 className={Style.heading}>All Labeles</h3>
+        <h3 className={Style.heading}>All Labels</h3>
         <Button>
           <Link href={'/labels/register'}>
           New Label
           </Link>
           </Button>
 
-          <Agreement/>
+          {/* <Agreement/> */}
       </div>
 
       <div className="mt-3 bg-white p-3">
