@@ -3,11 +3,14 @@ import mongoose from 'mongoose';
 import { connect } from '@/dbConfig/dbConfig';
 import Album from '@/models/albums';
 import Artist from '@/models/Artists';
+import Label from '@/models/Label';
 import Track from '@/models/track';
 import ApiResponse from '@/lib/apiResponse';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
+
 import axios from 'axios';
+
 
 
 // Function to generate MD5 checksum
@@ -64,7 +67,7 @@ const fetchFileFromS3 = async (s3Url: string): Promise<Buffer> => {
 
 const verifyAlbumMeta = async (token: string, albumId: string) => {
   try {
-    const verifyMetaResponse = await axios.get('http://pdl.gaonaweb.com/v2.0/album/verify/meta', {
+    const verifyMetaResponse = await axios.get('https://apicms.infinitesoul.in/v2.0/album/verify/meta', {
       params: {
         album_id: "",
         label_id: '61b990392d56b657a5c186d7',  // Replace with the actual label_id
@@ -72,7 +75,7 @@ const verifyAlbumMeta = async (token: string, albumId: string) => {
       },
        
       headers: {
-        Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiRHVwbGljYXRlVXBsb2FkZXIiLCJMYWJlbCIsIkFkdmFuY2VNZXRhZGF0YSJdLCJleHRyYSI6e30sImV4cCI6MTc1NjQ1NTM1OCwiaWF0IjoxNzI1MzUxMzU4LCJpc3MiOiJUU00iLCJzdWIiOiI2MWI5OTIxZDJkNTZiNjU3YTVjMTg5ZmMifQ.OeCKVxGHLjAudvs_kRdNxNXRItYKCtPjWzUXh_MjOpcG8j5uSiR96zM6orAu21KFCbF5W890ELoS501-yllj8vVjLqQPEVNUrEaZBNGjhICjMgaUATn9RJz37C9gz51LkWXsilYPwa3l-uOkGbtt43AVN3oYqgc7BvHscwG637FL30CslB2_OX__Tx8nnuQpruGT1m4xSEZbYrKGCnMm0O-a8DaC5N8DJrI9GBFtM6RWdd-qydc2Mox4bZnGL8m1-OMFU5sHcOBebUAUQ_H6aIowB7qAj14Rdt8MvrXDNcRtCK_O1tXHAluM55-MkMxk9pF_ZJIuMuXJa0qZJZwDVw`,  // Replace with your Bearer token
+        Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiTGFiZWwiLCJBZHZhbmNlTWV0YWRhdGEiXSwiZXh0cmEiOnt9LCJleHAiOjE3NTk1NjUwOTcsImlhdCI6MTcyODQ2MTA5NywiaXNzIjoiVFNNIiwic3ViIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIn0.AEXW0dWbb90qLRjFYvw3phhpj-eqbcfErCs8gDgEC8_oM9Ogig1tbxbMUdDGwSjHdWdw8dpM_PUW1ZBW-FpRhZoSRtm-9TrfIqvXBEHq8GKXdTNwe3OXjGg8qmeqH_bm-lPMWVr7WWvkS6kqaftptPziXKJWhK0ZIH1dVOqjwFw6itlqVZw1LUKKge4Idsb9wKsafBQixXaz9bH92LTIlnOuTbf5HhfiFiKuG33KnYAKLwd1o6lYTv0ZNYgGdXVGHyTxkaarCV2Kw7URfq0dUV2Nln-lk8iI-JBqrzECCk7NL8y5Vy9Ez9yBxTP_FjEA_5pje0cbqX1dE6lETBjLZQ`,  // Replace with your Bearer token
       },
 
     });
@@ -99,10 +102,19 @@ export async function POST(req: Request) {
 
     const albumObjectId = new mongoose.Types.ObjectId(albumId);
 
-    const album = await Album.findById(albumObjectId).select('_id title artist thumbnail language genre releasedate status totalTracks cline pline tags comment');
+    const album = await Album.findById(albumObjectId).select('_id labelId title artist thumbnail language genre releasedate status totalTracks cline pline tags comment');
 
     if (!album) {
       return ApiResponse(404, null, false, 'Album not found').nextResponse;
+      
+    }
+
+    console.log(album.labelId);
+   
+
+    let labelDetails = null;
+    if (album.labelId && mongoose.Types.ObjectId.isValid(album.labelId)) {
+      labelDetails = await Label.findById(album.labelId).select('_id lable');
     }
 
     
@@ -159,7 +171,7 @@ export async function POST(req: Request) {
             sub_genre : track.category || "",
             mood: "",
             isrc: track.isrc || "",
-            label :  "xyz" ,
+            label : labelDetails?.lable || "",
             publisher : "TalantonCore India Publishing ",
             track_duration : "" , 
             time_for_crbt_cut: track.crbt || "",
@@ -227,18 +239,14 @@ export async function POST(req: Request) {
     const { checksum: thumbnailChecksum, size: thumbnailSize } = await fetchImageAndGenerateChecksum(thumbnailUrl);
 
     const formattedResponse = {
-      one: "add",
-      two: "meta",
+      
       version: "2",
-      submitted_by_form: false,
       albums: [
         {
-          uploaded_via: "AdvanceMetaData",
+          
           is_update: false,
           name: "Gangster-Raju-1724771189421-32",
-          label: "Swalay Digital",
-          sub_label:"xyz",
-          label_id: "",
+          label:  labelDetails?.lable || "",
           c_line: album.cline || "",
           upc_id: "",
           songs: tracksWithDetails || [],
@@ -262,11 +270,11 @@ export async function POST(req: Request) {
     console.log("Data sent to the external API:", JSON.stringify(formattedResponse, null, 2));
 
     // Send the formatted data to the external API and get signed URLs
-    const externalApiResponse = await fetch('http://pdl.gaonaweb.com/v2.0/album/add/meta', {
+    const externalApiResponse = await fetch('https://apicms.infinitesoul.in/v2.0/album/add/meta', {
       method: 'POST',
       headers: {
         'Accept': 'application/json, text/plain, */*',
-        'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiRHVwbGljYXRlVXBsb2FkZXIiLCJMYWJlbCIsIkFkdmFuY2VNZXRhZGF0YSJdLCJleHRyYSI6e30sImV4cCI6MTc1NjQ1NTM1OCwiaWF0IjoxNzI1MzUxMzU4LCJpc3MiOiJUU00iLCJzdWIiOiI2MWI5OTIxZDJkNTZiNjU3YTVjMTg5ZmMifQ.OeCKVxGHLjAudvs_kRdNxNXRItYKCtPjWzUXh_MjOpcG8j5uSiR96zM6orAu21KFCbF5W890ELoS501-yllj8vVjLqQPEVNUrEaZBNGjhICjMgaUATn9RJz37C9gz51LkWXsilYPwa3l-uOkGbtt43AVN3oYqgc7BvHscwG637FL30CslB2_OX__Tx8nnuQpruGT1m4xSEZbYrKGCnMm0O-a8DaC5N8DJrI9GBFtM6RWdd-qydc2Mox4bZnGL8m1-OMFU5sHcOBebUAUQ_H6aIowB7qAj14Rdt8MvrXDNcRtCK_O1tXHAluM55-MkMxk9pF_ZJIuMuXJa0qZJZwDVw',
+        'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiTGFiZWwiLCJBZHZhbmNlTWV0YWRhdGEiXSwiZXh0cmEiOnt9LCJleHAiOjE3NTk1NjUwOTcsImlhdCI6MTcyODQ2MTA5NywiaXNzIjoiVFNNIiwic3ViIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIn0.AEXW0dWbb90qLRjFYvw3phhpj-eqbcfErCs8gDgEC8_oM9Ogig1tbxbMUdDGwSjHdWdw8dpM_PUW1ZBW-FpRhZoSRtm-9TrfIqvXBEHq8GKXdTNwe3OXjGg8qmeqH_bm-lPMWVr7WWvkS6kqaftptPziXKJWhK0ZIH1dVOqjwFw6itlqVZw1LUKKge4Idsb9wKsafBQixXaz9bH92LTIlnOuTbf5HhfiFiKuG33KnYAKLwd1o6lYTv0ZNYgGdXVGHyTxkaarCV2Kw7URfq0dUV2Nln-lk8iI-JBqrzECCk7NL8y5Vy9Ez9yBxTP_FjEA_5pje0cbqX1dE6lETBjLZQ',
         'Content-Type': 'application/json;charset=UTF-8',
         'Origin': 'http://localhost:9000',
         'Referer': 'http://localhost:9000/',
