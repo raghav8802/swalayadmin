@@ -138,6 +138,7 @@ export async function POST(req: Request) {
 
     const tracksWithDetails = await Promise.all(
       tracks.map(async (track) => {
+        
         const singersDetails = await Promise.all(
           track.singers.map(fetchArtistDetails)
         );
@@ -154,6 +155,8 @@ export async function POST(req: Request) {
           track.producers.map(fetchArtistDetails)
         );
 
+        console.log(track);
+
         const audioFileUrl = `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${track.albumId}ba3/tracks/${track.audioFile}`;
         console.log(`Track file URL: ${audioFileUrl}`);
         const { checksum: audioFileChecksum, size: audioFileSize } = await fetchImageAndGenerateChecksum(audioFileUrl);
@@ -167,12 +170,12 @@ export async function POST(req: Request) {
             language : album.language || "",
             album_type : "Album",  
             content_type : "Single",
-            genre: album.genre || "",
-            sub_genre : track.category || "",
-            mood: "",
+            genre:  "Indie",
+            sub_genre : "Indie Pop",
+            mood: album.tags[0] || "",
             isrc: track.isrc || "",
             label : labelDetails?.lable || "",
-            publisher : "TalantonCore India Publishing ",
+            publisher : labelDetails?.lable || "",
             track_duration : "" , 
             time_for_crbt_cut: track.crbt || "",
             original_release_date_of_movie : album.releasedate || "",
@@ -214,15 +217,17 @@ export async function POST(req: Request) {
             is_iprs_member: producer.iprs,
             ipi_number: producer.iprsNumber,
           })) || [],
-          track_main_artist: singersDetails.filter(Boolean).map(artist => ({
-            id: artist._id,
-            name : artist.artistName,
-            apple_id: artist.appleMusic,
-            facebook_artist_page_url: artist.facebook,
-            insta_artist_page_url: artist.instagram,
-            spotify_id: artist.spotify,
-            is_iprs_member: artist.iprs,
-            ipi_number: artist.iprsNumber,         
+
+          track_main_artist : singersDetails.filter(Boolean).map(singer => ({
+            id: singer._id,
+            name : singer.artistName,
+            apple_id: singer.appleMusic,
+            facebook_artist_page_url: singer.facebook,
+            insta_artist_page_url: singer.instagram,
+            spotify_id: singer.spotify,
+            is_iprs_member: singer.iprs,
+            ipi_number: singer.iprsNumber,
+
           })) || [],
           media: {
             id : "",
@@ -258,8 +263,7 @@ export async function POST(req: Request) {
           }, 
           album_main_artist: [
                {
-                 id: artistDetails ? artistDetails._id : "",
-                 name: artistDetails ? artistDetails.artistName : ""
+                 
                }
           ]
         }
