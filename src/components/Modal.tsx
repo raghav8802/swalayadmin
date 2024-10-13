@@ -26,11 +26,7 @@ export function Modal({
 }: ModalProps) {
     return (
         <Dialog open={isVisible} onOpenChange={onClose}>
-            {/* <DialogTrigger asChild>
-                <Button variant="outline">{triggerLabel}</Button>
-            </DialogTrigger> */}
-            {/* <DialogContent className={`sm:max-w-[650px]`}> */}
-            {/* lg:max-w-screen-lg */}
+           
             <DialogContent className={"sm:max-w-[700px]  max-h-screen"}>
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>

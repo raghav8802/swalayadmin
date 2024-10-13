@@ -71,10 +71,6 @@ const albums = () => {
       <div className={`mt-3 mb-3 ${Style.newReleseContainer}`}>
         <div className={` mb-3 ${Style.spaceBetween}`}>
           <h3 className={Style.titleHeading}>New releases</h3>
-          {/* <div className={Style.slideController}>
-                        <i className="bi bi-chevron-left mr-3"></i>
-                        <i className="bi bi-chevron-right"></i>
-                    </div> */}
         </div>
         {/* <div className={`mb-3 ${Style.albumContainer}`}> */}
         <div className={`mb-3`}>

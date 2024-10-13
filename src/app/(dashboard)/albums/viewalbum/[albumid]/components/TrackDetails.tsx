@@ -10,12 +10,15 @@ import toast from "react-hot-toast";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { onShare } from "@/helpers/urlShare";
 import { MouseEvent } from 'react';
+import { AlbumDetailsTable } from "@/app/(dashboard)/marketing/details/components/AlbumDetailsTable";
 
 
 interface TrackListProps {
   trackId: string;
   onFetchDetails: (songName: string, url: string) => void;
 }
+
+
 
 interface Props {
   trackId: string;
@@ -52,12 +55,30 @@ interface TrackDetail {
   trackOrderNumber: string | null;
 }
 
+interface AlbumDetail {
+  _id: string;
+  labelId: string;
+  title: string;
+  artist: string;
+  thumbnail: string;
+  language: string;
+  genre: string;
+  releaseDate: string;
+  status: string;
+  totalTracks: number;
+  cline: string;
+  pline: string;
+  tags: string[];
+  comment: string;
+}
+
 
 const TrackDetails: React.FC<TrackListProps> = ({
   trackId,
   onFetchDetails,
 }) => {
   const [trackDetails, setTrackDetails] = useState<TrackDetail | null>(null);
+  const [albumDetails, setAlbumDetails] = useState<AlbumDetail | null>(null); 
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -77,12 +98,32 @@ const TrackDetails: React.FC<TrackListProps> = ({
         const audioUrl = `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${response.data.albumId}ba3/tracks/${response.data.audioFile}`;
 
         onFetchDetails(songName, audioUrl);
+
+        fetchAlbumDetails(response.data.albumId);
+
+
+
       } else {
         setError(response.message);
       }
     } catch (error) {
       console.log("something went wrong");
       setError("Internal server error");
+    }
+  };
+
+  const fetchAlbumDetails = async (albumId: string) => {
+    try {
+      const albumResponse = await apiGet(`/api/albums/getAlbumsDetails?albumId=${albumId}`);
+
+      if (albumResponse.success) {
+        setAlbumDetails(albumResponse.data); // Set album details in state
+      } else {
+        setError(albumResponse.message);
+      }
+    } catch (error) {
+      console.log("Error fetching album details:", error);
+      setError("Failed to fetch album details");
     }
   };
 
@@ -145,7 +186,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     toast.loading("Uploading to cosmos");
     try {
       const response = await apiPost("/api/cosmos/fetchdata", { albumId });
-        console.log("response", response);
+        console.log(response);
       if (response.success) {
         toast.success("Success! Your album is uploaded to cosmos");
         window.location.reload();
@@ -159,9 +200,65 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   };
 
+   
+  const handleUploadAndPublish = async () => {
+
+
+    const trackLink = (`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string);
+    const ytLabel = "SwaLay Digital"; // Replace with the actual label
+    const ytAlbum = albumDetails?.title;
+    const ytArtist = albumDetails?.artist;
+    const ytIsrc = trackDetails?.isrc;
+    const ytstitle = trackDetails?.songName;
+  
+    // Make sure required data is available
+    if (!trackLink || !ytLabel || !ytAlbum || !ytArtist || !ytIsrc || !ytstitle) {
+      alert("Missing required track details.");
+      return;
+    }
+  
+    // Send the data to the API
+    try {
+      const response = await fetch('/api/youtube', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trackLink,
+          ytLabel,
+          ytAlbum,
+          ytArtist,
+          ytIsrc,
+          ytstitle,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        alert('Track uploaded and published successfully.');
+        console.log('Response:', data.result);
+      } else {
+        alert('Error: ' + data.error);
+        console.error('Error:', data.error);
+      }
+    } catch (error) {
+      alert('Failed to upload and publish track.');
+      console.error('Upload error:', error);
+    }
+  };
   
 
 
+
+
+
+
+
+
+
+ 
   
   const onRecognize = async (audioFileUrl: string) => {
     toast.loading("Uploading to ACRCloud...");
@@ -285,7 +382,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
         {/* <p className={`mb-3 ${Style.trackInfoTrackName}`}><span className={Style.trackNameLable}>Track Name: </span> Lost in Mountain</p> */}
         <p className={`mb-3 ${Style.trackInfoTrackName}`}>
           <i className={`bi bi-music-note-list ${Style.trackNameIcon}`}></i>
-          {trackDetails && trackDetails?.songName}
+          {trackDetails && trackDetails?.songName }
         </p>
 
         {trackDetails && (
@@ -308,15 +405,17 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
             <button className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
             onClick={() => uploadToComos(trackDetails?.albumId)}
-            >upload to cosmos</button>
-
-             
+            >cosmos</button>
 
 
-            {/* <i className="mx-5 bi bi-share-fill cursor-pointer text-2xl" onClick={ () => onShare('/shorturl/music')} ></i>
-            <Link href={'/shorturl/music/'}>
-             <i className="bi bi-eye-fill cursor-pointer text-2xl"></i>
-            </Link> */}
+<button
+    className="ms-3 px-3 py-2 bg-green-500 text-white rounded my-3"
+    onClick={handleUploadAndPublish} // The onClick function is now here
+  >
+    Upload & Publish
+  </button>
+
+
 
             
           </div>
@@ -324,12 +423,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
         )}
 
-        {/* <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
-          Mood
-        </span>
-        <span className="ms-3 inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-          Genre
-        </span> */}
+      
 
         <div className="mt-3">
           <Tabs defaultValue="track" className="w-100">

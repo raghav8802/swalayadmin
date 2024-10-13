@@ -12,10 +12,10 @@ export async function POST(req: NextRequest) {
   await connect();
 
   try {
-    const { id, albumName, status, comment } = await req.json();
+    const { id, labelid, albumName, status, comment } = await req.json();
 
     
-    if (!id || status === undefined || (status === AlbumStatus.Rejected && !comment)) {
+    if (!labelid || status === undefined || (status === AlbumStatus.Rejected && !comment)) {
       return NextResponse.json({
         message: "Missing required fields",
         success: false,
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     if (!Object.values(AlbumStatus).includes(status)) {
       return NextResponse.json({
-        message: "Invalid status value ds",
+        message: "Invalid status value ",
         success: false,
       });
     }
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
 
     const album = await Album.findByIdAndUpdate(
-      id,
+      labelid,
       { status, comment },
       { new: true } 
     );
@@ -56,9 +56,10 @@ let message = ''
         break;
     }
 
+    
     // send notification 
     const newNotification = new Notification({
-      labels: [id.toString()], //id
+      labels: [labelid.toString()], //id
       category: "Updates",
       message
     });

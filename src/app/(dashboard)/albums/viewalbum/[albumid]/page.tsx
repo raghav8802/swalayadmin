@@ -95,6 +95,7 @@ const albums = ({ params }: { params: { albumid: string } }) => {
   const handleContinue = async () => {
     const payload = {
       id: albumId,
+      labelid: albumDetails?.labelId,
       albumName: albumDetails?.title,
       status: AlbumProcessingStatus.Processing,
       comment: "",
@@ -275,6 +276,7 @@ const albums = ({ params }: { params: { albumid: string } }) => {
           {albumId && (
             <AlbumStatusUpdate
               albumid={albumId}
+              labelid={albumDetails?.labelId as string}
               albumName={albumDetails?.title as string}
               onUpdate={() => fetchAlbumDetails(albumId)}
             />

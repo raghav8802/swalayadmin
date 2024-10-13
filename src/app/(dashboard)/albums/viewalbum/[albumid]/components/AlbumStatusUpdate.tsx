@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 interface AlbumStatusProps {
   albumid: string;
+  labelid: string;
   albumName: string;
   onUpdate: () => void;
 }
@@ -13,6 +14,7 @@ interface AlbumStatusProps {
 const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
   albumid,
   albumName,
+  labelid,
   onUpdate,
 }) => {
   const [status, setStatus] = useState<string>("");
@@ -28,10 +30,12 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
         toast.error("Reason required for rejection");
         return;
       }
-
+      
+      
       
       const payload = {
         id: albumid,
+        labelid,
         albumName,
         status:  parseInt(status),
         comment: message,
@@ -62,7 +66,7 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
         required
       >
         <option value="">Select Status</option>
-        <option value="2">Approved</option>
+        <option value="2">Approved </option>
         <option value="4">Live</option>
         <option value="3">Reject</option>
       </select>
@@ -74,12 +78,16 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Write reason for rejection"
         />
+        
       )}
+
+    
 
       <button
         className="px-3 py-2 rounded text-white bg-cyan-600"
         onClick={onStatusUpdate}
       >
+        
         Update Status
       </button>
     </div>
