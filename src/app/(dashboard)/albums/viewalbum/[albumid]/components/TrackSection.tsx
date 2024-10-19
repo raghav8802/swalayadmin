@@ -9,9 +9,11 @@ import AudioPlayer from "./AudioPlayer";
 
 interface TrackSectionProps {
   albumId: string;
+  albumStatus: number;
 }
 
-const TrackSection: React.FC<TrackSectionProps> = ({ albumId }) => {
+const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => {
+
   const [showTrackDetails, setShowTrackDetails] = useState(false);
   const [trackId, setTrackId] = useState<string | null>(null);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
@@ -22,13 +24,13 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId }) => {
 
   const handleTrackClick = (trackId: string) => {
     setShowTrackDetails(true);
-    console.log("Track ID clicked in section :", trackId);
+    // console.log("Track ID clicked in section :", trackId);
     setTrackId(trackId);
   };
 
   const getSongNameUrl = (songName: string, audioUrl: string) => {
     setShowAudioPlayer(true);
-    console.log("Track ID clicked in section :", trackId);
+    // console.log("Track ID clicked in section :", trackId);
     setAudio({ songName, songUrl: audioUrl });
   };
 
@@ -57,7 +59,9 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId }) => {
         </div>
 
         {showTrackDetails && trackId && (
-          <TrackDetails trackId={trackId} onFetchDetails={getSongNameUrl} />
+          <TrackDetails trackId={trackId}
+          albumStatus={albumStatus}
+          onFetchDetails={getSongNameUrl} />
         )}
       </div>
 

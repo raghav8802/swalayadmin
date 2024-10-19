@@ -595,10 +595,24 @@ footer {
   height: 270px;
 }
 
+.youtube-bg{
+  background-color: #ff0033;
+}
 
 
 
+#content-to-pdf{
+  /* border: 2px solid red; */
+  position: relative;
+}
 
+.watermarkLogo{
+  position: absolute;
+  top: 30%;
+  left: 20%;
+  transform: rotate(50deg);
+  opacity: 0.05;
+}
 
 
 

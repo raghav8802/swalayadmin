@@ -51,7 +51,6 @@ const albums = ({ params }: { params: { filter: string } }) => {
         setAlbumList(response.data);
       }
     } catch (error) {
-      console.log(error);
       toast.error("Internal server error");
     }
     setIsLoading(false);

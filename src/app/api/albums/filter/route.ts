@@ -10,24 +10,29 @@ export async function GET(req: NextRequest) {
     const status = req.nextUrl.searchParams.get("status");
     const limit = req.nextUrl.searchParams.get("limit");
 
+    
     // Build the query object
     let query: any = {};
-
-    
 
     if (status && status !== "All") {
         // Convert status string to corresponding AlbumStatus enum value
         const statusEnumValue = AlbumStatus[status as keyof typeof AlbumStatus];
         if (statusEnumValue !== undefined) {
             query.status = statusEnumValue;
-        } else {
+        } 
+        else {
             return NextResponse.json({
                 message: `Invalid status value: ${status}`,
                 success: false,
                 status: 400,
             });
         }
+    }else if (status === "All") {
+        // If status is "All", fetch all albums except those with the status "Draft"
+        query.status = { $ne: AlbumStatus.Draft }; // Exclude albums with Draft status
     }
+
+
 
     try {
         // Fetch albums based on query and apply limit if provided
