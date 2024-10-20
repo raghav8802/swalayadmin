@@ -60,7 +60,6 @@ const albums = ({ params }: { params: { albumid: string } }) => {
       setAlbumId(decodedAlbumId);
     } catch (e) {
       setError("Invalid Url");
-      console.error("Decoding error:", e);
     }
   }, [albumIdParams]);
 
@@ -74,7 +73,6 @@ const albums = ({ params }: { params: { albumid: string } }) => {
         setAlbumDetails(response.data);
         setIsLoading(false);
       } else {
-        console.log("go to error");
         setError("Invalid Url");
       }
     } catch (error) {
@@ -287,14 +285,13 @@ const albums = ({ params }: { params: { albumid: string } }) => {
       {/* list of tracks  */}
 
       {albumDetails && albumDetails.totalTracks > 0 ? (
-        albumId && <TrackSection albumId={albumId} />
+        albumId && <TrackSection albumId={albumId} albumStatus={albumDetails.status} />
       ) : (
         <div className="mt-5 pt-4">
           <h1 className="text-center text-2xl mt-5">No track found</h1>
         </div>
       )}
 
-      {/* {albumId && <TrackSection albumId={albumId} />} */}
 
       <ConfirmationDialog
         show={isDialogOpen}

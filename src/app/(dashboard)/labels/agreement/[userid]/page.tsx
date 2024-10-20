@@ -103,15 +103,21 @@ function Agreement({ params }: { params: { userid: string } }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-700 p-8">
-      <div
-        className="bg-white text-gray-900 rounded-lg shadow-2xl p-12 w-full max-w-5xl"
-        id="content-to-pdf"
-      >
-        <div ref={contentRef} className="p-12">
+      <div className="bg-white text-gray-900 rounded-lg shadow-2xl p-12 w-full max-w-5xl">
+
+        <div ref={contentRef} className="p-12" id="content-to-pdf">
+          
           <h1 className="text-4xl font-bold text-center mb-8">
             TO WHOMSOEVER IT MAY CONCERN
           </h1>
 
+          <Image
+            width={500}
+            height={500}
+            className="watermarkLogo"
+            src={`https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/SwaLay+-2.png`}
+            alt="SwaLay"
+          />
           <p className="mb-6 text-lg leading-relaxed">
             This is to inform that we{" "}
             <strong>

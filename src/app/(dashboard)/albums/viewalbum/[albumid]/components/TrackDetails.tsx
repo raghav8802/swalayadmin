@@ -9,16 +9,14 @@ import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { onShare } from "@/helpers/urlShare";
-import { MouseEvent } from 'react';
+import { MouseEvent } from "react";
 import { AlbumDetailsTable } from "@/app/(dashboard)/marketing/details/components/AlbumDetailsTable";
-
 
 interface TrackListProps {
   trackId: string;
+  albumStatus: number;
   onFetchDetails: (songName: string, url: string) => void;
 }
-
-
 
 interface Props {
   trackId: string;
@@ -72,21 +70,27 @@ interface AlbumDetail {
   comment: string;
 }
 
+enum AlbumProcessingStatus {
+  Draft = 0, // on information submit
+  Processing = 1, // on final submit
+  Approved = 2,
+  Rejected = 3,
+  Live = 4,
+}
 
 const TrackDetails: React.FC<TrackListProps> = ({
   trackId,
+  albumStatus,
   onFetchDetails,
 }) => {
   const [trackDetails, setTrackDetails] = useState<TrackDetail | null>(null);
-  const [albumDetails, setAlbumDetails] = useState<AlbumDetail | null>(null); 
+  const [albumDetails, setAlbumDetails] = useState<AlbumDetail | null>(null);
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const fetchTrackDetails = async () => {
-    console.log("in track details");
-
     try {
       const response = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
@@ -100,21 +104,19 @@ const TrackDetails: React.FC<TrackListProps> = ({
         onFetchDetails(songName, audioUrl);
 
         fetchAlbumDetails(response.data.albumId);
-
-
-
       } else {
         setError(response.message);
       }
     } catch (error) {
-      console.log("something went wrong");
       setError("Internal server error");
     }
   };
 
   const fetchAlbumDetails = async (albumId: string) => {
     try {
-      const albumResponse = await apiGet(`/api/albums/getAlbumsDetails?albumId=${albumId}`);
+      const albumResponse = await apiGet(
+        `/api/albums/getAlbumsDetails?albumId=${albumId}`
+      );
 
       if (albumResponse.success) {
         setAlbumDetails(albumResponse.data); // Set album details in state
@@ -127,13 +129,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
-
-  
-
-  
-
   useEffect(() => {
-    console.log("trackId changed:", trackId);
     fetchTrackDetails();
   }, [trackId]);
 
@@ -162,12 +158,10 @@ const TrackDetails: React.FC<TrackListProps> = ({
   };
 
   const handleContinue = async () => {
-    console.log("Action continued");
-
-    console.log(trackId);
-
     try {
-      const response:any = await apiPost("/api/track/deleteTrack", { trackId });
+      const response: any = await apiPost("/api/track/deleteTrack", {
+        trackId,
+      });
 
       if (response.success) {
         toast.success("Success! Your album is deleted");
@@ -181,12 +175,11 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
-  const uploadToComos = async (albumId :any ) => {
-    console.log("Action continued");
+  const uploadToComos = async (albumId: any) => {
     toast.loading("Uploading to cosmos");
     try {
       const response = await apiPost("/api/cosmos/fetchdata", { albumId });
-        console.log(response);
+      // console.log(response);
       if (response.success) {
         toast.success("Success! Your album is uploaded to cosmos");
         window.location.reload();
@@ -197,32 +190,36 @@ const TrackDetails: React.FC<TrackListProps> = ({
       console.log("error in api", error);
       toast.error("Internal server error");
     }
-
   };
 
-   
   const handleUploadAndPublish = async () => {
-
-
-    const trackLink = (`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string);
+    const trackLink =
+      `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
     const ytLabel = "SwaLay Digital"; // Replace with the actual label
     const ytAlbum = albumDetails?.title;
     const ytArtist = albumDetails?.artist;
     const ytIsrc = trackDetails?.isrc;
     const ytstitle = trackDetails?.songName;
-  
+
     // Make sure required data is available
-    if (!trackLink || !ytLabel || !ytAlbum || !ytArtist || !ytIsrc || !ytstitle) {
+    if (
+      !trackLink ||
+      !ytLabel ||
+      !ytAlbum ||
+      !ytArtist ||
+      !ytIsrc ||
+      !ytstitle
+    ) {
       alert("Missing required track details.");
       return;
     }
-  
+
     // Send the data to the API
     try {
-      const response = await fetch('/api/youtube', {
-        method: 'POST',
+      const response = await fetch("/api/youtube", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           trackLink,
@@ -233,79 +230,75 @@ const TrackDetails: React.FC<TrackListProps> = ({
           ytstitle,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (data.success) {
-        alert('Track uploaded and published successfully.');
-        console.log('Response:', data.result);
+        alert("Track uploaded and published successfully.");
+        // console.log('Response:', data.result);
       } else {
-        alert('Error: ' + data.error);
-        console.error('Error:', data.error);
+        alert("Error: " + data.error);
+        // console.error('Error:', data.error);
       }
     } catch (error) {
-      alert('Failed to upload and publish track.');
-      console.error('Upload error:', error);
+      alert("Failed to upload and publish track.");
+      // console.error('Upload error:', error);
     }
   };
-  
 
-
-
-
-
-
-
-
-
- 
-  
   const onRecognize = async (audioFileUrl: string) => {
     toast.loading("Uploading to ACRCloud...");
-  
+
     try {
       // Call the recognition API and pass the audio file URL and trackId
-      const response = await apiPost('/api/recognition', {
-        trackId, 
-        fileUrl: audioFileUrl
+      const response = await apiPost("/api/recognition", {
+        trackId,
+        fileUrl: audioFileUrl,
       });
-  
+
       console.log("Response from recognition API:", response);
-  
+
       // Dismiss the loading toast once the response is received
       toast.dismiss();
-  
+
       // Check if the API returned a success
       if (response && response.success) {
         // Check for the file details
         const fileDetails = response.fileDetails;
-  
+
         if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
           const fileData = fileDetails.data[0];
-  
+
           // Check if the engine_status and cover_songs fields exist
-          if (fileData.engine_status && fileData.engine_status.cover_songs !== undefined) {
+          if (
+            fileData.engine_status &&
+            fileData.engine_status.cover_songs !== undefined
+          ) {
             // Check if the song is copyright free based on `cover_songs`
             if (fileData.engine_status.cover_songs === 0) {
               toast.success("Your song is copyright free!");
             } else {
-              toast.success(`Cover song detected. Detail: ${fileData.detail || 'No additional details.'}`);
+              toast.success(
+                `Cover song detected. Detail: ${
+                  fileData.detail || "No additional details."
+                }`
+              );
             }
           } else {
             toast.error("Cover song status not found.");
           }
-  
+
           // Optionally, display the file name and duration in the toast
-          toast.success(`File Name: ${fileData.name}, Duration: ${fileData.duration} seconds`);
+          toast.success(
+            `File Name: ${fileData.name}, Duration: ${fileData.duration} seconds`
+          );
         } else {
           toast.error("File details not found.");
         }
-  
       } else {
         // Display error toast if recognition fails
-        toast.error(`Error: ${response.message || 'Recognition failed'}`);
+        toast.error(`Error: ${response.message || "Recognition failed"}`);
       }
-  
     } catch (error) {
       // Dismiss loading toast and show error toast
       toast.dismiss();
@@ -313,9 +306,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
       console.error("Error:", error);
     }
   };
-  
-
-
 
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
@@ -323,15 +313,21 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
 
         <div className={Style.trackDetailsIconGroup}>
-
-
-        <button className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
-            onClick={() => onRecognize(`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string)}
-            >Recognization</button>
-
+          {(albumStatus === AlbumProcessingStatus.Approved ||
+            albumStatus === AlbumProcessingStatus.Live) && (
+            <button
+              className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
+              onClick={() =>
+                onRecognize(
+                  `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string
+                )
+              }
+            >
+              Recognization
+            </button>
+          )}
 
           {trackDetails?.audioFile && (
-
             <i
               className="bi bi-link-45deg"
               onClick={() =>
@@ -341,8 +337,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
               }
             ></i>
           )}
-
-          
 
           <Link href={`/albums/edittrack/${btoa(trackId)}`}>
             <i className="bi bi-pencil-square" title="Edit track"></i>
@@ -360,7 +354,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 download={trackDetails.audioFile as string}
                 style={{ display: "none" }}
               >
-                Download  
+                Download
               </a>
 
               {/* Hidden audio tag (if you still need to keep it) */}
@@ -382,7 +376,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
         {/* <p className={`mb-3 ${Style.trackInfoTrackName}`}><span className={Style.trackNameLable}>Track Name: </span> Lost in Mountain</p> */}
         <p className={`mb-3 ${Style.trackInfoTrackName}`}>
           <i className={`bi bi-music-note-list ${Style.trackNameIcon}`}></i>
-          {trackDetails && trackDetails?.songName }
+          {trackDetails && trackDetails?.songName}
         </p>
 
         {trackDetails && (
@@ -402,28 +396,28 @@ const TrackDetails: React.FC<TrackListProps> = ({
               Add Lyrics <i className="bi bi-pen-fill"></i>
             </Link>
 
+            {(albumStatus === AlbumProcessingStatus.Approved ||
+              albumStatus === AlbumProcessingStatus.Live) && (
+              <>
+                <button
+                  className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
+                  onClick={() => uploadToComos(trackDetails?.albumId)}
+                >
+                  COSMOS
+                </button>
 
-            <button className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
-            onClick={() => uploadToComos(trackDetails?.albumId)}
-            >cosmos</button>
+                <button
+                  className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
+                  onClick={handleUploadAndPublish} // The onClick function is now here
+                >
+                  <i className="bi bi-youtube me-2"></i> YouTube
+                </button>
+              </>
 
-
-<button
-    className="ms-3 px-3 py-2 bg-green-500 text-white rounded my-3"
-    onClick={handleUploadAndPublish} // The onClick function is now here
-  >
-    Upload & Publish
-  </button>
-
-
-
+            )}
             
           </div>
-
-
         )}
-
-      
 
         <div className="mt-3">
           <Tabs defaultValue="track" className="w-100">
@@ -458,7 +452,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
                     </span>{" "}
                     {trackDetails && trackDetails.version}
                   </li>
-                 
+
                   <li className={`mb-2 ${Style.albumInfoItem}`}>
                     <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
                       Crbt:

@@ -83,7 +83,7 @@ const TrackList: React.FC<TrackListProps> = ({ albumId, onTrackClick }) => {
     <ul className={`mt-3 ${Style.trackList}`}>
       {tracks.length > 0 ? (
         tracks.map((track, index) => {
-          console.log(track.duration); // Log track duration
+          // console.log(track.duration); // Log track duration
           
           return (
             <li
