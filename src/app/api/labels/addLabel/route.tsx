@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
-// import { sendEmail } from "@/helpers/mailer";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 import fetch from "node-fetch";
+import AccountActivationEmailTemplate from "@/components/email.tsx/account-activation";
+import sendMail from "@/helpers/sendMail";
 
 interface RazorpayResponse {
   id: string;
@@ -11,7 +12,6 @@ interface RazorpayResponse {
   email: string;
   contact: Number;
 }
-
 
 export async function POST(request: NextRequest) {
   await connect();
@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     } = reqBody;
 
     if (!username || !email || !contact) {
-      console.log("Validation Failed: Missing required fields");
       return NextResponse.json({
         message: "Username, email, and contact are required fields",
         success: false,
@@ -51,21 +50,13 @@ export async function POST(request: NextRequest) {
     const extingUserVerifiedByEmail = await Label.findOne({ email });
 
     if (extingUserVerifiedByEmail) {
-
       return NextResponse.json({
         message: "Already exists an account with this email",
         success: false,
         status: 400,
       });
-
     }
 
-    console.log("Creating Razorpay Contact with:", {
-      username,
-      email,
-      contact,
-      usertype,
-    });
 
     const razorpayApiKey = process.env.RAZORPAY_KEY_ID;
     const razorpayApiSecret = process.env.RAZORPAY_KEY_SECRET;
@@ -84,7 +75,7 @@ export async function POST(request: NextRequest) {
           name: username,
           email: email,
           contact: contact,
-          type:  "vendor",
+          type: "vendor",
           reference_id: reference_id || "",
           notes: notes || {},
         }),
@@ -93,7 +84,6 @@ export async function POST(request: NextRequest) {
 
     const razorpayData = (await razorpayResponse.json()) as RazorpayResponse;
 
-    console.log("Razorpay Response:", razorpayData);
 
     if (!razorpayResponse.ok) {
       console.error("Failed to create Razorpay contact:", razorpayData);
@@ -107,9 +97,6 @@ export async function POST(request: NextRequest) {
 
     const razorpayContactId = razorpayData.id;
 
-    console.log("Razorpay CONTACT_ID:", razorpayContactId);
-
-    
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
@@ -124,9 +111,16 @@ export async function POST(request: NextRequest) {
       state,
     });
 
-    const savedUser = await newUser.save();
+    await newUser.save();
 
-    // await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id });
+    
+    const emailTemplate = <AccountActivationEmailTemplate clientName={username} />;
+    const emailStatus = await sendMail({
+      to: email, // Key 'to' must be specified
+      subject: "Welcome to SwaLay Plus - Account Activated", // Key 'subject' must be specified
+      emailTemplate, // This passes the rendered template
+    });
+
 
     return NextResponse.json({
       message: "Razorpay contact created and user registered successfully",

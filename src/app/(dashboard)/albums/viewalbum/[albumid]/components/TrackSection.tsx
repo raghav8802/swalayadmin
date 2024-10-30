@@ -72,8 +72,6 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
           />
         )}
 
-        {/* audioSrc="https://swalay-music-files.s3.ap-south-1.amazonaws.com/albums/07c1a66b5f2c15f93960881fe7ce1ba3/tracks/The-beauty-of-green-legends-1723360369143.mp3" */}
-
       
     </div>
   );
