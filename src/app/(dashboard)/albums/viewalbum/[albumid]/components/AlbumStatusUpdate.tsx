@@ -41,6 +41,8 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
         comment: message,
       };
 
+      console.log("payload 2 ::");
+      console.log(payload);
 
       const response = await apiPost("/api/albums/updateStatus", payload);
 

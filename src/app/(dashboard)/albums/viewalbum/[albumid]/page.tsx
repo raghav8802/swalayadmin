@@ -99,6 +99,11 @@ const albums = ({ params }: { params: { albumid: string } }) => {
       comment: "",
     };
 
+    console.log("payload  1 ::");
+    console.log(payload);
+    
+    
+
     try {
       const response = await apiPost("/api/albums/updateStatus", payload);
 

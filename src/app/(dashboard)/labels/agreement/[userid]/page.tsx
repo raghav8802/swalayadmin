@@ -53,6 +53,9 @@ function Agreement({ params }: { params: { userid: string } }) {
     setIsLoading(true);
     try {
       const response = await apiGet(`/api/labels/details?labelId=${labelId}`);
+      console.log("response ::::");
+      console.log(response);
+      
       if (response.success) {
         setUser(response.data);
       }
@@ -94,7 +97,7 @@ function Agreement({ params }: { params: { userid: string } }) {
         heightLeft -= pageHeight;
       }
 
-      pdf.save("agreement.pdf");
+      pdf.save(`${user?.username}-agreement.pdf`);
     } catch (error) {
       console.error("PDF generation error:", error);
       toast.error("Failed to generate PDF");
@@ -103,9 +106,9 @@ function Agreement({ params }: { params: { userid: string } }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-700 p-8">
-      <div className="bg-white text-gray-900 rounded-lg shadow-2xl p-12 w-full max-w-5xl">
+      <div className="bg-white text-gray-900 rounded-lg shadow-2xl p-12 w-full max-w-5xl" >
 
-        <div ref={contentRef} className="p-12" id="content-to-pdf">
+        <div ref={contentRef} className="p-12" id="content-to-pdf" >
           
           <h1 className="text-4xl font-bold text-center mb-8">
             TO WHOMSOEVER IT MAY CONCERN
@@ -157,14 +160,14 @@ function Agreement({ params }: { params: { userid: string } }) {
             expiry of this document in written by both the parties.
           </p>
 
-          <p className="mt-8 text-lg">
+          <p className="mt-4 text-lg">
             <strong>Regards,</strong>
           </p>
-          <p className="mb-8 text-lg">{user?.lable || user?.username}</p>
-          <p className="mt-4 text-lg">
+          <p className="mb-4 text-lg">{user?.lable || user?.username}</p>
+          <p className="mt-4 text-lg mb-3">
             <strong>Sign</strong>
           </p>
-          <div className="flex justify-between items-center w-full">
+          <div className="flex justify-between items-center w-full" style={{paddingBottom: "15px"}}>
             {user?.signature && (
               <Image
                 width={200}

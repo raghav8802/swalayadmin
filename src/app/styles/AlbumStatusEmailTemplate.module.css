@@ -1,0 +1,193 @@
+.container {
+    min-height: 100vh;
+    background-color: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .emailCard {
+    max-width: 640px;
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .header {
+    background-color: #1F2937;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .logo {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logoIcon {
+    width: 24px;
+    height: 24px;
+    color: #1F2937;
+  }
+  
+  .labelName {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .headerText {
+    color: white;
+    font-size: 14px;
+  }
+  
+  .content {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .statusBox {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .statusIcon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .statusTitle {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .trackName {
+    font-size: 14px;
+    margin-top: 4px;
+    margin: 0;
+  }
+  
+  .messageContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .message {
+    color: #374151;
+    margin: 0;
+  }
+  
+  .actionButton {
+    background-color: #3B82F6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .supportInfo {
+    border-top: 1px solid #E5E7EB;
+    padding-top: 24px;
+  }
+  
+  .supportText {
+    font-size: 14px;
+    color: #4B5563;
+    margin: 0;
+  }
+  
+  .supportLink {
+    color: #2563EB;
+    text-decoration: none;
+  }
+  
+  .footer {
+    background-color: #F9FAFB;
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .socialIcon {
+    color: #9CA3AF;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  .footerText {
+    font-size: 12px;
+    color: #6B7280;
+    margin: 0;
+  }
+  
+  .footerLink {
+    text-decoration: underline;
+    margin-left: 4px;
+    color: #6B7280;
+  }
+  
+  .approved {
+    background-color: #ECFDF5;
+    color: #047857;
+  }
+  
+  .rejected {
+    background-color: #FEF2F2;
+    color: #B91C1C;
+  }
+  
+  .live {
+    background-color: #EFF6FF;
+    color: #1D4ED8;
+  }
+  
+  .default {
+    background-color: #F9FAFB;
+    color: #374151;
+  }

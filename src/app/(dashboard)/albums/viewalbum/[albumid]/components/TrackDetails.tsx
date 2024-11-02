@@ -313,7 +313,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
 
         <div className={Style.trackDetailsIconGroup}>
-          {(0==0) && (
+
             <button
               className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
               onClick={() =>
@@ -324,7 +324,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
             >
               Recognization
             </button>
-          )}
+          
 
           {trackDetails?.audioFile && (
             <i
