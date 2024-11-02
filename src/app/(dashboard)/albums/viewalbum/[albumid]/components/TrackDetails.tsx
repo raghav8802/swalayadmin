@@ -194,7 +194,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   const handleUploadAndPublish = async () => {
     const trackLink =
-      `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
+    `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
     const ytLabel = "SwaLay Digital"; // Replace with the actual label
     const ytAlbum = albumDetails?.title;
     const ytArtist = albumDetails?.artist;
@@ -313,7 +313,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
 
         <div className={Style.trackDetailsIconGroup}>
-          { && (
+          {(0==0) && (
             <button
               className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
               onClick={() =>
