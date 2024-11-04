@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcryptjs from 'bcryptjs'
+import bcryptjs from 'bcryptjs';
 import { sendEmail } from "@/helpers/mailer";
 import { connect } from "@/dbConfig/dbConfig";
 // import User from "@/models/Label";
