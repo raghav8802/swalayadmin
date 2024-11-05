@@ -194,7 +194,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   const handleUploadAndPublish = async () => {
     const trackLink =
-      `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
+    `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
     const ytLabel = "SwaLay Digital"; // Replace with the actual label
     const ytAlbum = albumDetails?.title;
     const ytArtist = albumDetails?.artist;
@@ -250,62 +250,49 @@ const TrackDetails: React.FC<TrackListProps> = ({
     toast.loading("Uploading to ACRCloud...");
 
     try {
-      // Call the recognition API and pass the audio file URL and trackId
-      const response = await apiPost("/api/recognition", {
-        trackId,
-        fileUrl: audioFileUrl,
-      });
+        // Call the recognition API and pass the audio file URL and trackId
+        const response = await apiPost("/api/recognition", {
+            trackId,
+            fileUrl: audioFileUrl,
+        });
 
-      console.log("Response from recognition API:", response);
+        console.log("Response from recognition API:", response);
 
-      // Dismiss the loading toast once the response is received
-      toast.dismiss();
+        // Dismiss the loading toast once the response is received
+        toast.dismiss();
 
-      // Check if the API returned a success
-      if (response && response.success) {
-        // Check for the file details
-        const fileDetails = response.fileDetails;
+        // Check if the API returned a success
+        if (response && response.success) {
+            // Check for the file details
+            const fileDetails = response.fileDetails;
 
-        if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
-          const fileData = fileDetails.data[0];
+            if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
+                const fileData = fileDetails.data[0];
 
-          // Check if the engine_status and cover_songs fields exist
-          if (
-            fileData.engine_status &&
-            fileData.engine_status.cover_songs !== undefined
-          ) {
-            // Check if the song is copyright free based on `cover_songs`
-            if (fileData.engine_status.cover_songs === 0) {
-              toast.success("Your song is copyright free!");
+                // Check if results field exists
+                if (fileData.results === null) {
+                    // No match found, copyright free
+                    toast.success("Your song is copyright-free!");
+                } else {
+                    // Match found
+                    toast.success("Match found! This song may be copyrighted.");
+                }
+
             } else {
-              toast.success(
-                `Cover song detected. Detail: ${
-                  fileData.detail || "No additional details."
-                }`
-              );
+                toast.error("File details not found.");
             }
-          } else {
-            toast.error("Cover song status not found.");
-          }
-
-          // Optionally, display the file name and duration in the toast
-          toast.success(
-            `File Name: ${fileData.name}, Duration: ${fileData.duration} seconds`
-          );
         } else {
-          toast.error("File details not found.");
+            // Display error toast if recognition fails
+            toast.error(`Error: ${response.message || "Recognition failed"}`);
         }
-      } else {
-        // Display error toast if recognition fails
-        toast.error(`Error: ${response.message || "Recognition failed"}`);
-      }
     } catch (error) {
-      // Dismiss loading toast and show error toast
-      toast.dismiss();
-      toast.error("Internal server error");
-      console.error("Error:", error);
+        // Dismiss loading toast and show error toast
+        toast.dismiss();
+        toast.error("Internal server error");
+        console.error("Error:", error);
     }
-  };
+};
+
 
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
@@ -313,6 +300,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
 
         <div className={Style.trackDetailsIconGroup}>
+
             <button
               className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
               onClick={() =>

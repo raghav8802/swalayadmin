@@ -2,6 +2,8 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig"; // Database connection
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function POST(request: NextRequest) {
   try {
     // Connect to the database
@@ -51,6 +53,8 @@ export async function POST(request: NextRequest) {
     if (uploadResponseData?.data?.id) {
       const uploadedFileId = uploadResponseData.data.id; // Save the uploaded file's ID
       console.log("File uploaded successfully. File ID:", uploadedFileId);
+
+      await sleep(15000);
 
       // Step 4: Fetch the details of the uploaded file using the file ID
       const api2_url = `https://api-v2.acrcloud.com/api/fs-containers/14982/files/${uploadedFileId}`;
