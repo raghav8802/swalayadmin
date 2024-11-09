@@ -15,10 +15,14 @@ export interface ITrack extends Document {
   duration: string | null;
   crbt: string | null;
   platformLinks: { 
-    SpotifyLink: string | null, 
-    AppleLink: string | null, 
-    Instagram: string | null, 
-    Facebook: string | null 
+    shazam: string | null,
+    amazonMusic: string | null,
+    youtubeMusic: string | null,
+    amazon: string | null,
+    spotify: string | null, 
+    appleMusic: string | null, 
+    youtube: string | null, 
+    wynkMusic: string | null 
   } | null;
   category: string | null;
   version: string | null;
@@ -79,10 +83,14 @@ const trackSchema: Schema<ITrack> = new Schema({
   },
   platformLinks: {
     type: {
-      SpotifyLink: { type: String, default: null },
-      AppleLink: { type: String, default: null },
-      Instagram: { type: String, default: null },
-      Facebook: { type: String, default: null },
+      shazam: { type: String, default: null },
+      amazonMusic: { type: String, default: null },
+      youtubeMusic: { type: String, default: null },
+      amazon: { type: String, default: null },
+      spotify: { type: String, default: null },
+      appleMusic: { type: String, default: null },
+      youtube: { type: String, default: null },
+      wynkMusic: { type: String, default: null },
     },
     default: null,
   },
