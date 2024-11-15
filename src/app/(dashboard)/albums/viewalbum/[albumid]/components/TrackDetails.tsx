@@ -12,6 +12,7 @@ import { onShare } from "@/helpers/urlShare";
 import { MouseEvent } from "react";
 import { AlbumDetailsTable } from "@/app/(dashboard)/marketing/details/components/AlbumDetailsTable";
 
+
 interface TrackListProps {
   trackId: string;
   albumStatus: number;
@@ -247,7 +248,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
   };
 
   const onRecognize = async (audioFileUrl: string) => {
-    toast.loading("Uploading to ACRCloud...");
+    toast.loading("Uploading to ACRCloud...", );
 
     try {
         // Call the recognition API and pass the audio file URL and trackId
@@ -263,7 +264,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
         // Check if the API returned a success
         if (response && response.success) {
-            // Check for the file details
             const fileDetails = response.fileDetails;
 
             if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
@@ -271,18 +271,32 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
                 // Check if results field exists
                 if (fileData.results === null) {
-                    // No match found, copyright free
                     toast.success("Your song is copyright-free!");
                 } else {
-                    // Match found
-                    toast.success("Match found! This song may be copyrighted.");
-                }
+                    // Access the cover songs array
+                    const coverSongs = fileData.results.cover_songs;
 
+                    if (coverSongs && coverSongs.length > 0) {
+                        const songInfo = coverSongs[0].result;
+
+                        // Access specific song details
+                        const title = songInfo.title;
+                        const duration = coverSongs[0].played_duration; // Access played_duration from the first cover song
+                        const isrc = songInfo.external_ids?.isrc;
+
+                        // Display a toast with song information
+                        toast.error(`Match found: "${title}"\nDuration: "${duration}" seconds\nISRC: ${isrc}`);
+
+                        // Optionally log the entire result for debugging
+                        console.log("Match details:", JSON.stringify(fileData.results, null, 2));
+                    } else {
+                        toast.error("Cover song data not found in results.");
+                    }
+                }
             } else {
                 toast.error("File details not found.");
             }
         } else {
-            // Display error toast if recognition fails
             toast.error(`Error: ${response.message || "Recognition failed"}`);
         }
     } catch (error) {
@@ -294,6 +308,23 @@ const TrackDetails: React.FC<TrackListProps> = ({
 };
 
 
+
+//fetch msic links 
+
+const onlinkfetch = async (isrc: string) => {
+  toast.loading("Getting Links  " ); 
+
+  try {
+    const response = await apiPost("/api/musicfetch", {     
+      isrc: isrc,
+  });
+  console.log("Response from recognition API:", response);    
+  } catch (error) {
+    toast.error("Internal server error");
+  }
+}
+
+
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
       <div className={Style.trackDetailsTop}>
@@ -302,27 +333,26 @@ const TrackDetails: React.FC<TrackListProps> = ({
         <div className={Style.trackDetailsIconGroup}>
 
             <button
-              className="ms-3 px-3 py-2 bg-red-500 text-white rounded my-3"
+              className="ms-1 px-3 py-2 bg-red-500 text-white rounded my-3"
               onClick={() =>
                 onRecognize(
                   `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string
                 )
               }
             >
-              Recognization
+              Audio Check
             </button>
-          
 
-          {trackDetails?.audioFile && (
-            <i
-              className="bi bi-link-45deg"
+
+            <button
+              className="ms-3 px-2 py-2 bg-green-500 text-white rounded ms-2 bi bi-link-45deg"
               onClick={() =>
-                handleCopyUrl(
-                  `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`
-                )
+                onlinkfetch( `${trackDetails && trackDetails.isrc}`  )
               }
-            ></i>
-          )}
+            >
+              Link 
+            </button >
+          
 
           <Link href={`/albums/edittrack/${btoa(trackId)}`}>
             <i className="bi bi-pencil-square" title="Edit track"></i>
@@ -389,14 +419,14 @@ const TrackDetails: React.FC<TrackListProps> = ({
                   className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
                   onClick={() => uploadToComos(trackDetails?.albumId)}
                 >
-                  COSMOS
+                  DSP Delivery
                 </button>
 
                 <button
                   className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
                   onClick={handleUploadAndPublish} // The onClick function is now here
                 >
-                  <i className="bi bi-youtube me-2"></i> YouTube
+                  <i className="bi bi-youtube me-2"></i> YT Delivery 
                 </button>
               </>
 
@@ -466,13 +496,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
                     <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
                       Other Singers:{" "}
                     </span>
-                    {/* {trackDetails?.singers?.map((singer) => (
-                      <span key={singer._id}>
-                        <Link href={`/artist/${singer._id}`}>
-                          {singer.artistName}
-                        </Link>
-                      </span>
-                    ))} */}
+                    
 
                     {trackDetails?.singers?.map((singer, index) => (
                       <span key={singer._id}>
@@ -528,25 +552,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
           </Tabs>
         </div>
 
-        {/* <div className={`mt-4 flex  ${Style.socialGroup}`}> */}
-        <div className={`mt-4 flex `}>
-          <Link href={"/"}>
-            <Image
-              src={"/images/image.png"}
-              width={50}
-              height={50}
-              alt="music platfrom"
-            />
-          </Link>
-          <Link href={"/"} className="ms-3">
-            <Image
-              src={"/images/spotify.png"}
-              width={50}
-              height={50}
-              alt="music platfrom"
-            />
-          </Link>
-        </div>
+ 
 
         <ConfirmationDialog
           confrimationText="Delete"
