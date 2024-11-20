@@ -1,75 +1,71 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken"
 import { connect } from "@/dbConfig/dbConfig";
-import bcryptjs from 'bcryptjs'
+import bcryptjs from 'bcryptjs';
 import Admin from "@/models/admin";
-// import Label from "@/models/Label";
+import { Resend } from 'resend';
+import OTP from "@/models/OTP";
 
-
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
-console.log("herer");
-
-await connect()
-console.log("herer s");
+    await connect();
 
     try {
-        const reqBody = await request.json()
-        
-        console.log(reqBody);
-        
-        const { email, password } = reqBody
+        const reqBody = await request.json();
+        const { email, password } = reqBody;
 
         const user = await Admin.findOne({ email });
         if (!user) {
             return NextResponse.json({
                 status: 400,
                 success: false,
-                error: "User doesnt exits"
-            })
+                error: "User doesn't exist"
+            });
         }
 
-        const validPassword = await bcryptjs.compare(password, user.password)
+        const validPassword = await bcryptjs.compare(password, user.password);
         if (!validPassword) {
             return NextResponse.json({
                 success: false,
                 status: 400,
                 error: "Check your credentials"
-            })
+            });
         }
 
-        const tokenData = {
-            id: user._id,
-            username: user.username
-        }
-
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
-        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {expiresIn: '5d'} );
+        // Save OTP to database
+        await OTP.create({
+            email,
+            otp,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes expiry
+        });
 
-        const response = NextResponse.json({
-            message: "Logged In Success",
+        // Send OTP via email
+        await resend.emails.send({
+            from: "SwaLay <swalay.care@talantoncore.in>",
+            to: email,
+            subject: 'Login OTP for SwaLay-Plus EMP.',
+            html: `<p>Your OTP for login is: <strong>${otp}</strong></p>
+                   <p>This OTP will expire in 10 minutes.</p>`
+        });
+
+        return NextResponse.json({
+            message: "OTP sent successfully",
             success: true,
-            status: 200
-        })
-
-        response.cookies.set("authtoken", token, {httpOnly: true})
-
-        return response;
-
+            status: 200,
+            requireOTP: true
+        });
 
     } catch (error: any) {
-        console.log("error :: ");
-        console.log(error);
-        
+        console.log("error :: ", error);
         return NextResponse.json({
             error: error.message,
             success: false,
             status: 500
-        })
+        });
     }
-
-
-
 }
 
 
