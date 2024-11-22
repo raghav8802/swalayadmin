@@ -101,8 +101,7 @@ const Page = ({ params }: { params: { trackid: string } }) => {
         trackId,
         lyrics,
       });
-      console.log(response);
-      console.log(response.data);
+    
       if (response.success) {
         toast.success("Lyrics updted");
         fetchLyrics(trackId as string)

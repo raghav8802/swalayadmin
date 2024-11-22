@@ -41,8 +41,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ labelI
     const fetchNotifications = async (labelID: string) => {
       try {
         const response = await apiGet(`/api/notification/getAll`);
-        console.log("btf response.data");
-        console.log(response.data);
+
         setNotificationData(response.data);
       } catch (error) {
         console.error('An error occurred:', error);

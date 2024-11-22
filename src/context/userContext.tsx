@@ -4,6 +4,7 @@ import { createContext, Dispatch, SetStateAction } from 'react';
 interface User {
   _id: string;
   username: string;
+  usertype: string;
   // Add other user properties here
 }
 

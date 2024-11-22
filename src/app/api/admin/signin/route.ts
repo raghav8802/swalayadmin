@@ -11,16 +11,21 @@ export async function POST(request: NextRequest) {
 console.log("herer");
 
 await connect()
-console.log("herer s");
 
     try {
         const reqBody = await request.json()
-        
+        console.log("reqBody ");
         console.log(reqBody);
+        
+        
         
         const { email, password } = reqBody
 
         const user = await Admin.findOne({ email });
+
+        console.log("user login data in api : ");
+        console.log(user);
+        
         if (!user) {
             return NextResponse.json({
                 status: 400,
@@ -40,7 +45,8 @@ console.log("herer s");
 
         const tokenData = {
             id: user._id,
-            username: user.username
+            username: user.username,
+            usertype: user.usertype
         }
 
         

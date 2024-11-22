@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import Album, { AlbumStatus } from "@/models/albums";
 import { connect } from "@/dbConfig/dbConfig";
 import Notification from "@/models/notification";
-import AlbumStatusEmailTemplate from "@/components/email.tsx/album-status";
+import AlbumStatusEmailTemplate from "@/components/email/album-status";
 import sendMail from "@/helpers/sendMail";
 import Label from "@/models/Label";
 
