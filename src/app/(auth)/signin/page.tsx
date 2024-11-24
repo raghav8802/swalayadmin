@@ -12,6 +12,8 @@ const signIn = () => {
     email: "",
     password: "",
   });
+  const [otp, setOtp] = useState("");
+  const [showOtpInput, setShowOtpInput] = useState(false);
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -24,51 +26,58 @@ const signIn = () => {
     return password.length > 0;
   };
 
+  const verifyOTP = async () => {
+    try {
+      const response = await apiPost("/api/admin/verifyOTP", {
+        email: user.email,
+        otp
+      });
+
+      if (response.success) {
+        toast.success("Login successful");
+        setTimeout(() => {
+          router.push("/");
+        }, 1200);
+      } else {
+        toast.error(response.error || "Invalid OTP");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
+
   const onSignIn = async () => {
-    console.log("on signin");
-    console.log(user);
     if (!validateEmail(user.email)) {
-      console.log("Invalid email format");
       toast.error("Enter a valid email");
       return;
     }
 
     if (!validatePassword(user.password)) {
-      console.log("Password must be at least 8 characters long");
       toast.error("Enter a valid Password");
       return;
     }
 
     try {
-      console.log("in try");
-
       const response = await apiPost("/api/admin/signin", user);
 
       if (response.success) {
-        toast.success("Success");
-        setUser({ email: "", password: "" });
-        setTimeout(() => {
-          router.push("/");
-        }, 1200);
+        toast.success("OTP sent to your email");
+        setShowOtpInput(true);
       } else {
-        toast.error("Invalid Credentials");
+        toast.error(response.error || "Invalid Credentials");
       }
     } catch (error) {
       console.log(error);
+      toast.error("Something went wrong");
     }
   };
 
   return (
-    // <div className=c>
-    <div
-      className={`flex items-center justify-center w-full h-screen ${Styles.mainContainer}`}
-    >
+    <div className={`flex items-center justify-center w-full h-screen ${Styles.mainContainer}`}>
       <div className={` ${Styles.containerLeft}`}>
         <div className={Styles.containerLeftInner}>
-          {/* <h2 className={Styles.heading}>Login <Image src='/images/wink.png' className='ms-2' width={25} height={25} alt='wink' /> </h2> */}
           <h2 className={Styles.heading}>Sign In</h2>
-          {/* <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p> */}
-
           <div>
             <div className={`mt-3 ${Styles.registerform}`}>
               <div className={Styles.formGroup}>
@@ -109,17 +118,31 @@ const signIn = () => {
                 />
               </div>
 
-              <div className={`${Styles.formGroup} ${Styles.formbutton} `}>
-                <button className={Styles.submitButton} onClick={onSignIn}>
-                  Sign In
+              {showOtpInput && (
+                <div className={Styles.formGroup}>
+                  <label className={Styles.inputLable} htmlFor="otp">
+                    <i className="bi bi-shield-lock-fill"></i>
+                  </label>
+                  <input
+                    className={Styles.inputField}
+                    type="text"
+                    name="otp"
+                    id="otp"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <div className={`${Styles.formGroup} ${Styles.formbutton}`}>
+                <button 
+                  className={Styles.submitButton} 
+                  onClick={showOtpInput ? verifyOTP : onSignIn}
+                >
+                  {showOtpInput ? "Verify OTP" : "Sign In"}
                 </button>
               </div>
-              <p className={`${Styles.inputLable} ${Styles.labelagreeterm}`}>
-                Don't have an account?
-                <Link href="/register" className={Styles.termservice}>
-                  Register
-                </Link>
-              </p>
               
             </div>
           </div>

@@ -6,15 +6,11 @@ import bcryptjs from 'bcryptjs'
 
 
 export async function POST(request: NextRequest) {
-console.log("herer");
 
 await connect()
-console.log("herer s");
 
     try {
         const reqBody = await request.json()
-        
-        console.log(reqBody);
         
         const { email, password } = reqBody
 
@@ -42,7 +38,7 @@ console.log("herer s");
         }
 
         
-        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {expiresIn: '5d'} );
+        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {expiresIn: '1d'} );
 
         const response = NextResponse.json({
             message: "Logged In Success",

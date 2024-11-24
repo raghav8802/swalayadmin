@@ -425,6 +425,17 @@ const Navbar = () => {
                   <span className="nav__name">Artists</span>
                 </Link>
 
+
+                <Link
+                  href="/leads"
+                  className="nav__link "
+                  onClick={handleLinkClick}
+                >
+                  <i className="bi bi-person-check nav__icon"></i>
+                  <span className="nav__name">leads</span>
+                </Link>
+
+
                 <Link
                   href="/notifications"
                   className="nav__link "

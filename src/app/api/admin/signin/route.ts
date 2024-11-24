@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken"
 import { connect } from "@/dbConfig/dbConfig";
-import bcryptjs from 'bcryptjs'
+import bcryptjs from 'bcryptjs';
 import Admin from "@/models/admin";
-// import Label from "@/models/Label";
+import { Resend } from 'resend';
+import OTP from "@/models/OTP";
 
-
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
 console.log("herer");
@@ -30,11 +30,11 @@ await connect()
             return NextResponse.json({
                 status: 400,
                 success: false,
-                error: "User doesnt exits"
-            })
+                error: "User doesn't exist"
+            });
         }
 
-        const validPassword = await bcryptjs.compare(password, user.password)
+        const validPassword = await bcryptjs.compare(password, user.password);
         if (!validPassword) {
             return NextResponse.json({
                 success: false,
@@ -55,27 +55,18 @@ await connect()
         const response = NextResponse.json({
             message: "Logged In Success",
             success: true,
-            status: 200
-        })
-
-        response.cookies.set("authtoken", token, {httpOnly: true})
-
-        return response;
-
+            status: 200,
+            requireOTP: true
+        });
 
     } catch (error: any) {
-        console.log("error :: ");
-        console.log(error);
-        
+        console.log("error :: ", error);
         return NextResponse.json({
             error: error.message,
             success: false,
             status: 500
-        })
+        });
     }
-
-
-
 }
 
 
