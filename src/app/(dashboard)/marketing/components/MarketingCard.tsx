@@ -11,6 +11,7 @@ interface NewReleaseItemProps {
   status: string; 
 }
 
+
 const MarketingCard: React.FC<NewReleaseItemProps> = ({
   imageSrc,
   albumName,

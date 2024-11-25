@@ -115,8 +115,8 @@ function Agreement({ params }: { params: { userid: string } }) {
           </h1>
 
           <Image
-            width={500}
-            height={500}
+            width={350}
+            height={350}
             className="watermarkLogo"
             src={`https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/SwaLay+-2.png`}
             alt="SwaLay"
@@ -170,16 +170,16 @@ function Agreement({ params }: { params: { userid: string } }) {
           <div className="flex justify-between items-center w-full" style={{paddingBottom: "15px"}}>
             {user?.signature && (
               <Image
-                width={200}
-                height={200}
+                width={150}
+                height={150}
                 src={`https://swalay-music-files.s3.ap-south-1.amazonaws.com/labels/signature/${user?.signature}`}
                 alt="signature"
               />
             )}
 
             <Image
-              width={150}
-              height={150}
+              width={100}
+              height={100}
               src={`https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/SwaLay+-2.png`}
               alt="SwaLay"
             />

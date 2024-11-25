@@ -19,8 +19,7 @@ const lables = () => {
   const fetchLebels = async () => {
     try {
       const response = await apiGet('/api/labels/getLabels')  
-      console.log(response);
-      console.log(response.data);
+  
       if (response.success) {
         setLabelData(response.data)
       }

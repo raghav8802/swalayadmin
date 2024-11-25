@@ -13,12 +13,84 @@ const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false); // To show loading state
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   const router = useRouter();
   const context = useContext(UserContext);
+  // const userType = context?.user?.usertype; // Get user type from context
   const labelId = context?.user?._id;
 
-  const [showMenu, setShowMenu] = useState(false);
+  // Paths allowed for each user type
+  const roleAllowedPaths = {
+    customerSupport: ["/", "/albums", "/copyrights", "/labels", "/support"],
+    contentDeployment: ["/", "/albums", "/copyrights", "/artists", "/support"],
+    ANR: ["/", "/albums", "/marketing", "/artists", "/notifications"],
+  };
+
+  // Define all navigation items and their dropdowns
+  const menuItems = [
+    { path: "/", name: "Home", icon: "bi-house-door" },
+    {
+      path: "/albums",
+      name: "Albums",
+      icon: "bi-vinyl",
+      dropdown: [
+        { path: "/albums/new-release", name: "New Release" },
+        { path: "/albums/all", name: "All Albums" },
+        { path: "/albums/approved", name: "Approved Albums" },
+        { path: "/albums/live", name: "Live Albums" },
+        { path: "/albums/rejected", name: "Rejected Albums" },
+      ],
+    },
+    { path: "/marketing", name: "Marketing", icon: "bi-megaphone" },
+    {
+      path: "/payments",
+      name: "Payments",
+      icon: "bi-wallet",
+      dropdown: [
+        { path: "/payments/all", name: "All Payments" },
+        { path: "/payments/pending", name: "Pending Payments" },
+        { path: "/payments/completed", name: "Completed Payments" },
+        { path: "/payments/rejected", name: "Rejected Payments" },
+        { path: "/payments/failed", name: "Failed Payments" },
+      ],
+    },
+    { path: "/copyright", name: "Copyrights", icon: "bi-youtube" },
+    { path: "/labels", name: "Labels", icon: "bi-people" },
+    { path: "/artists", name: "Artists", icon: "bi-mic" },
+    { path: "/notifications", name: "Notifications", icon: "bi-bell" },
+    { path: "/profile", name: "Profile", icon: "bi-person" },
+    { path: "/settings", name: "Settings", icon: "bi-gear" },
+    { path: "/support", name: "Support", icon: "bi-chat-left" },
+  ];
+
+  // Filter menu items based on the user type
+  const userType = context?.user?.usertype || ""; // Provide a default empty string if userType is undefined
+
+  console.log("userType");
+  console.log(userType);
+
+  const allowedPaths =
+    roleAllowedPaths[userType as keyof typeof roleAllowedPaths] || [];
+
+  const filteredMenuItems = menuItems.filter((item) => {
+    // Admin has access to all menus and dropdowns
+    if (userType === "admin") return true;
+
+    // Check for dropdown items
+    if (item.dropdown) {
+      // Check if any dropdown item is allowed
+      const hasAllowedDropdown = item.dropdown.some((subItem) =>
+        allowedPaths.includes(subItem.path)
+      );
+
+      // Include parent menu if at least one dropdown or parent path is allowed
+      return hasAllowedDropdown || allowedPaths.includes(item.path);
+    }
+
+    // For non-dropdown items, check if the path is allowed
+    return allowedPaths.includes(item.path);
+  });
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
@@ -30,15 +102,13 @@ const Navbar = () => {
 
   // Search functionality
   const handleSearch = async (query: string) => {
-
-
     if (!query) {
       setSearchResults([]);
       setShowSuggestions(false);
       return;
     }
 
-    if(query ===''){
+    if (query === "") {
       setSearchResults([]);
       setShowSuggestions(false);
       return;
@@ -108,7 +178,9 @@ const Navbar = () => {
     <div>
       <header className="header">
         <div className="header__container">
-        <Link href="/" className="header__logo">SwaLay</Link>
+          <Link href="/" className="header__logo">
+            SwaLay
+          </Link>
 
           <div className="header__search">
             <div className="max-w-lg w-full lg:max-w-xs relative">
@@ -145,9 +217,13 @@ const Navbar = () => {
                         setShowSuggestions(false);
                         // Redirect to the appropriate page
                         if (result.type === "album") {
-                          router.push(`/albums/viewalbum/${btoa(result.albumId)}`);
+                          router.push(
+                            `/albums/viewalbum/${btoa(result.albumId)}`
+                          );
                         } else if (result.type === "track") {
-                          router.push(`/albums/viewalbum/${btoa(result.albumId)}`);
+                          router.push(
+                            `/albums/viewalbum/${btoa(result.albumId)}`
+                          );
                         }
                       }}
                     >
@@ -183,7 +259,51 @@ const Navbar = () => {
 
             <div className="nav__list">
               <div className="nav__items">
-                <Link
+                {filteredMenuItems.map((item, index) => (
+                  <div key={index}>
+                    {item.dropdown ? (
+                      <div className="nav__dropdown">
+                        <Link href={item.path} className="nav__link">
+                          <i className={`bi ${item.icon} nav__icon`}></i>
+                          <span className="nav__name">{item.name}</span>
+                          <i className="bi bi-chevron-down nav__icon nav__dropdown-icon"></i>
+                        </Link>
+                        {item.dropdown && (
+                          <div className="nav__dropdown-collapse">
+                            <div className="nav__dropdown-content">
+                              {item.dropdown
+                                .filter(
+                                  (subItem) =>
+                                    userType === "admin" ||
+                                    allowedPaths.includes(subItem.path)
+                                )
+                                .map((subItem, subIndex) => (
+                                  <Link
+                                    key={subIndex}
+                                    href={subItem.path}
+                                    className="nav__dropdown-item"
+                                  >
+                                    {subItem.name}
+                                  </Link>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        href={item.path}
+                        className="nav__link"
+                        onClick={handleLinkClick}
+                      >
+                        <i className={`bi ${item.icon} nav__icon`}></i>
+                        <span className="nav__name">{item.name}</span>
+                      </Link>
+                    )}
+                  </div>
+                ))}
+
+                {/* <Link
                   href="/"
                   className="nav__link active"
                   onClick={handleLinkClick}
@@ -210,7 +330,10 @@ const Navbar = () => {
                       <Link href="/albums/all" className="nav__dropdown-item">
                         Albums
                       </Link>
-                      <Link href="/albums/approved" className="nav__dropdown-item">
+                      <Link
+                        href="/albums/approved"
+                        className="nav__dropdown-item"
+                      >
                         Approved
                       </Link>
                       <Link href="/albums/live" className="nav__dropdown-item">
@@ -236,22 +359,43 @@ const Navbar = () => {
                 </Link>
 
                 <div className="nav__dropdown">
-                <Link href="/payments" className="nav__link ">
-                  <i className="bi bi-vinyl nav__icon"></i>
+                  <Link href="/payments" className="nav__link ">
+                    <i className="bi bi-vinyl nav__icon"></i>
                     <span className="nav__name">Payments</span>
                     <i className="bi bi-chevron-down nav__icon nav__dropdown-icon"></i>
                   </Link>
 
                   <div className="nav__dropdown-collapse ">
                     <div className="nav__dropdown-content">
-                      <Link href="/payments/all" className="nav__dropdown-item">All</Link>
-                      <Link href="/payments/pending" className="nav__dropdown-item">Pending</Link>
-                      <Link href="/payments/completed" className="nav__dropdown-item">Completed</Link>
-                      <Link href="/payments/rejected" className="nav__dropdown-item">Rejeted</Link>
-                      <Link href="/payments/failed" className="nav__dropdown-item">Failed</Link>
+                      <Link href="/payments/all" className="nav__dropdown-item">
+                        All
+                      </Link>
+                      <Link
+                        href="/payments/pending"
+                        className="nav__dropdown-item"
+                      >
+                        Pending
+                      </Link>
+                      <Link
+                        href="/payments/completed"
+                        className="nav__dropdown-item"
+                      >
+                        Completed
+                      </Link>
+                      <Link
+                        href="/payments/rejected"
+                        className="nav__dropdown-item"
+                      >
+                        Rejeted
+                      </Link>
+                      <Link
+                        href="/payments/failed"
+                        className="nav__dropdown-item"
+                      >
+                        Failed
+                      </Link>
                     </div>
                   </div>
-
                 </div>
 
                 <Link
@@ -310,14 +454,21 @@ const Navbar = () => {
                   <span className="nav__name">Profile</span>
                 </Link>
 
+                <Link
+                  href="/settings"
+                  className="nav__link "
+                  onClick={handleLinkClick}
+                >
+                  <i className="bi bi-gear nav__icon"></i>
+                  <span className="nav__name">Settings</span>
+                </Link>
+
                 <Link href="/support" className="nav__link">
                   <i className="bi bi-chat-left nav__icon"></i>
                   <span className="nav__name">Support</span>
-                </Link>
+                </Link> */}
               </div>
             </div>
-
-
           </div>
 
           <div className="nav__link nav__logout" onClick={onLogout}>

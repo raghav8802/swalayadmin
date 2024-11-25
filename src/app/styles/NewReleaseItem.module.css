@@ -1,5 +1,6 @@
 .newReleaseItem{
-    width: 225px;
+    /* width: 225px; */
+    width: 15%;
     height: 260px;
     cursor: pointer;
     background-color: #fff;

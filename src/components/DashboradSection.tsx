@@ -71,8 +71,6 @@ export default function DashboradSection() {
     try {
       const response = await apiGet(`/api/numbers`);
 
-      console.log(response);
-      console.log(response.data);
 
       if (response?.data) {
         setStats({
@@ -114,15 +112,13 @@ export default function DashboradSection() {
   };
 
   const fetchAllArtist = async (labelId: any) => {
-    console.log("fetchAllArtist");
-    console.log(labelId);
+
 
     try {
       const response = await apiGet(
         `/api/artist/getArtists?labelId=${labelId}&limit=3`
       );
-      console.log("artist response");
-      console.log(response);
+
 
       if (response.success) {
         setArtistData(response.data);

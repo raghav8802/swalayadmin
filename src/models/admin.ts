@@ -12,6 +12,8 @@ export interface iAdmin extends Document {
     isLable: boolean;
     lable: string;
     joinedAt: Date;
+    isActive: boolean;
+
 }
 
 
@@ -36,7 +38,7 @@ const AdminSchema: Schema<iAdmin> = new Schema({
     },
     usertype: {
         type: String,
-        enum: ['admin', 'editor'],
+        enum: ['admin', 'customerSupport', 'contentDeployment', 'ANR'],
         default: 'admin'
     },
     verifyCode: {
@@ -62,6 +64,10 @@ const AdminSchema: Schema<iAdmin> = new Schema({
     joinedAt: {
         type: Date,
         default: Date.now
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 
 
