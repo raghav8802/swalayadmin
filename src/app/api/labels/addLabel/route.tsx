@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
       email,
       contact,
       // razor_contact: razorpayContactId, // Ensure this matches the schema
+      razor_contact: "0000001", // Ensure this matches the schema
       password: hashedPassword,
       usertype,
       lable: lable,

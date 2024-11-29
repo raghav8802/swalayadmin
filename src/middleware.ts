@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Define public and role-based paths
+  // Define public and role-based paths publick path
   const isPublicPath =
     path === "/register" ||
     path === "/signin" ||

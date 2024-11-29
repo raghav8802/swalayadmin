@@ -49,11 +49,27 @@ await connect()
             usertype: user.usertype
         }
 
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
-        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, {expiresIn: '5d'} );
+        // Save OTP to database
+        await OTP.create({
+            email,
+            otp,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes expiry
+        });
 
-        const response = NextResponse.json({
-            message: "Logged In Success",
+        // Send OTP via email
+        await resend.emails.send({
+            from: "SwaLay <swalay.care@talantoncore.in>",
+            to: email,
+            subject: 'Login OTP for SwaLay-Plus EMP.',
+            html: `<p>Your OTP for login is: <strong>${otp}</strong></p>
+                   <p>This OTP will expire in 10 minutes.</p>`
+        });
+
+        return NextResponse.json({
+            message: "OTP sent successfully",
             success: true,
             status: 200,
             requireOTP: true

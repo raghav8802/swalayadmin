@@ -39,7 +39,7 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const result = await apiGet("/api/userrole/users");
+      const result = await apiGet("/api/employee/all");
       console.log("fetch user result");
       console.log(result.data);
       setUsers(result.data);
@@ -63,7 +63,7 @@ export default function UserManagement() {
         return;
       }
 
-      const result = await apiPost("/api/userrole/adduser", {
+      const result = await apiPost("/api/employee/add", {
         name,
         email,
         role,
@@ -107,7 +107,7 @@ export default function UserManagement() {
 
       <div className="mx-auto py-5 space-y-10">
         <div>
-          <h2 className="text-2xl font-bold mb-6">Add New User</h2>
+          <h2 className="text-2xl font-bold mb-6">Employees</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -145,17 +145,7 @@ export default function UserManagement() {
                   className="form-control"
                 />
               </div>
-              {/* <div className="space-y-2">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="form-control"
-              />
-            </div> */}
+              
               <div className="space-y-2">
                 <label
                   className="block text-sm font-medium mb-2 text-gray-700"

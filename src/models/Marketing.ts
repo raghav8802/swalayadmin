@@ -52,7 +52,7 @@ const MarketingSchema: Schema<IMarketing> = new Schema(
     },
     promotionLinks: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     extraFile: {
