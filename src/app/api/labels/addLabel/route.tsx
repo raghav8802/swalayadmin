@@ -3,8 +3,8 @@ import bcryptjs from "bcryptjs";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 import fetch from "node-fetch";
-import AccountActivationEmailTemplate from "@/components/email.tsx/account-activation";
 import sendMail from "@/helpers/sendMail";
+import AccountActivationEmailTemplate from "@/components/email/account-activation";
 
 interface RazorpayResponse {
   id: string;
