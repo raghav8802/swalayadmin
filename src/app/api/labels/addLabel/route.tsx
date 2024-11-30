@@ -3,7 +3,7 @@ import bcryptjs from "bcryptjs";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 import fetch from "node-fetch";
-import AccountActivationEmailTemplate from "@/components/email/account-activation";
+import AccountActivationEmailTemplate from "@/components/email.tsx/account-activation";
 import sendMail from "@/helpers/sendMail";
 
 interface RazorpayResponse {
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: "Razorpay contact created and user registered successfully",
       userData: reqBody,
-      // razorpayData,
+      razorpayData,
       success: true,
       status: 200,
     });

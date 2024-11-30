@@ -30,6 +30,7 @@ function LeadsPage() {
       toast.error("Something went wrong");
       setIsLoading(false);
     }
+    
   };
 
   useEffect(() => {

@@ -8,24 +8,13 @@ import OTP from "@/models/OTP";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
-console.log("herer");
-
-await connect()
+    await connect();
 
     try {
-        const reqBody = await request.json()
-        console.log("reqBody ");
-        console.log(reqBody);
-        
-        
-        
-        const { email, password } = reqBody
+        const reqBody = await request.json();
+        const { email, password } = reqBody;
 
         const user = await Admin.findOne({ email });
-
-        console.log("user login data in api : ");
-        console.log(user);
-        
         if (!user) {
             return NextResponse.json({
                 status: 400,
@@ -40,13 +29,7 @@ await connect()
                 success: false,
                 status: 400,
                 error: "Check your credentials"
-            })
-        }
-
-        const tokenData = {
-            id: user._id,
-            username: user.username,
-            usertype: user.usertype
+            });
         }
 
         // Generate OTP
@@ -84,6 +67,5 @@ await connect()
         });
     }
 }
-
 
 
