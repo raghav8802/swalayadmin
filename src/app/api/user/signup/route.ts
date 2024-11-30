@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from 'bcryptjs'
 import { sendEmail } from "@/helpers/mailer";
-// import User from "@/models/Label";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 

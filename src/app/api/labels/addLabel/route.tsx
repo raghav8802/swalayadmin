@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const {
       username,
       email,
-      password = "swalay@123",
+      password = "Swalay@123",
       contact,
       lable,
       usertype,
