@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
     console.log(reqBody);
-    
 
     const {
       name,
@@ -36,35 +35,38 @@ export async function POST(request: NextRequest) {
       status,
     } = reqBody;
 
-    const extingEmployeeByEmail = await Employee.findOne({ personalEmail: email });
+    const extingEmployeeByEmail = await Employee.findOne({
+      personalEmail: email,
+    });
 
     if (extingEmployeeByEmail) {
-         //! then update role
+      //! then update role
 
-         const result = await Employee.findByIdAndUpdate(extingEmployeeByEmail._id, {
-
-            fullName:  name,
-            personalEmail: email,
-            officialEmail,
-            phoneNumber: phone,
-            address,
-            dateOfBirth: dob,
-            aadharCardNumber: aadhar,
-            panCardNumber: pan,
-            bankAccountNumber: bankAccount,
-            ifscCode: ifsc, 
-            bank, branch ,
-            joiningDate, 
-            role,
-            department,
-            manager: {
-                name: manager,
-                contact: managerContact
-            },
-            status
-
-
-         })
+      const result = await Employee.findByIdAndUpdate(
+        extingEmployeeByEmail._id,
+        {
+          fullName: name,
+          personalEmail: email,
+          officialEmail,
+          phoneNumber: phone,
+          address,
+          dateOfBirth: dob,
+          aadharCardNumber: aadhar,
+          panCardNumber: pan,
+          bankAccountNumber: bankAccount,
+          ifscCode: ifsc,
+          bank,
+          branch,
+          joiningDate,
+          role,
+          department,
+          manager: {
+            name: manager,
+            contact: managerContact,
+          },
+          status,
+        }
+      );
 
       return NextResponse.json({
         message: "Employee data updated",
@@ -106,14 +108,13 @@ export async function POST(request: NextRequest) {
         success: true,
         status: 201,
       });
-
     }
 
     // // await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id })
   } catch (error: any) {
     console.log("error.message");
     console.log(error.message);
-    
+
     return NextResponse.json({
       error: error.message,
       success: false,

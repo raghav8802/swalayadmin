@@ -138,6 +138,7 @@ export default function EmployeeProfile() {
       },
     }));
   };
+
   
 
   const validateForm = () => {
@@ -169,8 +170,11 @@ export default function EmployeeProfile() {
         const response = await apiPost("/api/employee/add", formData);
         console.log("api repsonse");
         console.log(response);
-
-        alert("Form submitted successfully!");
+        if (response.success) {
+          toast.success(response.message)
+        }else{
+          toast.error(response.error)
+        }
       } else {
         alert("Please fix the errors before submitting.");
       }

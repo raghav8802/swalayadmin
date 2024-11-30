@@ -61,41 +61,41 @@ export async function POST(request: NextRequest) {
     const razorpayApiKey = process.env.RAZORPAY_KEY_ID;
     const razorpayApiSecret = process.env.RAZORPAY_KEY_SECRET;
 
-    // const razorpayResponse = await fetch(
-    //   "https://api.razorpay.com/v1/contacts",
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Authorization: `Basic ${Buffer.from(
-    //         `${razorpayApiKey}:${razorpayApiSecret}`
-    //       ).toString("base64")}`,
-    //     },
-    //     body: JSON.stringify({
-    //       name: username,
-    //       email: email,
-    //       contact: contact,
-    //       type: "vendor",
-    //       reference_id: reference_id || "",
-    //       notes: notes || {},
-    //     }),
-    //   }
-    // );
+    const razorpayResponse = await fetch(
+      "https://api.razorpay.com/v1/contacts",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${Buffer.from(
+            `${razorpayApiKey}:${razorpayApiSecret}`
+          ).toString("base64")}`,
+        },
+        body: JSON.stringify({
+          name: username,
+          email: email,
+          contact: contact,
+          type: "vendor",
+          reference_id: reference_id || "",
+          notes: notes || {},
+        }),
+      }
+    );
 
-    // const razorpayData = (await razorpayResponse.json()) as RazorpayResponse;
+    const razorpayData = (await razorpayResponse.json()) as RazorpayResponse;
 
 
-    // if (!razorpayResponse.ok) {
-    //   console.error("Failed to create Razorpay contact:", razorpayData);
-    //   return NextResponse.json({
-    //     message: "Failed to create Razorpay contact",
-    //     razorpayError: razorpayData,
-    //     success: false,
-    //     status: razorpayResponse.status,
-    //   });
-    // }
+    if (!razorpayResponse.ok) {
+      console.error("Failed to create Razorpay contact:", razorpayData);
+      return NextResponse.json({
+        message: "Failed to create Razorpay contact",
+        razorpayError: razorpayData,
+        success: false,
+        status: razorpayResponse.status,
+      });
+    }
 
-    // const razorpayContactId = razorpayData.id;
+    const razorpayContactId = razorpayData.id;
 
 
     const hashedPassword = await bcryptjs.hash(password, 10);
@@ -104,8 +104,7 @@ export async function POST(request: NextRequest) {
       username,
       email,
       contact,
-      // razor_contact: razorpayContactId, // Ensure this matches the schema
-      razor_contact: "0000001", // Ensure this matches the schema
+      razor_contact: razorpayContactId, // Ensure this matches the schema
       password: hashedPassword,
       usertype,
       lable: lable,

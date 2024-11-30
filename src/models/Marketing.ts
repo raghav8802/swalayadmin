@@ -34,7 +34,7 @@ const MarketingSchema: Schema<IMarketing> = new Schema(
     },
     artistInstagramUrl: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       validate: {
         validator: function (v: string) {
