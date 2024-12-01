@@ -21,8 +21,6 @@ export async function POST(req: NextRequest) {
       cline: formData.get("cLine")?.toString() ?? "",
     };
 
-    console.log("data in api");
-    console.log(data);
     
     
 
