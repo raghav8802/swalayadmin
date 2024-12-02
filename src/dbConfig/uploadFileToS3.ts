@@ -126,9 +126,95 @@ export async function uploadPayoutReportToS3({
 }
 
 
+interface UploadEmployeeDocumentS3Params {
+  file: Buffer;
+  fileName: string;
+}
+
+export async function uploadEmployeeNdaToS3({
+  file,
+  fileName,
+}: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
+  try {
+
+    let newFileName = fileName.replace(/ /g, '+');
+  
+    const fileBuffer = file;
+    const fileExtension = newFileName.split('.').pop()?.toLowerCase();
+    let contentType: string;
+
+    // Determine content type based on file extension
+    if (fileExtension === 'pdf') {
+      contentType = "application/pdf";
+    } else if (fileExtension === 'docx' || fileExtension === 'doc') {
+      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    } else {
+      throw new Error("Unsupported file type");
+    }
+
+    const uploadFilePath = `employees/documents/${newFileName}`;
+
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: uploadFilePath,
+      Body: fileBuffer,
+      ContentType: contentType,
+    };
+
+    const command = new PutObjectCommand(params);
+
+    await s3Client.send(command);
+
+    return { status: true, fileName: newFileName };
+
+  } catch (error: any) {
+    return { status: false, fileName: "" };
+  }
+}
 
 
 
+export async function uploadWorkPolicyToS3({
+  file,
+  fileName,
+}: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
+  try {
+    let newFileName = fileName.replace(/ /g, '+');
+
+    const fileBuffer = file;
+    const fileExtension = newFileName.split('.').pop()?.toLowerCase();
+    console.log(" wrk plcy fileExtension :: ");
+    console.log(fileExtension);
+    
+    let contentType: string;
+
+    // Determine content type based on file extension
+    if (fileExtension === 'pdf') {
+      contentType = "application/pdf";
+    } else if (fileExtension === 'docx' || fileExtension === 'doc') {
+      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    } else {
+      throw new Error("Unsupported file type");
+    }
+
+    const uploadFilePath = `employees/documents/${newFileName}`;
+
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: uploadFilePath,
+      Body: fileBuffer,
+      ContentType: contentType, // Dynamically set based on file type
+    };
+
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command);
+
+    return { status: true, fileName: newFileName };
+  } catch (error: any) {
+    console.error("Error uploading work policy to S3:", error.message);
+    return { status: false, fileName: "" };
+  }
+}
 
 
 

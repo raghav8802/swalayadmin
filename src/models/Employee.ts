@@ -40,7 +40,7 @@ userId: mongoose.Schema.Types.ObjectId;
 const EmployeeSchema = new Schema<IEmployee>({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "albums",
+        ref: "admins",
         // required: true
     },
     photo: { type: String, required: false },
@@ -156,3 +156,4 @@ const Employee =
   models.Employee || model<IEmployee>('Employee', EmployeeSchema);
 
 export default Employee;
+
