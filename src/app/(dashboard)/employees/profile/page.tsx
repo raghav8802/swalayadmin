@@ -16,7 +16,8 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
-import { apiGet,  apiFormData } from "@/helpers/axiosRequest";
+import { apiGet, apiFormData } from "@/helpers/axiosRequest";
+import Link from "next/link";
 
 type NestedField = {
   status: string;
@@ -69,6 +70,8 @@ export default function EmployeeProfile() {
   const [workPolicyStatus, setWorkPolicyStatus] = useState("Pending");
   const [employeeId, setEmployeeId] = useState<string | null>(null);
   const [isNew, setIsNew] = useState(true);
+  const [exsitsNdaFile, setExsitsNdaFile] = useState("");
+  const [exsitsWorkPolicy, setExsitsWorkPolicy] = useState("");
   const [selectedNdaFileName, setSelectedNdaFileName] = useState<string | null>(
     null
   );
@@ -123,11 +126,14 @@ export default function EmployeeProfile() {
   const fetchEmployeeDetails = async (id: string) => {
     try {
       const result = await apiGet(`/api/employee/details?employeeid=${id}`);
-
-      console.log("employeeDetails ::");
-
-      console.log(result.data);
       const data = result.data;
+      console.log("data ==>");
+      console.log(data);
+      console.log(data.employeeVerification);
+      setExsitsNdaFile(data.ndaSignature?.document);
+      setExsitsWorkPolicy(data.workPolicy?.document);
+      const fromatedDob = new Date(data.dateOfBirth).toISOString().split("T")[0];
+      const fromatedjoiningDate = new Date(data.joiningDate).toISOString().split("T")[0];
       setFormData({
         name: data.fullName || "",
         email: data.personalEmail || "",
@@ -136,14 +142,14 @@ export default function EmployeeProfile() {
         role: data.role || "",
         phone: data.phoneNumber || "",
         address: data.address || "",
-        dob: data.dateOfBirth || "",
+        dob: fromatedDob || "",
         aadhar: data.aadharCardNumber || "",
         pan: data.panCardNumber || "",
         bankAccount: data.bankAccountNumber || "",
         ifsc: data.ifscCode || "",
         bank: data.bank || "",
         branch: data.branch || "",
-        joiningDate: data.joiningDate || "",
+        joiningDate: fromatedjoiningDate  || "",
         department: data.department || "",
         manager: data.manager?.name || "",
         managerContact: data.manager?.contact || "",
@@ -255,17 +261,21 @@ export default function EmployeeProfile() {
           }
         }
 
+        formDataObj.forEach((value, key) => {
+          console.log(`${key}: Value:`, value);
+        });
+
         // Send to API
-        toast.loading("Creating Employee Profile")
+        toast.loading("Creating Employee Profile");
         const response = await apiFormData("/api/employee/add", formDataObj);
 
         console.log("api repsonse");
-        console.log(response);
-        if (response.success) {
-          toast.success(`d ${response.message}`);
-        } else {
-          toast.error(response.error);
-        }
+        // console.log(response);
+        // if (response.success) {
+        //   toast.success(`d ${response.message}`);
+        // } else {
+        //   toast.error(response.error);
+        // }
       } else {
         alert("Please fix the errors before submitting.");
       }
@@ -283,13 +293,13 @@ export default function EmployeeProfile() {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="space-y-8">
-              <div className="flex flex-col items-center space-y-4">
+              {/* <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32">
                   <AvatarImage src="/placeholder.svg" alt="Employee" />
                   <AvatarFallback>EP</AvatarFallback>
                 </Avatar>
                 <h2 className="text-2xl font-bold">John Doe</h2>
-              </div>
+              </div> */}
 
               <Separator />
 
@@ -365,6 +375,7 @@ export default function EmployeeProfile() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dob">Date of Birth</Label>
+      
                   <input
                     id="dob"
                     type="date"
@@ -529,7 +540,7 @@ export default function EmployeeProfile() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Employee Verification</Label>
+                  <Label>Employee Verification </Label>
                   <Select
                     onValueChange={(value) =>
                       setFormData((prev) => ({
@@ -537,10 +548,11 @@ export default function EmployeeProfile() {
                         employeeVerification: value,
                       }))
                     }
+                    value={formData.employeeVerification}
                     defaultValue={formData.employeeVerification}
                   >
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select status " />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Completed">Completed</SelectItem>
@@ -559,6 +571,7 @@ export default function EmployeeProfile() {
                           ndaSignature: { ...prev.ndaSignature, status: value },
                         }))
                       }
+                      value={formData.ndaSignature.status}
                       defaultValue={formData.ndaSignature.status}
                     >
                       <SelectTrigger className="w-[180px]">
@@ -569,6 +582,7 @@ export default function EmployeeProfile() {
                         <SelectItem value="Pending">Pending</SelectItem>
                       </SelectContent>
                     </Select>
+
                     {formData.ndaSignature.status === "Completed" && (
                       <label className="inline-flex items-center space-x-2 cursor-pointer">
                         <Button
@@ -581,6 +595,16 @@ export default function EmployeeProfile() {
                           <Upload className="mr-2 h-4 w-4" />
                           Upload
                         </Button>
+                        {exsitsNdaFile && (
+                          <a
+                            href={exsitsNdaFile}
+                            className="btn ms-3 bg-red-300 py-2 px-3 rounded"
+                            target="_blank"
+                          >
+                            File <i className="bi bi-file-earmark-pdf"></i>
+                          </a>
+                        )}
+
                         <input
                           id="fileInput"
                           type="file"
@@ -591,6 +615,7 @@ export default function EmployeeProfile() {
                       </label>
                     )}
                   </div>
+               
                 </div>
                 {/* Display the selected file name */}
                 {selectedNdaFileName && (
@@ -609,6 +634,7 @@ export default function EmployeeProfile() {
                           workPolicy: { ...prev.workPolicy, status: value },
                         }))
                       }
+                      value={formData.workPolicy.status}
                       defaultValue={formData.workPolicy.status}
                     >
                       <SelectTrigger className="w-[180px]">
@@ -620,6 +646,7 @@ export default function EmployeeProfile() {
                       </SelectContent>
                     </Select>
                     {formData.workPolicy.status === "Completed" && (
+                      <div>
                       <Button
                         type="button"
                         size="sm"
@@ -631,6 +658,16 @@ export default function EmployeeProfile() {
                       >
                         <Upload className="mr-2 h-4 w-4" />
                         Upload
+                        </Button>
+                        {exsitsWorkPolicy && (
+                          <Link
+                            href={exsitsWorkPolicy}
+                            className="btn ms-3 bg-red-300 py-2 px-3 rounded"
+                            target="_blank"
+                          >
+                            File <i className="bi bi-file-earmark-pdf"></i>
+                          </Link>
+                        )}
                         <input
                           id="fileInputWorkPolicy"
                           type="file"
@@ -638,7 +675,7 @@ export default function EmployeeProfile() {
                           accept=".pdf,.doc,.docx"
                           onChange={(e) => handleFileUpload(e, "workPolicy")}
                         />
-                      </Button>
+                     </div>
                     )}
                   </div>
                 </div>
@@ -685,3 +722,13 @@ export default function EmployeeProfile() {
 {errors.role && <p className="text-red-500">{errors.role}</p>}
 </div> */
 }
+
+
+
+
+
+
+
+// https://swalay-music-files.s3.ap-south-1.amazonaws.com/employees/documents/NdaSignature-1733359195077-Hemant%2BSoni-agreement.pdf
+
+// https://swalay-music-files.s3.ap-south-1.amazonaws.com/employees/documents/NdaSignature-1733359195077-Hemant+Soni-agreement.pdf

@@ -1,109 +1,83 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcryptjs from 'bcryptjs';
+import bcryptjs from "bcryptjs";
 import { connect } from "@/dbConfig/dbConfig";
-// import User from "@/models/Label";
-// import Label from "@/models/Label"
 import Admin from "@/models/admin";
 import Employee from "@/models/Employee";
 
-
-
-
 export async function POST(request: NextRequest) {
+  await connect();
 
-    await connect()
+  try {
+    const reqBody = await request.json();
+    console.log("reqBody z :: ");
+    console.log(reqBody);
 
-    try {
+    const { email, role } = reqBody;
+    const password = "SwaLay@123";
 
-        const reqBody = await request.json()
-        console.log("reqBody z :: ");
-        console.log(reqBody);
-        
-        const { name, email, role } = reqBody
+    const EmployeeProfile = await Employee.findOne({
+      $or: [{ email: email }, { officialEmail: email }],
+    });
 
-        // const extingUserVerifiedByEmail = await Admin.findOne({ email })
-        // console.log("extingUserVerifiedByEmail");
-        // console.log(extingUserVerifiedByEmail);
-        
-        
-        // const password = "SwaLay@123";
-     
-        // if (extingUserVerifiedByEmail) {
+    // check emplaoye have profile with this email 
+    if (EmployeeProfile) {
 
-        //     //! then update role 
-
-        //     console.log("email extes");
-            
-        //     if (!extingUserVerifiedByEmail.isVerified) {
-        //         console.log("here 3");
-        //         return NextResponse.json({
-        //             message: "Already exists an account",
-        //             success: false,
-        //             status: 400
-        //         })
-        //     }
-        //     else {
-
-        //         //! add new user
-        //         console.log("come hererer");
-                
-        //         const hashedPassword = await bcryptjs.hash(password, 12);
-        //         const expiryDate = new Date();
-        //         expiryDate.setHours(expiryDate.getHours() + 1)
-        //         extingUserVerifiedByEmail.password = hashedPassword;
-        //         // extingUserVerifiedByEmail.verifyCode = verifyCode;
-        //         // extingUserVerifiedByEmail.verifyCodeExpiry = expiryDate;
-        //         await extingUserVerifiedByEmail.save()
-
-        //         console.log("here 2");
-        //     }
-
-        // }
-
-        // console.log("here 1");
-
-        // const hashedPassword = await bcryptjs.hash(password, 10)
-        // const expiryDate = new Date()
-        // expiryDate.setHours(expiryDate.getHours() + 1)
-
-        // const newUser = new Admin({
-        //     username: name,
-        //     email,
-        //     password: hashedPassword,
-        //     usertype: role
-        // })
-
-        // const savedUser = await newUser.save();
-
-
-
-        
-        // console.log("signup api request");
-        // console.log(savedUser);
-
-        // // await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id })
-
-        return NextResponse.json({
-            message: "User signup successfully",
+      const existingUserVerifiedByEmail = await Admin.findOne({ email });
+      console.log("extingUserVerifiedByEmail");
+      console.log(existingUserVerifiedByEmail);
+      if (existingUserVerifiedByEmail) {
+        // update user type in admin
+        const updateUserTypeResponse = await Admin.findOneAndUpdate(
+          { email }, // Find by email
+          { $set: { usertype: role } }, // Update usertype to role
+          { new: true } // Return the updated document
+        );
+        if (updateUserTypeResponse) {
+          return NextResponse.json({
+            message: "The employee's assigned role has been updated",
             data: reqBody,
             success: true,
-            status: 200
-        })
+            status: 200,
+          });
+        }
+      } else {
+        // add new employee to admin
+        const hashedPassword = await bcryptjs.hash(password, 10);
+        const expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 1);
 
+        const newUser = new Admin({
+          username: EmployeeProfile.fullName,
+          email,
+          password: hashedPassword,
+          usertype: role,
+        });
 
-
-    } catch (error: any) {
-        return NextResponse.json({
-            error: error.message,
-            success: false,
-            status: 500
-        })
+        const savedUser = await newUser.save();
+        if (savedUser) {
+          return NextResponse.json({
+            message: "Roled Assigned Successfully",
+            data: [],
+            success: true,
+            status: 200,
+          });
+        }
+      }
+    } else {
+      return NextResponse.json({
+        message: "No Employee found with this email",
+        data: [],
+        success: false,
+        status: 400,
+      });
     }
 
-
+  } catch (error: any) {
+    return NextResponse.json({
+      error: error.message,
+      message: error.message,
+      success: false,
+      status: 500,
+    });
+  }
 }
-
-
-
-
-

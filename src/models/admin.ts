@@ -38,7 +38,7 @@ const AdminSchema: Schema<iAdmin> = new Schema({
     },
     usertype: {
         type: String,
-        enum: ['admin', 'customerSupport', 'contentDeployment', 'ANR'],
+        enum: ['admin', 'customerSupport', 'contentDeployment', 'ANR', 'HR'],
         default: 'admin'
     },
 

@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import { EmployeeDataTable } from "./components/EmployeeDataTable";
+import Link from "next/link";
+import AssignRoleModal from "./components/AssignRoleModal";
 
 type Employee = {
   _id: string;
@@ -32,6 +34,12 @@ export default function UserManagement() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // to close the modal 
+  const handleClose = () => {
+    setIsModalVisible(false);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -101,81 +109,29 @@ export default function UserManagement() {
 
       <div className="mx-auto py-5 space-y-10">
         <div>
-          <h2 className="text-2xl font-bold mb-6">Employees</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium mb-2 text-gray-700"
-                >
-                  Name
-                </label>
+          <div className="flex justify-between items-center mt-3">
+            <h3 className="text-2xl font-bold mb-3">Employees List</h3>
 
-                <input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  className="form-control"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  className="block text-sm font-medium mb-2 text-gray-700"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@example.com"
-                  required
-                  className="form-control"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  className="block text-sm font-medium mb-2 text-gray-700"
-                  htmlFor="role"
-                >
-                  User Role
-                </label>
-
-                <select
-                  name=""
-                  id=""
-                  value={role}
-                  className="form-control"
-                  onChange={(e) => setRole(e.target.value)}
-                  required
-                >
-                  <option value="">Select User</option>
-                  <option value="customerSupport">Customer Support</option>
-                  <option value="contentDeployment">Content Deployment</option>
-                  <option value="ANR">A&R</option>
-                </select>
-              </div>
-              <div className="space-y-2 flex items-end ">
-                <Button type="submit" className="p-5">
-                  Add User
-                </Button>
-              </div>
+            <div>
+              <Button className="me-3" onClick={() => setIsModalVisible(true)}>
+                Assign Role
+              </Button>
+              <Button>
+                <Link href={"/employees/profile"}>New Employee <i className="bi bi-person-add"></i></Link>
+              </Button>
             </div>
-          </form>
+          </div>
+
+
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold mb-6">Employees List</h2>
-
           {employees && <EmployeeDataTable data={employees} />}
         </div>
+
+        <AssignRoleModal isVisible={isModalVisible} onClose={handleClose} />
+
+
       </div>
     </div>
   );

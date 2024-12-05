@@ -137,7 +137,8 @@ export async function uploadEmployeeNdaToS3({
 }: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
   try {
 
-    let newFileName = fileName.replace(/ /g, '+');
+    // let newFileName = fileName.replace(/ /g, '+');
+    let newFileName = fileName;
   
     const fileBuffer = file;
     const fileExtension = newFileName.split('.').pop()?.toLowerCase();
@@ -179,7 +180,8 @@ export async function uploadWorkPolicyToS3({
   fileName,
 }: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
   try {
-    let newFileName = fileName.replace(/ /g, '+');
+    // let newFileName = fileName.replace(/ /g, '+');
+    let newFileName = fileName;
 
     const fileBuffer = file;
     const fileExtension = newFileName.split('.').pop()?.toLowerCase();
