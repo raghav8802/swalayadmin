@@ -55,7 +55,7 @@ const Navbar = () => {
         { path: "/payments/failed", name: "Failed Payments" },
       ],
     },
-    { path: "/copyright", name: "Copyrights", icon: "bi-youtube" },
+    { path: "/copyrights", name: "Copyrights", icon: "bi-youtube" },
     { path: "/labels", name: "Labels", icon: "bi-people" },
     { path: "/artists", name: "Artists", icon: "bi-mic" },
     { path: "/notifications", name: "Notifications", icon: "bi-bell" },

@@ -43,10 +43,15 @@ interface TrackDetail {
   duration: string | null;
   crbt: string | null;
   platformLinks: {
-    SpotifyLink: string | null;
-    AppleLink: string | null;
-    Instagram: string | null;
-    Facebook: string | null;
+    spotify: string | null;
+    appleMusic: string | null;
+    amazon: string | null;
+    amazonMusic: string | null;
+    youtube: string | null;
+    youtubeMusic: string | null;
+    shazam: string | null;
+    wynkMusic: string | null;
+    _id: string;
   } | null;
   category: string | null;
   version: string | null;
@@ -133,6 +138,11 @@ const TrackDetails: React.FC<TrackListProps> = ({
   useEffect(() => {
     fetchTrackDetails();
   }, [trackId]);
+
+  useEffect(() => {
+    console.log ("here");
+    console.log("Track Details:", trackDetails);
+  }, [trackDetails]);
 
   const downloadRef = useRef<HTMLAnchorElement>(null);
 
@@ -440,6 +450,7 @@ const onlinkfetch = async (isrc: string) => {
             <TabsList>
               <TabsTrigger value="track">Track Info</TabsTrigger>
               <TabsTrigger value="publishiling">Publishing Info</TabsTrigger>
+              <TabsTrigger value="links">Track Links</TabsTrigger>
             </TabsList>
             <TabsContent value="track">
               <div className={`mt-2  ${Style.trackInfoListContainer}`}>
@@ -547,6 +558,124 @@ const onlinkfetch = async (isrc: string) => {
                     ))}
                   </li>
                 </ul>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="links">
+              <div className={`mt-2 ${Style.trackInfoListContainer}`}>
+                <div className="p-3 grid grid-cols-4 gap-4">
+                  {trackDetails?.platformLinks?.spotify && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.spotify}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-spotify text-3xl mb-2" style={{ color: '#1DB954' }}></i>
+                        <p className="text-sm">Spotify</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.appleMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.appleMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-apple text-3xl mb-2" style={{ color: '#FB2D3F' }}></i>
+                        <p className="text-sm">Apple Music</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.amazon && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.amazon}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-amazon text-3xl mb-2" style={{ color: '#FF9900' }}></i>
+                        <p className="text-sm">Amazon</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.amazonMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.amazonMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-amazon text-3xl mb-2" style={{ color: '#FF9900' }}></i>
+                        <p className="text-sm">Amazon Music</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.youtube && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.youtube}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-youtube text-3xl mb-2" style={{ color: '#FF0000' }}></i>
+                        <p className="text-sm">YouTube</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.youtubeMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.youtubeMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-youtube text-3xl mb-2" style={{ color: '#FF0000' }}></i>
+                        <p className="text-sm">YouTube Music</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.shazam && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.shazam}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-music-note text-3xl mb-2" style={{ color: '#08F' }}></i>
+                        <p className="text-sm">Shazam</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.wynkMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.wynkMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-music-note text-3xl mb-2" style={{ color: '#FF0000' }}></i>
+                        <p className="text-sm">Wynk Music</p>
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             </TabsContent>
           </Tabs>
