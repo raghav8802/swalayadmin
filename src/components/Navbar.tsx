@@ -15,6 +15,7 @@ const Navbar = () => {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [showMenu, setShowMenu] = useState(false);
 
+  
   const router = useRouter();
   const context = useContext(UserContext);
   // const userType = context?.user?.usertype; // Get user type from context
@@ -60,15 +61,14 @@ const Navbar = () => {
     { path: "/artists", name: "Artists", icon: "bi-mic" },
     { path: "/notifications", name: "Notifications", icon: "bi-bell" },
     { path: "/profile", name: "Profile", icon: "bi-person" },
-    { path: "/settings", name: "Settings", icon: "bi-gear" },
+    { path: "/employees", name: "Employees", icon: "bi-gear" },
     { path: "/support", name: "Support", icon: "bi-chat-left" },
   ];
 
   // Filter menu items based on the user type
   const userType = context?.user?.usertype || ""; // Provide a default empty string if userType is undefined
 
-  console.log("userType");
-  console.log(userType);
+
 
   const allowedPaths =
     roleAllowedPaths[userType as keyof typeof roleAllowedPaths] || [];

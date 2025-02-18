@@ -3,8 +3,12 @@ import bcryptjs from "bcryptjs";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 import fetch from "node-fetch";
+<<<<<<< HEAD
 import AccountActivationEmailTemplate from "@/components/email/account-activation";
+=======
+>>>>>>> f1b79be75285a64bec6cbdd85946a027fe640b86
 import sendMail from "@/helpers/sendMail";
+import AccountActivationEmailTemplate from "@/components/email/account-activation";
 
 interface RazorpayResponse {
   id: string;

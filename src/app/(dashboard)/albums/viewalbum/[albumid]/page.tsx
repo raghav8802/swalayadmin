@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Style from "../../../../styles/ViewAlbums.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import TrackSection from "./components/TrackSection";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import DeleteButton from "./components/DeleteButton";
 import AlbumStatusUpdate from "./components/AlbumStatusUpdate";
+import UserContext from "@/context/userContext";
 
 // import MusicPlayer from '../components/MusicPlayer'
 
@@ -44,7 +45,9 @@ enum AlbumProcessingStatus {
 }
 
 const albums = ({ params }: { params: { albumid: string } }) => {
-  
+  const context = useContext(UserContext);
+  const userType = context?.user?.usertype || "";
+
   const albumIdParams = params.albumid;
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -139,14 +142,13 @@ const albums = ({ params }: { params: { albumid: string } }) => {
               target="_blank"
               className="w-full"
             >
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${albumId}ba3/cover/${albumDetails.thumbnail}`}
-                  alt="album thumbnail"
-                  width={480}
-                  height={480}
-                  className={Style.albumThumbnail}
-                />
-             
+              <Image
+                src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${albumId}ba3/cover/${albumDetails.thumbnail}`}
+                alt="album thumbnail"
+                width={480}
+                height={480}
+                className={Style.albumThumbnail}
+              />
             </a>
           )}
         </div>
@@ -235,43 +237,45 @@ const albums = ({ params }: { params: { albumid: string } }) => {
             </li>
           </ul>
 
-          <div className="flex">
-            {albumDetails &&
-              albumDetails.status !== AlbumProcessingStatus.Live && (
-                <Link
-                  href={`/albums/addtrack/${btoa(albumId as string)}`}
-                  className={`mt-4 mb-2 me-3 btn ${Style.albumAddTrack} p-3`}
-                >
-                  <i className="me-2 bi bi-plus-circle"></i>
-                  Add track
-                </Link>
-              )}
+          {userType !== "customerSupport" && (
+            <div className="flex">
+              {albumDetails &&
+                albumDetails.status !== AlbumProcessingStatus.Live && (
+                  <Link
+                    href={`/albums/addtrack/${btoa(albumId as string)}`}
+                    className={`mt-4 mb-2 me-3 btn ${Style.albumAddTrack} p-3`}
+                  >
+                    <i className="me-2 bi bi-plus-circle"></i>
+                    Add track
+                  </Link>
+                )}
 
-            <Link
-              href={`/albums/edit/${btoa(albumId as string)}`}
-              className={`mt-4 mb-2 ${Style.albumEditBtn} p-3`}
-            >
-              <i className="me-2 bi bi-pencil-square"></i>
-              Edit Album
-            </Link>
+              <Link
+                href={`/albums/edit/${btoa(albumId as string)}`}
+                className={`mt-4 mb-2 ${Style.albumEditBtn} p-3`}
+              >
+                <i className="me-2 bi bi-pencil-square"></i>
+                Edit Album
+              </Link>
 
-            {albumDetails &&
-              (albumDetails.status === AlbumProcessingStatus.Draft ||
-                albumDetails.status === AlbumProcessingStatus.Rejected) &&
-              albumDetails.totalTracks > 0 && (
-                <button
-                  type="button"
-                  className={`mt-4 ms-5 mb-2 ${Style.albumSuccessBtn} p-3`}
-                  onClick={onFinalSubmit}
-                >
-                  Final Submit <i className="me-2 bi bi-send-fill"></i>
-                </button>
-              )}
+              {albumDetails &&
+                (albumDetails.status === AlbumProcessingStatus.Draft ||
+                  albumDetails.status === AlbumProcessingStatus.Rejected) &&
+                albumDetails.totalTracks > 0 && (
+                  <button
+                    type="button"
+                    className={`mt-4 ms-5 mb-2 ${Style.albumSuccessBtn} p-3`}
+                    onClick={onFinalSubmit}
+                  >
+                    Final Submit <i className="me-2 bi bi-send-fill"></i>
+                  </button>
+                )}
 
-            {albumId && <DeleteButton albumId={albumId} />}
-          </div>
+              {albumId && <DeleteButton albumId={albumId} />}
+            </div>
+          )}
 
-          {albumId && (
+          { userType !== "customerSupport" &&  albumId && (
             <AlbumStatusUpdate
               albumid={albumId}
               labelid={albumDetails?.labelId as string}
@@ -285,13 +289,14 @@ const albums = ({ params }: { params: { albumid: string } }) => {
       {/* list of tracks  */}
 
       {albumDetails && albumDetails.totalTracks > 0 ? (
-        albumId && <TrackSection albumId={albumId} albumStatus={albumDetails.status} />
+        albumId && (
+          <TrackSection albumId={albumId} albumStatus={albumDetails.status} />
+        )
       ) : (
         <div className="mt-5 pt-4">
           <h1 className="text-center text-2xl mt-5">No track found</h1>
         </div>
       )}
-
 
       <ConfirmationDialog
         show={isDialogOpen}

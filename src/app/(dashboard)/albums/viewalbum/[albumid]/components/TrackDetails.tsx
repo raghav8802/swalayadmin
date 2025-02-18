@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { onShare } from "@/helpers/urlShare";
 import { MouseEvent } from "react";
 import { AlbumDetailsTable } from "@/app/(dashboard)/marketing/details/components/AlbumDetailsTable";
-
+import UserContext from "@/context/userContext";
 
 interface TrackListProps {
   trackId: string;
@@ -93,6 +93,9 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const [albumDetails, setAlbumDetails] = useState<AlbumDetail | null>(null);
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const context = useContext(UserContext);
+  const userType = context?.user?.usertype || "";
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -205,7 +208,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   const handleUploadAndPublish = async () => {
     const trackLink =
-    `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
+      `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails?.audioFile}` as string;
     const ytLabel = "SwaLay Digital"; // Replace with the actual label
     const ytAlbum = albumDetails?.title;
     const ytArtist = albumDetails?.artist;
@@ -258,90 +261,92 @@ const TrackDetails: React.FC<TrackListProps> = ({
   };
 
   const onRecognize = async (audioFileUrl: string) => {
-    toast.loading("Uploading to ACRCloud...", );
+    toast.loading("Uploading to ACRCloud...");
 
     try {
-        // Call the recognition API and pass the audio file URL and trackId
-        const response = await apiPost("/api/recognition", {
-            trackId,
-            fileUrl: audioFileUrl,
-        });
+      // Call the recognition API and pass the audio file URL and trackId
+      const response = await apiPost("/api/recognition", {
+        trackId,
+        fileUrl: audioFileUrl,
+      });
 
-        console.log("Response from recognition API:", response);
+      console.log("Response from recognition API:", response);
 
-        // Dismiss the loading toast once the response is received
-        toast.dismiss();
+      // Dismiss the loading toast once the response is received
+      toast.dismiss();
 
-        // Check if the API returned a success
-        if (response && response.success) {
-            const fileDetails = response.fileDetails;
+      // Check if the API returned a success
+      if (response && response.success) {
+        const fileDetails = response.fileDetails;
 
-            if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
-                const fileData = fileDetails.data[0];
+        if (fileDetails && fileDetails.data && fileDetails.data.length > 0) {
+          const fileData = fileDetails.data[0];
 
-                // Check if results field exists
-                if (fileData.results === null) {
-                    toast.success("Your song is copyright-free!");
-                } else {
-                    // Access the cover songs array
-                    const coverSongs = fileData.results.cover_songs;
+          // Check if results field exists
+          if (fileData.results === null) {
+            toast.success("Your song is copyright-free!");
+          } else {
+            // Access the cover songs array
+            const coverSongs = fileData.results.cover_songs;
 
-                    if (coverSongs && coverSongs.length > 0) {
-                        const songInfo = coverSongs[0].result;
+            if (coverSongs && coverSongs.length > 0) {
+              const songInfo = coverSongs[0].result;
 
-                        // Access specific song details
-                        const title = songInfo.title;
-                        const duration = coverSongs[0].played_duration; // Access played_duration from the first cover song
-                        const isrc = songInfo.external_ids?.isrc;
+              // Access specific song details
+              const title = songInfo.title;
+              const duration = coverSongs[0].played_duration; // Access played_duration from the first cover song
+              const isrc = songInfo.external_ids?.isrc;
 
-                        // Display a toast with song information
-                        toast.error(`Match found: "${title}"\nDuration: "${duration}" seconds\nISRC: ${isrc}`);
+              // Display a toast with song information
+              toast.error(
+                `Match found: "${title}"\nDuration: "${duration}" seconds\nISRC: ${isrc}`
+              );
 
-                        // Optionally log the entire result for debugging
-                        console.log("Match details:", JSON.stringify(fileData.results, null, 2));
-                    } else {
-                        toast.error("Cover song data not found in results.");
-                    }
-                }
+              // Optionally log the entire result for debugging
+              console.log(
+                "Match details:",
+                JSON.stringify(fileData.results, null, 2)
+              );
             } else {
-                toast.error("File details not found.");
+              toast.error("Cover song data not found in results.");
             }
+          }
         } else {
-            toast.error(`Error: ${response.message || "Recognition failed"}`);
+          toast.error("File details not found.");
         }
+      } else {
+        toast.error(`Error: ${response.message || "Recognition failed"}`);
+      }
     } catch (error) {
-        // Dismiss loading toast and show error toast
-        toast.dismiss();
-        toast.error("Internal server error");
-        console.error("Error:", error);
+      // Dismiss loading toast and show error toast
+      toast.dismiss();
+      toast.error("Internal server error");
+      console.error("Error:", error);
     }
-};
+  };
 
+  //fetch msic links
 
+  const onlinkfetch = async (isrc: string) => {
+    toast.loading("Getting Links  ");
 
-//fetch msic links 
-
-const onlinkfetch = async (isrc: string) => {
-  toast.loading("Getting Links  " ); 
-
-  try {
-    const response = await apiPost("/api/musicfetch", {     
-      isrc: isrc,
-  });
-  console.log("Response from recognition API:", response);    
-  } catch (error) {
-    toast.error("Internal server error");
-  }
-}
-
+    try {
+      const response = await apiPost("/api/musicfetch", {
+        isrc: isrc,
+      });
+      console.log("Response from recognition API:", response);
+    } catch (error) {
+      toast.error("Internal server error");
+    }
+  };
 
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
       <div className={Style.trackDetailsTop}>
         <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
 
-        <div className={Style.trackDetailsIconGroup}>
-
+        {userType !== "customerSupport" && (
+          <div className={Style.trackDetailsIconGroup}>
             <button
               className="ms-1 px-3 py-2 bg-red-500 text-white rounded my-3"
               onClick={() =>
@@ -353,50 +358,49 @@ const onlinkfetch = async (isrc: string) => {
               Audio Check
             </button>
 
-
             <button
               className="ms-3 px-2 py-2 bg-green-500 text-white rounded ms-2 bi bi-link-45deg"
               onClick={() =>
-                onlinkfetch( `${trackDetails && trackDetails.isrc}`  )
+                onlinkfetch(`${trackDetails && trackDetails.isrc}`)
               }
             >
-              Link 
-            </button >
-          
+              Link
+            </button>
 
-          <Link href={`/albums/edittrack/${btoa(trackId)}`}>
-            <i className="bi bi-pencil-square" title="Edit track"></i>
-          </Link>
+            <Link href={`/albums/edittrack/${btoa(trackId)}`}>
+              <i className="bi bi-pencil-square" title="Edit track"></i>
+            </Link>
 
-          {trackDetails?.audioFile && (
-            <div onClick={handleDownload}>
-              {/* Download icon */}
-              <i className="bi bi-download"></i>
+            {trackDetails?.audioFile && (
+              <div onClick={handleDownload}>
+                {/* Download icon */}
+                <i className="bi bi-download"></i>
 
-              {/* Hidden anchor tag to handle download */}
-              <a
-                ref={downloadRef}
-                href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
-                download={trackDetails.audioFile as string}
-                style={{ display: "none" }}
-              >
-                Download
-              </a>
+                {/* Hidden anchor tag to handle download */}
+                <a
+                  ref={downloadRef}
+                  href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
+                  download={trackDetails.audioFile as string}
+                  style={{ display: "none" }}
+                >
+                  Download
+                </a>
 
-              {/* Hidden audio tag (if you still need to keep it) */}
-              <audio style={{ display: "none" }} controls>
-                <source
-                  src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
-                  type="audio/mpeg"
-                />
-              </audio>
-            </div>
-          )}
+                {/* Hidden audio tag (if you still need to keep it) */}
+                <audio style={{ display: "none" }} controls>
+                  <source
+                    src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
+                    type="audio/mpeg"
+                  />
+                </audio>
+              </div>
+            )}
 
-          <button onClick={onDelete}>
-            <i className="bi bi-trash"></i>
-          </button>
-        </div>
+            <button onClick={onDelete}>
+              <i className="bi bi-trash"></i>
+            </button>
+          </div>
+        )}
       </div>
       <div className={`mt-2 ${Style.currentTrackDetails} `}>
         {/* <p className={`mb-3 ${Style.trackInfoTrackName}`}><span className={Style.trackNameLable}>Track Name: </span> Lost in Mountain</p> */}
@@ -407,20 +411,22 @@ const onlinkfetch = async (isrc: string) => {
 
         {trackDetails && (
           <div className="flex items-center justify-start">
-            <Link
-              className="px-3 py-2 bg-cyan-600 text-white rounded my-3"
-              href={`/albums/tracks/addLyrics/${btoa(
-                trackId ?? ""
-              )}?trackname=${encodeURIComponent(
-                trackDetails?.songName ?? ""
-              )}&trackurl=${encodeURIComponent(
-                trackDetails?.audioFile
-                  ? `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails.audioFile}`
-                  : ""
-              )}`}
-            >
-              Add Lyrics <i className="bi bi-pen-fill"></i>
-            </Link>
+            {userType !== "customerSupport" && (
+              <Link
+                className="px-3 py-2 bg-cyan-600 text-white rounded my-3"
+                href={`/albums/tracks/addLyrics/${btoa(
+                  trackId ?? ""
+                )}?trackname=${encodeURIComponent(
+                  trackDetails?.songName ?? ""
+                )}&trackurl=${encodeURIComponent(
+                  trackDetails?.audioFile
+                    ? `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails?.albumId}ba3/tracks/${trackDetails.audioFile}`
+                    : ""
+                )}`}
+              >
+                Add Lyrics <i className="bi bi-pen-fill"></i>
+              </Link>
+            )}
 
             {(albumStatus === AlbumProcessingStatus.Approved ||
               albumStatus === AlbumProcessingStatus.Live) && (
@@ -436,12 +442,10 @@ const onlinkfetch = async (isrc: string) => {
                   className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
                   onClick={handleUploadAndPublish} // The onClick function is now here
                 >
-                  <i className="bi bi-youtube me-2"></i> YT Delivery 
+                  <i className="bi bi-youtube me-2"></i> YT Delivery
                 </button>
               </>
-
             )}
-            
           </div>
         )}
 
@@ -507,7 +511,6 @@ const onlinkfetch = async (isrc: string) => {
                     <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
                       Other Singers:{" "}
                     </span>
-                    
 
                     {trackDetails?.singers?.map((singer, index) => (
                       <span key={singer._id}>
@@ -680,8 +683,6 @@ const onlinkfetch = async (isrc: string) => {
             </TabsContent>
           </Tabs>
         </div>
-
- 
 
         <ConfirmationDialog
           confrimationText="Delete"

@@ -90,7 +90,7 @@ export default function AlbumStatusEmailTemplate({
 
           {status === "rejected" && (
             <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              Your album {albumName} was rejected during our review process.
+              We are sorry to inform that your album {albumName} was rejected during our review process.
             </p>
           )}
 
