@@ -49,11 +49,12 @@ const Navbar = () => {
       name: "Payments",
       icon: "bi-wallet",
       dropdown: [
-        { path: "/payments/all", name: "All Payments" },
-        { path: "/payments/pending", name: "Pending Payments" },
-        { path: "/payments/completed", name: "Completed Payments" },
-        { path: "/payments/rejected", name: "Rejected Payments" },
-        { path: "/payments/failed", name: "Failed Payments" },
+        { path: "/payments/royalty", name: "Royalty" },
+        { path: "/payments/all", name: "Payout Requests" },
+        { path: "/payments/pending", name: "Pending Payout" },
+        { path: "/payments/approved", name: "Approved Payout" },
+        // { path: "/payments/rejected", name: "Rejected Payments" },
+        // { path: "/payments/failed", name: "Failed Payments" },
       ],
     },
     { path: "/copyrights", name: "Copyrights", icon: "bi-youtube" },
@@ -118,8 +119,6 @@ const Navbar = () => {
     try {
       const response = await apiGet(`/api/search?query=${query}`);
 
-      console.log("response : ");
-      console.log(response);
 
       if (response.success) {
         setSearchResults(response.data); // Store search results
@@ -129,7 +128,6 @@ const Navbar = () => {
         setShowSuggestions(false);
       }
     } catch (error) {
-      console.error("Error during search:", error);
       setSearchResults([]);
       setShowSuggestions(false);
     } finally {
@@ -163,10 +161,10 @@ const Navbar = () => {
   }, []);
 
   const onLogout = async () => {
-    console.log("click logout");
+    
     try {
       const res = await apiPost("/api/user/logout", {});
-      console.log(res);
+    
       context?.setUser(undefined);
       router.refresh();
     } catch (error) {

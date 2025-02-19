@@ -119,7 +119,7 @@ export const columns: ColumnDef<Payment>[] = [
         <div className="text-right">
           <Link
             className="px-2 py-2 rounded bg-black text-white-400 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded text-sm dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
-            href={`/payments/label/${btoa(labelId)}`}
+            href={`/payments/label/payout/${btoa(labelId)}`}
           >
             View History
           </Link>

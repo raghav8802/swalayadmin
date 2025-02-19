@@ -48,14 +48,9 @@ const page = () => {
         formData.append("payout_report_url", pdfFile);
       }
   
-      Array.from(formData.entries()).forEach(([key, value]) => {
-        console.log(`${key}: ${value}`);
-      });
-  
       // Use the apiFormData helper function
       const response = await apiFormData('/api/payments/addPayment', formData);
-      console.log("response", response);
-  
+      
       setData({ amount: "", period: "", lable: "", type: "", payout_report_url: "" });
       setPdfFile(null); // Clear the uploaded file
     } catch (error) {
@@ -72,8 +67,6 @@ const page = () => {
   const fetchRequestedData = async () => {
     try {
       const response = await apiGet(`/api/payments/getEarings`);
-      console.log("response dsds");
-      console.log(response);
       
       if (response.success) {
         setPayoutRequestData(response.data);

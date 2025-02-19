@@ -49,13 +49,10 @@ const page = () => {
         formData.append("payout_report_url", pdfFile);
       }
 
-      Array.from(formData.entries()).forEach(([key, value]) => {
-        console.log(`${key}: ${value}`);
-      });
 
       // Use the apiFormData helper function
       const response = await apiFormData("/api/payments/addPayment", formData);
-      console.log("response", response);
+
       setIsModalVisible(false);
       setData({
         amount: "",
@@ -150,7 +147,7 @@ const page = () => {
         <h3 className="text-3xl font-bold mb-2 text-blue-500">
           All Labels for royalty
         </h3>
-        <Button onClick={() => setIsModalVisible(true)}>Add New Earn</Button>
+        <Button onClick={() => setIsModalVisible(true)}>Add New Royalty</Button>
       </div>
 
       {/* {payoutRequestData && <PaymentPendingList data={payoutRequestData} />} */}
