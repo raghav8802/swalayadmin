@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { uploadPayoutReportToS3 } from "@/dbConfig/uploadFileToS3";
 
 export async function POST(request: NextRequest) {
-  // Establish a connection to the database
   await connect();
 
   try {
@@ -19,12 +18,8 @@ export async function POST(request: NextRequest) {
     // Populate the `data` object with key-value pairs from the form data
     formData.forEach((value, key) => {
       data[key] = value;
-      console.log(`${key}: ${value}`);
     });
 
-    // Log all the form data for debugging
-    console.log('All form data:', data);
-    console.log(data.formDataObj);
 
     // Extract relevant fields from the form data
     const labelId = formData.get("labelId")?.toString();
@@ -38,7 +33,6 @@ export async function POST(request: NextRequest) {
     const payoutReportFile = formData.get("payout_report_url") as File | null;
     console.log(payoutReportFile);
 
-    // Validation for required fields
     if (!labelId || !amount || !time) {
       return NextResponse.json({
         message: "Please provide all required fields",
@@ -47,7 +41,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Validation for the amount field
     const numericAmount = parseFloat(amount!);
     if (isNaN(numericAmount)) {
       return NextResponse.json({
@@ -57,7 +50,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Initialize payout report URL variable
     let payout_report_url: string | undefined;
 
     // If a file is provided, handle the file upload
@@ -99,6 +91,14 @@ export async function POST(request: NextRequest) {
       // Store the file URL
       payout_report_url = uploadResult.fileName;
     }
+    if (!payout_report_url || payout_report_url === '') {
+      return NextResponse.json({
+        message: "Uploading time out",
+        error: "Loading time out",
+        success: false,
+        status: 500,
+      });
+    }
 
     // Create a new payment record in the database
     const newPayment = new Payment({
@@ -116,15 +116,28 @@ export async function POST(request: NextRequest) {
     const existingBalance = await TotalBalance.findOne({ labelId });
     if (existingBalance) {
       // Update the existing total balance
-      existingBalance.totalBalance += numericAmount;
+      if(type === "Penalty"){
+        existingBalance.totalBalance -= numericAmount;
+      }else{
+        existingBalance.totalBalance += numericAmount;
+      }
       await existingBalance.save();
     } else {
-      // Create a new total balance record
-      const newTotalBalance = new TotalBalance({
-        labelId,
-        totalBalance: numericAmount,
-      });
-      await newTotalBalance.save();
+      if (type !== "Penalty") {
+        // Create a new total balance record
+        const newTotalBalance = new TotalBalance({
+          labelId,
+          totalBalance: numericAmount,
+        });        
+        await newTotalBalance.save();
+      }else{
+        return NextResponse.json({
+          message: "First payin cannot be penalty",
+          error: "Loading time out",
+          success: false,
+          status: 500,
+        });
+      }
     }
 
     // Respond with the saved payment data

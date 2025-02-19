@@ -6,12 +6,9 @@ export async function POST(request: NextRequest) {
   try {
     await connect(); // Connect to the database
 
-    // const { searchParams } = new URL(req.url);
     const body = await request.json();
     const id = body.albumId
-    console.log(id);
-    
-
+  
     if (!id) {
       return NextResponse.json({
         message: "Invalid Albums",
