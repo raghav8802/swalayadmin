@@ -3,7 +3,7 @@
 import { Modal } from "@/components/Modal";
 // import UserContext from "@/context/userContext";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 interface LabelData {
@@ -13,9 +13,13 @@ interface LabelData {
   usertype: string;
 }
 
-
-const CopyRightsModalForm = ({ isVisible, onClose, }: {  isVisible: boolean;  onClose: () => void; }) => {
-
+const CopyRightsModalForm = ({
+  isVisible,
+  onClose,
+}: {
+  isVisible: boolean;
+  onClose: () => void;
+}) => {
   // const context = useContext(UserContext);
   // const labelId = context?.user?._id;
 
@@ -41,13 +45,10 @@ const CopyRightsModalForm = ({ isVisible, onClose, }: {  isVisible: boolean;  on
     fetchLabels();
   }, []);
 
-
   const isValidYouTubeUrl = (url: string) => {
     const regex = /^(https?:\/\/)?(www\.)?(youtube\.com\/|youtu\.be\/).+$/;
     return regex.test(url);
   };
-  
-
 
   const handleSave = async () => {
     // console.log("all data");
@@ -68,18 +69,17 @@ const CopyRightsModalForm = ({ isVisible, onClose, }: {  isVisible: boolean;  on
     }
 
     console.log("dsfsed");
-    
+
     console.log({
-      label: formData.labelId,  
-      url : formData.youtubeUrl
+      label: formData.labelId,
+      url: formData.youtubeUrl,
     });
-    
 
     const response = await apiPost("/api/copyright/addCopyright", {
       labelId: formData.labelId,
       link: formData.youtubeUrl,
     });
-console.log(response);
+    console.log(response);
 
     if (response.success) {
       onClose();
@@ -89,8 +89,6 @@ console.log(response);
       onClose();
       toast.error("Internal server error");
     }
-
-
   };
 
   return (
@@ -131,7 +129,6 @@ console.log(response);
               </option>
             );
           })}
-
         </select>
       </div>
 

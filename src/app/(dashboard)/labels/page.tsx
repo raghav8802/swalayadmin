@@ -64,7 +64,6 @@ const lables = () => {
           </Link>
           </Button>
 
-          {/* <Agreement/> */}
       </div>
 
       <div className="mt-3 bg-white p-3">

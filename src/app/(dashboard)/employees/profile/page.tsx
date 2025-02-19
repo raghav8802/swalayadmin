@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,23 +14,15 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarIcon, Upload } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-// import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
-import { apiPost } from "@/helpers/axiosRequest";
+import { apiGet, apiFormData } from "@/helpers/axiosRequest";
+import Link from "next/link";
 
 type NestedField = {
   status: string;
   document: File | null;
 };
-
 
 interface FormData {
   name: string;
@@ -76,6 +68,16 @@ export default function EmployeeProfile() {
   const [terminationDate, setTerminationDate] = useState<Date>();
   const [ndaStatus, setNdaStatus] = useState("Pending");
   const [workPolicyStatus, setWorkPolicyStatus] = useState("Pending");
+  const [employeeId, setEmployeeId] = useState<string | null>(null);
+  const [isNew, setIsNew] = useState(true);
+  const [exsitsNdaFile, setExsitsNdaFile] = useState("");
+  const [exsitsWorkPolicy, setExsitsWorkPolicy] = useState("");
+  const [selectedNdaFileName, setSelectedNdaFileName] = useState<string | null>(
+    null
+  );
+  const [selectedWorkPolicyFileName, setSelectedWorkPolicyFileName] = useState<
+    string | null
+  >(null);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -104,6 +106,70 @@ export default function EmployeeProfile() {
 
   const [errors, setErrors] = useState<Errors>({});
 
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const encodedEmployeeId = query.get("employeeid");
+    console.log("employeeId :");
+    console.log(encodedEmployeeId);
+    if (encodedEmployeeId) {
+      try {
+        let employeeid = atob(encodedEmployeeId);
+        setEmployeeId(employeeid);
+        fetchEmployeeDetails(employeeid);
+        setIsNew(false);
+      } catch (error) {
+        console.error("Error decoding userId:", error);
+      }
+    }
+  }, []);
+
+  const fetchEmployeeDetails = async (id: string) => {
+    try {
+      const result = await apiGet(`/api/employee/details?employeeid=${id}`);
+      const data = result.data;
+      console.log("data ==>");
+      console.log(data);
+      console.log(data.employeeVerification);
+      setExsitsNdaFile(data.ndaSignature?.document);
+      setExsitsWorkPolicy(data.workPolicy?.document);
+      const fromatedDob = new Date(data.dateOfBirth).toISOString().split("T")[0];
+      const fromatedjoiningDate = new Date(data.joiningDate).toISOString().split("T")[0];
+      setFormData({
+        name: data.fullName || "",
+        email: data.personalEmail || "",
+        officialEmail: data.officialEmail || "",
+        userType: "Employee", // Default value, adjust if needed
+        role: data.role || "",
+        phone: data.phoneNumber || "",
+        address: data.address || "",
+        dob: fromatedDob || "",
+        aadhar: data.aadharCardNumber || "",
+        pan: data.panCardNumber || "",
+        bankAccount: data.bankAccountNumber || "",
+        ifsc: data.ifscCode || "",
+        bank: data.bank || "",
+        branch: data.branch || "",
+        joiningDate: fromatedjoiningDate  || "",
+        department: data.department || "",
+        manager: data.manager?.name || "",
+        managerContact: data.manager?.contact || "",
+        status: data.status || "Active",
+        employeeVerification: data.employeeVerification || "Pending",
+        ndaSignature: {
+          status: data.ndaSignature?.status || "Pending",
+          document: null,
+        },
+        workPolicy: {
+          status: data.workPolicy?.status || "Pending",
+          document: null,
+        },
+      });
+    } catch (error) {
+      console.log("error in employee fetch");
+      console.log(error);
+    }
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     nestedKey?: keyof typeof formData
@@ -129,7 +195,7 @@ export default function EmployeeProfile() {
     key: "ndaSignature" | "workPolicy"
   ) => {
     const file = e.target.files?.[0] || null;
-  
+
     setFormData((prev) => ({
       ...prev,
       [key]: {
@@ -137,9 +203,14 @@ export default function EmployeeProfile() {
         document: file,
       },
     }));
-  };
 
-  
+    // Set the selected file name
+    if (key === "ndaSignature") {
+      setSelectedNdaFileName(file?.name || "");
+    } else if (key === "workPolicy") {
+      setSelectedWorkPolicyFileName(file?.name || "");
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Errors = {};
@@ -167,14 +238,44 @@ export default function EmployeeProfile() {
       e.preventDefault();
       if (validateForm()) {
         console.log("Form submitted:", formData);
-        const response = await apiPost("/api/employee/add", formData);
-        console.log("api repsonse");
-        console.log(response);
-        if (response.success) {
-          toast.success(response.message)
-        }else{
-          toast.error(response.error)
+
+        // Prepare FormData object
+        const formDataObj = new FormData();
+
+        // Append normal fields
+        for (const key in formData) {
+          const value = formData[key as keyof typeof formData];
+
+          // Type guard for nested fields
+          if (key === "ndaSignature" || key === "workPolicy") {
+            const nestedField = value as {
+              status: string;
+              document: File | null;
+            };
+            if (nestedField.document) {
+              formDataObj.append(`${key}[document]`, nestedField.document);
+            }
+            formDataObj.append(`${key}[status]`, nestedField.status);
+          } else {
+            formDataObj.append(key, value as string); // Ensure the value is string-compatible
+          }
         }
+
+        formDataObj.forEach((value, key) => {
+          console.log(`${key}: Value:`, value);
+        });
+
+        // Send to API
+        toast.loading("Creating Employee Profile");
+        const response = await apiFormData("/api/employee/add", formDataObj);
+
+        console.log("api repsonse");
+        // console.log(response);
+        // if (response.success) {
+        //   toast.success(`d ${response.message}`);
+        // } else {
+        //   toast.error(response.error);
+        // }
       } else {
         alert("Please fix the errors before submitting.");
       }
@@ -192,13 +293,13 @@ export default function EmployeeProfile() {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="space-y-8">
-              <div className="flex flex-col items-center space-y-4">
+              {/* <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32">
                   <AvatarImage src="/placeholder.svg" alt="Employee" />
                   <AvatarFallback>EP</AvatarFallback>
                 </Avatar>
                 <h2 className="text-2xl font-bold">John Doe</h2>
-              </div>
+              </div> */}
 
               <Separator />
 
@@ -274,6 +375,7 @@ export default function EmployeeProfile() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dob">Date of Birth</Label>
+      
                   <input
                     id="dob"
                     type="date"
@@ -379,27 +481,6 @@ export default function EmployeeProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="userType">User Type</Label>
-
-                  <select
-                    id="userType"
-                    value={formData.userType}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    required
-                  >
-                    <option value="">Select User</option>
-                    <option value="employee">Employee</option>
-                    <option value="customerSupport">Customer Support</option>
-                    <option value="contentDeployment">
-                      Content Deployment
-                    </option>
-                    <option value="ANR">A&R</option>
-                  </select>
-                  {errors.role && <p className="text-red-500">{errors.role}</p>}
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="department">Department</Label>
                   <input
                     id="department"
@@ -459,7 +540,7 @@ export default function EmployeeProfile() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Employee Verification</Label>
+                  <Label>Employee Verification </Label>
                   <Select
                     onValueChange={(value) =>
                       setFormData((prev) => ({
@@ -467,10 +548,11 @@ export default function EmployeeProfile() {
                         employeeVerification: value,
                       }))
                     }
+                    value={formData.employeeVerification}
                     defaultValue={formData.employeeVerification}
                   >
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select status " />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Completed">Completed</SelectItem>
@@ -478,6 +560,7 @@ export default function EmployeeProfile() {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="flex items-center justify-between">
                   <Label>NDA Signature</Label>
                   <div className="flex items-center space-x-2">
@@ -488,6 +571,7 @@ export default function EmployeeProfile() {
                           ndaSignature: { ...prev.ndaSignature, status: value },
                         }))
                       }
+                      value={formData.ndaSignature.status}
                       defaultValue={formData.ndaSignature.status}
                     >
                       <SelectTrigger className="w-[180px]">
@@ -498,22 +582,48 @@ export default function EmployeeProfile() {
                         <SelectItem value="Pending">Pending</SelectItem>
                       </SelectContent>
                     </Select>
+
                     {formData.ndaSignature.status === "Completed" && (
-                    <label className="inline-flex items-center space-x-2 cursor-pointer">
-                    <Button size="sm">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload
-                    </Button>
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e, "ndaSignature")}
-                    />
-                  </label>
-                  
+                      <label className="inline-flex items-center space-x-2 cursor-pointer">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() =>
+                            document.getElementById("fileInput")?.click()
+                          }
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload
+                        </Button>
+                        {exsitsNdaFile && (
+                          <a
+                            href={exsitsNdaFile}
+                            className="btn ms-3 bg-red-300 py-2 px-3 rounded"
+                            target="_blank"
+                          >
+                            File <i className="bi bi-file-earmark-pdf"></i>
+                          </a>
+                        )}
+
+                        <input
+                          id="fileInput"
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                          onChange={(e) => handleFileUpload(e, "ndaSignature")}
+                        />
+                      </label>
                     )}
                   </div>
+               
                 </div>
+                {/* Display the selected file name */}
+                {selectedNdaFileName && (
+                  <span className="text-sm text-gray-600">
+                    Selected NDA File: <strong>{selectedNdaFileName}</strong>
+                  </span>
+                )}
+
                 <div className="flex items-center justify-between">
                   <Label>Work Policy</Label>
                   <div className="flex items-center space-x-2">
@@ -524,6 +634,7 @@ export default function EmployeeProfile() {
                           workPolicy: { ...prev.workPolicy, status: value },
                         }))
                       }
+                      value={formData.workPolicy.status}
                       defaultValue={formData.workPolicy.status}
                     >
                       <SelectTrigger className="w-[180px]">
@@ -535,22 +646,51 @@ export default function EmployeeProfile() {
                       </SelectContent>
                     </Select>
                     {formData.workPolicy.status === "Completed" && (
-                       <Button size="sm">
+                      <div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() =>
+                          document
+                            .getElementById("fileInputWorkPolicy")
+                            ?.click()
+                        }
+                      >
                         <Upload className="mr-2 h-4 w-4" />
                         Upload
+                        </Button>
+                        {exsitsWorkPolicy && (
+                          <Link
+                            href={exsitsWorkPolicy}
+                            className="btn ms-3 bg-red-300 py-2 px-3 rounded"
+                            target="_blank"
+                          >
+                            File <i className="bi bi-file-earmark-pdf"></i>
+                          </Link>
+                        )}
                         <input
+                          id="fileInputWorkPolicy"
                           type="file"
                           className="hidden"
+                          accept=".pdf,.doc,.docx"
                           onChange={(e) => handleFileUpload(e, "workPolicy")}
                         />
-                      </Button>
+                     </div>
                     )}
                   </div>
                 </div>
+
+                {/* Display the selected file name */}
+                {selectedWorkPolicyFileName && (
+                  <span className="text-sm text-gray-600">
+                    Work Policy File:{" "}
+                    <strong>{selectedWorkPolicyFileName}</strong>
+                  </span>
+                )}
               </div>
 
               <Button type="submit" className="p-5">
-                Add User
+                {isNew ? "Add Employee" : "Update"}
               </Button>
             </div>
           </form>
@@ -559,3 +699,36 @@ export default function EmployeeProfile() {
     </div>
   );
 }
+
+{
+  /* <div className="space-y-2">
+<Label htmlFor="userType">Assign User Type</Label>
+
+<select
+  id="userType"
+  value={formData.userType}
+  onChange={handleInputChange}
+  className="form-control"
+  required
+>
+  <option value="">Select User</option>
+  <option value="employee">Employee</option>
+  <option value="customerSupport">Customer Support</option>
+  <option value="contentDeployment">
+    Content Deployment
+  </option>
+  <option value="ANR">A&R</option>
+</select>
+{errors.role && <p className="text-red-500">{errors.role}</p>}
+</div> */
+}
+
+
+
+
+
+
+
+// https://swalay-music-files.s3.ap-south-1.amazonaws.com/employees/documents/NdaSignature-1733359195077-Hemant%2BSoni-agreement.pdf
+
+// https://swalay-music-files.s3.ap-south-1.amazonaws.com/employees/documents/NdaSignature-1733359195077-Hemant+Soni-agreement.pdf

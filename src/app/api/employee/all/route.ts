@@ -1,26 +1,29 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Admin from "@/models/admin";
+import Employee from "@/models/Employee";
+
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   await connect();
 
   try {
-    const UserData = await Admin.find().select(
-      "_id username email usertype isActive"
+    const EmployeeData = await Employee.find().select(
+      "_id fullName officialEmail phoneNumber role department status"
     );
 
-    if (!UserData) {
+    if (!EmployeeData) {
       return NextResponse.json({
         status: 404,
-        message: "User not found",
+        message: "No not found",
         success: false,
       });
     }
+    
 
     return NextResponse.json({
       status: 200,
-      data: UserData,
+      data: EmployeeData,
       message: "User found successfully",
       success: true,
     });

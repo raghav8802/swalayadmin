@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -16,7 +15,6 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -27,15 +25,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+// Define the Payment type
 export type Payment = {
-    _id: string;
-    labelId: string;
-    amount: string;
-    status: boolean;
-    time: string;
+  _id: string;
+  labelId: string;
+  amount: number;
+  status: string;
+  request_at: string;
+  update_at: string;
+  __v: number;
 };
 
-
+// Define the columns
 export const columns: ColumnDef<Payment>[] = [
   {
     accessorKey: "serial",
@@ -51,28 +52,62 @@ export const columns: ColumnDef<Payment>[] = [
     },
   },
   {
-    accessorKey: "time",
+    accessorKey: "request_at",
     header: () => <div className="text-right">Date</div>,
     cell: ({ row }) => {
-      const date = new Date(row.getValue("time"));
-      const localDate =  date.toLocaleDateString("en-IN", {
+      const date = new Date(row.getValue("request_at"));
+      const localDate = date.toLocaleDateString("en-IN", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
-
-      return <div className="text-right font-medium"> {localDate}</div>;
-
+      return <div className="text-right font-medium">{localDate}</div>;
     },
   },
-  
+  {
+    accessorKey: "status",
+    header: () => <div className="text-center">Status</div>,
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      let label, color;
+
+      switch (status) {
+        case "Pending":
+          label = "Pending";
+          color = "yellow";
+          break;
+        case "Completed":
+          label = "Completed";
+          color = "green";
+          break;
+        case "Failed":
+          label = "Failed";
+          color = "red";
+          break;
+        case "Rejected":
+          label = "Rejected";
+          color = "purple";
+          break;
+        default:
+          label = "Unknown";
+          color = "gray";
+      }
+
+      return (
+        <div className="center">
+          <div
+            className={`inline-flex items-center rounded-md bg-${color}-50 px-2 py-1 text-xs font-medium text-${color}-700 ring-1 ring-inset ring-${color}-600/10`}
+          >
+            {label}
+          </div>
+        </div>
+      );
+    },
+  },
 ];
 
-
-
-export function PaymentList({ data }: { data: Payment[] }) {
-// export function PaymentList() {
-
+// Define the PayoutList component
+export function PayoutList({ data }: { data: Payment[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -102,35 +137,22 @@ export function PaymentList({ data }: { data: Payment[] }) {
 
   return (
     <div className="w-full">
-      <h2 className="mt-5 text-3xl font-bold mb-2 capitalize ">Earing History</h2>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter amounts..."
-          value={(table.getColumn("amount")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("amount")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        
-      </div>
+      
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

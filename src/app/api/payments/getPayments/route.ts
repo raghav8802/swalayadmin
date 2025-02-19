@@ -1,7 +1,7 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 // import PaymentRequest, { PaymentStatus } from "@/models/paymentRequest";
-import PaymentRequest ,{PaymentStatus} from "@/models/paymentRequest";
+import PaymentRequest, { PaymentStatus } from "@/models/paymentRequest";
 import Payment from "@/models/Payments";
 import TotalBalance from "@/models/totalBalance";
 
@@ -32,14 +32,17 @@ export async function GET(request: NextRequest) {
         : label.username
       : "Unknown Label";
 
-    // Fetch payments from the database
-    const payments = await Payment.find({ labelId }).sort({ time: 1 });
-
+      // Fetch payments from the database
+      const payments = await Payment.find({ labelId }).sort({ time: 1 });
+      
+      //! calculate total pay in balance
     // Fetch total balance from the TotalBalance collection
     const totalBalanceRecord = await TotalBalance.findOne({ labelId });
     const totalBalance = totalBalanceRecord
-      ? totalBalanceRecord.totalBalance
-      : 0;
+    ? totalBalanceRecord.totalBalance
+    : 0;
+    
+    //! calculate total pay in
 
     // Calculate total payout balance from PaymentRequest collection where status is 'COMPLETED'
     const totalPayout = await PaymentRequest.aggregate([
