@@ -96,7 +96,6 @@ const Page = ({ params }: { params: { payoutid: string } }) => {
         window.location.reload();
       }
     } catch (error) {
-      console.error("Error submitting payout:", error);
       toast.error("Internal server error");
     }
   };

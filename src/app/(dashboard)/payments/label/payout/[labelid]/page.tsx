@@ -99,9 +99,7 @@ const Payments = ({ params }: { params: { labelid: string } }) => {
           All Payout Details of{" "}
           <span className="text-blue-500">{labelName}</span>{" "}
         </h3>
-      
       </div>
-
 
       <div className="bg-white mt-3">
         {payout && <PayoutList data={payout} />}
