@@ -34,6 +34,9 @@ const copyrights = () => {
     setIsLoading(true);
     try {
       const response = await apiGet(`/api/copyright/getCopyrights`);
+      console.log("fetch response copyrights :");
+      console.log(response);
+      
 
       if (response.success) {
         setCopyrights(response.data);
