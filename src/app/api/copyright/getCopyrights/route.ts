@@ -7,25 +7,41 @@ export async function GET(request: NextRequest) {
   await connect();
 
   try {
+    const copyrightsData = await Youtube.find()
+      .populate({
+        path: "labelId",
+        select: "username lable usertype", // Select username, label, and usertype from the Label model
+        model: Label,
+      })
+      .sort({ _id: -1 });
 
-    const copyrightsData = await Youtube.find({ status: false })
-    .populate({
-      path: "labelId",
-      select: "username lable usertype", // Select username, label, and usertype from the Label model
-      model: Label,
-    });
-
-  // Format the response with conditional label value based on usertype
-  const formattedData = copyrightsData.map((item: any) => ({
-    _id: item._id,
-    labelId: item.labelId._id, // Keep labelId
-    label: item.labelId.usertype === 'normal' 
+    // Format the response with conditional label value based on usertype
+    const formattedData = copyrightsData.map((item: any) => {
+      // Check if labelId exists and is not null
+      if (item.labelId) {
+        return {
+          _id: item._id,
+          labelId: item.labelId._id, // Keep labelId
+          label:
+            item.labelId.usertype === "normal"
               ? item.labelId.username // Show username for 'normal' users
-              : item.labelId.lable,    // Show label for 'super' users
-    link: item.link,
-    comment: item.comment,
-    status: item.status,
-  }));
+              : item.labelId.lable, // Show label for 'super' users
+          link: item.link,
+          comment: item.comment,
+          status: item.status,
+        };
+      } else {
+        // Handle the case where labelId is null
+        return {
+          _id: item._id,
+          labelId: null, // Set labelId to null
+          label: "Unknown", // Provide a default label
+          link: item.link,
+          comment: item.comment,
+          status: item.status,
+        };
+      }
+    });
 
     return NextResponse.json({
       message: "copyright data found",

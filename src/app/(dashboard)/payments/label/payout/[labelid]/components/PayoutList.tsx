@@ -72,12 +72,12 @@ export const columns: ColumnDef<Payment>[] = [
       let label, color;
 
       switch (status) {
-        case "Pending":
+        case "PENDING":
           label = "Pending";
           color = "yellow";
           break;
-        case "Completed":
-          label = "Completed";
+        case "APPROVED":
+          label = "Approved";
           color = "green";
           break;
         case "Failed":
