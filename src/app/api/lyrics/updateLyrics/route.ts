@@ -8,9 +8,6 @@ export async function POST(req: NextRequest) {
     await connect(); // Connect to the database
 
     const body = await req.json();
-    console.log("api req -----");
-    console.log(body);
-    console.log(body.trackId);
 
     const { trackId, lyrics } = body;
 
