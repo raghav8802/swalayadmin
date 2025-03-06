@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 import { apiFormData, apiGet } from "@/helpers/axiosRequest";
 import {
@@ -12,8 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/Modal";
 import toast from "react-hot-toast";
-import { useDropzone } from 'react-dropzone';
-import PaymentList from "./components/PaymentList";
+import { useDropzone } from "react-dropzone";
+import PaymentList from "../components/PaymentList";
+import RoyaltyLabelList from "../components/RoyaltyLabelList";
 
 interface LabelData {
   _id: string;
@@ -25,7 +26,7 @@ interface LabelData {
 const page = () => {
   const [payoutRequestData, setPayoutRequestData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  
+
   const [labelData, setLabelData] = useState<LabelData[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null); // State to store uploaded PDF file
 
@@ -34,7 +35,7 @@ const page = () => {
     period: "",
     lable: "",
     type: "",
-    payout_report_url: ""
+    payout_report_url: "",
   });
 
   const handleSave = async () => {
@@ -47,60 +48,66 @@ const page = () => {
       if (pdfFile) {
         formData.append("payout_report_url", pdfFile);
       }
-  
+
+
       // Use the apiFormData helper function
-      const response = await apiFormData('/api/payments/addPayment', formData);
-      
-      setData({ amount: "", period: "", lable: "", type: "", payout_report_url: "" });
+      const response = await apiFormData("/api/payments/addPayment", formData);
+
+      setIsModalVisible(false);
+      setData({
+        amount: "",
+        period: "",
+        lable: "",
+        type: "",
+        payout_report_url: "",
+      });
       setPdfFile(null); // Clear the uploaded file
     } catch (error) {
       toast.error("Internal server error");
     }
   };
-  
 
   const handleClose = () => {
     setIsModalVisible(false);
   };
 
-  const [earningData, setEarningData] = useState()
-  const fetchRequestedData = async () => {
-    try {
-      const response = await apiGet(`/api/payments/getEarings`);
-      
-      if (response.success) {
-        setPayoutRequestData(response.data);
-        setEarningData(response.data)
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const fetchLabels = async () => {
     try {
       const response = await apiGet("/api/labels/getLabels");
+
       if (response.success) {
         setLabelData(response.data);
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong to fetch data");
     }
   };
 
   useEffect(() => {
-    fetchRequestedData();
+    // fetchRequestedData();
     fetchLabels();
   }, []);
 
   const renderLabelOptions = () => {
-    return labelData.map(label => {
-      if (label.usertype === 'super' && label.lable) {
-        return <option key={label._id} value={label._id}>{label.lable} {label.usertype} </option>;
-      } else if (label.usertype === 'super' && !label.lable) {
-        return <option key={label._id} value={label._id}>{label.username}  ({label.usertype}) </option>;
-      } else if (label.usertype === 'normal') {
-        return <option key={label._id} value={label._id}>{label.username} ({label.usertype}) </option>;
+    return labelData.map((label) => {
+      if (label.usertype === "super" && label.lable) {
+        return (
+          <option key={label._id} value={label._id}>
+            {label.lable} ({label.usertype}){" "}
+          </option>
+        );
+      } else if (label.usertype === "super" && !label.lable) {
+        return (
+          <option key={label._id} value={label._id}>
+            {label.username} ({label.usertype}){" "}
+          </option>
+        );
+      } else if (label.usertype === "normal") {
+        return (
+          <option key={label._id} value={label._id}>
+            {label.username} ({label.usertype}){" "}
+          </option>
+        );
       } else {
         return null; // No option if conditions are not met
       }
@@ -115,7 +122,7 @@ const page = () => {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': [] },
+    accept: { "application/pdf": [] },
     maxFiles: 1,
   });
 
@@ -138,13 +145,14 @@ const page = () => {
 
       <div className="flex justify-between items-center mt-3">
         <h3 className="text-3xl font-bold mb-2 text-blue-500">
-          All Payment to client
+          All Labels for royalty
         </h3>
-        <Button onClick={() => setIsModalVisible(true)}>Add New Earn</Button>
+        <Button onClick={() => setIsModalVisible(true)}>Add New Royalty</Button>
       </div>
 
       {/* {payoutRequestData && <PaymentPendingList data={payoutRequestData} />} */}
-      {earningData && <PaymentList data={earningData} /> }
+      {/* {earningData && <PaymentList data={earningData} /> } */}
+      {labelData && <RoyaltyLabelList data={labelData} />}
 
       <Modal
         isVisible={isModalVisible}
@@ -190,18 +198,32 @@ const page = () => {
 
         <div>
           <label className="m-0">Type</label>
-          <input
+          {/* <input
             type="text"
             placeholder="Enter Type"
             className="form-control"
             value={data.type}
             onChange={(e) => setData({ ...data, type: e.target.value })}
-          />
+          /> */}
+          <select
+            className="form-control"
+            value={data.type}
+            onChange={(e) => setData({ ...data, type: e.target.value })}
+          >
+            <option value="">Select Type</option> {/* Default option */}
+            <option value="Royalty">Royalty</option>
+            <option value="Penalty">Penalty</option>
+          </select>
         </div>
 
         <div className="mt-4">
           <label className="m-0">Upload Payment Report (PDF)</label>
-          <div {...getRootProps({ className: 'dropzone border-dashed border-2 border-gray-400 rounded-md p-4 text-center cursor-pointer' })}>
+          <div
+            {...getRootProps({
+              className:
+                "dropzone border-dashed border-2 border-gray-400 rounded-md p-4 text-center cursor-pointer",
+            })}
+          >
             <input {...getInputProps()} />
             {pdfFile ? (
               <p>{pdfFile.name}</p>
@@ -210,20 +232,9 @@ const page = () => {
             )}
           </div>
         </div>
-
       </Modal>
     </div>
   );
 };
 
 export default page;
-
-
-
-
-
-
-
-
-
-

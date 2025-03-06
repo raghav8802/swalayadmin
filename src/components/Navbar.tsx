@@ -49,11 +49,12 @@ const Navbar = () => {
       name: "Payments",
       icon: "bi-wallet",
       dropdown: [
-        { path: "/payments/all", name: "All Payments" },
-        { path: "/payments/pending", name: "Pending Payments" },
-        { path: "/payments/completed", name: "Completed Payments" },
-        { path: "/payments/rejected", name: "Rejected Payments" },
-        { path: "/payments/failed", name: "Failed Payments" },
+        { path: "/payments/royalty", name: "Royalty" },
+        { path: "/payments/all", name: "Payout Requests" },
+        { path: "/payments/pending", name: "Pending Payout" },
+        { path: "/payments/approved", name: "Approved Payout" },
+        // { path: "/payments/rejected", name: "Rejected Payments" },
+        // { path: "/payments/failed", name: "Failed Payments" },
       ],
     },
     { path: "/copyrights", name: "Copyrights", icon: "bi-youtube" },
@@ -118,8 +119,6 @@ const Navbar = () => {
     try {
       const response = await apiGet(`/api/search?query=${query}`);
 
-      console.log("response : ");
-      console.log(response);
 
       if (response.success) {
         setSearchResults(response.data); // Store search results
@@ -129,7 +128,6 @@ const Navbar = () => {
         setShowSuggestions(false);
       }
     } catch (error) {
-      console.error("Error during search:", error);
       setSearchResults([]);
       setShowSuggestions(false);
     } finally {
@@ -163,10 +161,10 @@ const Navbar = () => {
   }, []);
 
   const onLogout = async () => {
-    console.log("click logout");
+    
     try {
       const res = await apiPost("/api/user/logout", {});
-      console.log(res);
+    
       context?.setUser(undefined);
       router.refresh();
     } catch (error) {
@@ -303,170 +301,7 @@ const Navbar = () => {
                   </div>
                 ))}
 
-                {/* <Link
-                  href="/"
-                  className="nav__link active"
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-house-door nav__icon"></i>
-                  <span className="nav__name">Home</span>
-                </Link>
-
-                <div className="nav__dropdown">
-                  <Link href="/albums" className="nav__link ">
-                    <i className="bi bi-vinyl nav__icon"></i>
-                    <span className="nav__name">Albums</span>
-                    <i className="bi bi-chevron-down nav__icon nav__dropdown-icon"></i>
-                  </Link>
-
-                  <div className="nav__dropdown-collapse ">
-                    <div className="nav__dropdown-content">
-                      <Link
-                        href="/albums/new-release"
-                        className="nav__dropdown-item"
-                      >
-                        New release
-                      </Link>
-                      <Link href="/albums/all" className="nav__dropdown-item">
-                        Albums
-                      </Link>
-                      <Link
-                        href="/albums/approved"
-                        className="nav__dropdown-item"
-                      >
-                        Approved
-                      </Link>
-                      <Link href="/albums/live" className="nav__dropdown-item">
-                        Live albums
-                      </Link>
-                      <Link
-                        href="/albums/rejected"
-                        className="nav__dropdown-item"
-                      >
-                        Rejected albums
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  href="/marketing"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-megaphone nav__icon"></i>
-                  <span className="nav__name">Marketing</span>
-                </Link>
-
-                <div className="nav__dropdown">
-                  <Link href="/payments" className="nav__link ">
-                    <i className="bi bi-vinyl nav__icon"></i>
-                    <span className="nav__name">Payments</span>
-                    <i className="bi bi-chevron-down nav__icon nav__dropdown-icon"></i>
-                  </Link>
-
-                  <div className="nav__dropdown-collapse ">
-                    <div className="nav__dropdown-content">
-                      <Link href="/payments/all" className="nav__dropdown-item">
-                        All
-                      </Link>
-                      <Link
-                        href="/payments/pending"
-                        className="nav__dropdown-item"
-                      >
-                        Pending
-                      </Link>
-                      <Link
-                        href="/payments/completed"
-                        className="nav__dropdown-item"
-                      >
-                        Completed
-                      </Link>
-                      <Link
-                        href="/payments/rejected"
-                        className="nav__dropdown-item"
-                      >
-                        Rejeted
-                      </Link>
-                      <Link
-                        href="/payments/failed"
-                        className="nav__dropdown-item"
-                      >
-                        Failed
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  href="/copyrights"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-youtube nav__icon"></i>
-                  <span className="nav__name ">Copyright</span>
-                </Link>
-
-                <Link
-                  href="/labels"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-people nav__icon"></i>
-                  <span className="nav__name">Lables</span>
-                </Link>
-
-                <Link
-                  href="/artists"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi bi-mic nav__icon"></i>
-                  <span className="nav__name">Artists</span>
-                </Link>
-
-
-                <Link
-                  href="/leads"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-person-check nav__icon"></i>
-                  <span className="nav__name">leads</span>
-                </Link>
-
-
-                <Link
-                  href="/notifications"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-bell nav__icon"></i>
-                  <span className="nav__name">Notification</span>
-                </Link>
-
-                <Link
-                  href="/profile"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-person nav__icon"></i>
-                  <span className="nav__name">Profile</span>
-                </Link>
-
-                <Link
-                  href="/settings"
-                  className="nav__link "
-                  onClick={handleLinkClick}
-                >
-                  <i className="bi bi-gear nav__icon"></i>
-                  <span className="nav__name">Settings</span>
-                </Link>
-
-                <Link href="/support" className="nav__link">
-                  <i className="bi bi-chat-left nav__icon"></i>
-                  <span className="nav__name">Support</span>
-                </Link> */}
+        
               </div>
             </div>
           </div>

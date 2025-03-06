@@ -18,10 +18,8 @@ import { PaymentPendingList } from "../components/pendingPaymentsList";
 const payments = ({ params }: { params: { filter: string } }) => {
   // const filter = params.filter;
   const filter = params.filter.charAt(0).toUpperCase() + params.filter.slice(1).toLowerCase();
-  console.log("filter : ", filter);
   
-
-  const validFilters = ["All", "Pending", "Completed", "Rejected", "Failed"];
+  const validFilters = ["All", "Pending", "Completed", "Rejected", "Failed", "Approved"]; 
   if (!validFilters.includes(filter)) {
     return <ErrorSection message="Invalid URL or Not Found" />;
   }
@@ -31,11 +29,11 @@ const payments = ({ params }: { params: { filter: string } }) => {
   const [payoutRequestData, setPayoutRequestData] = useState([]);
 
   const fetchRequestedData = async () => {
+    
     try {
       const response = await apiGet(
         `/api/payments/payout/getAllPayouts?status=${filter}`
       );
-      console.log(response);
       if (response.success) {
         setPayoutRequestData(response.data);
       }
@@ -60,12 +58,16 @@ const payments = ({ params }: { params: { filter: string } }) => {
           <BreadcrumbItem>
             <BreadcrumbPage>Payments</BreadcrumbPage>
           </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Payouts</BreadcrumbPage>
+          </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className={`bg-white mt-3 rounded `}>
         <h3 className="text-3xl font-bold mb-2 text-blue-500 capitalize ">
-            {filter} Payments
+            {filter} Payouts
           </h3>
 
         {payoutRequestData ? (

@@ -3,14 +3,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import toast from "react-hot-toast";
 import {
   Breadcrumb,
@@ -21,38 +13,48 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
+import { EmployeeDataTable } from "./components/EmployeeDataTable";
+import Link from "next/link";
+import AssignRoleModal from "./components/AssignRoleModal";
 
-interface User {
+type Employee = {
   _id: string;
-  username: string;
-  email: string;
-  usertype: string;
-  isActive: boolean;
-}
+  fullName: string;
+  officialEmail: string;
+  phoneNumber: string;
+  role: string;
+  department: string;
+  status: string;
+  assignedTo: string;
+};
 
 export default function UserManagement() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // to close the modal 
+  const handleClose = () => {
+    setIsModalVisible(false);
+  };
 
   const fetchUsers = async () => {
     try {
       const result = await apiGet("/api/employee/all");
-      console.log("fetch user result");
+      console.log("fetch employee result");
       console.log(result.data);
-      setUsers(result.data);
+      setEmployees(result.data);
     } catch (error) {
-      console.log('internal server error');
-      
+      console.log("internal server error");
     }
   };
 
   useEffect(() => {
     fetchUsers();
-  }, [])
-  
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     try {
@@ -107,98 +109,29 @@ export default function UserManagement() {
 
       <div className="mx-auto py-5 space-y-10">
         <div>
-          <h2 className="text-2xl font-bold mb-6">Employees</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium mb-2 text-gray-700"
-                >
-                  Name
-                </label>
+          <div className="flex justify-between items-center mt-3">
+            <h3 className="text-2xl font-bold mb-3">Employees List</h3>
 
-                <input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  className="form-control"
-                />
-              </div>
-              <div className="space-y-2">
-                <label
-                  className="block text-sm font-medium mb-2 text-gray-700"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@example.com"
-                  required
-                  className="form-control"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label
-                  className="block text-sm font-medium mb-2 text-gray-700"
-                  htmlFor="role"
-                >
-                  User Role
-                </label>
-
-                <select
-                  name=""
-                  id=""
-                  value={role}
-                  className="form-control"
-                  onChange={(e) => setRole(e.target.value)}
-                  required
-                >
-                  <option value="">Select User</option>
-                  <option value="customerSupport">Customer Support</option>
-                  <option value="contentDeployment">Content Deployment</option>
-                  <option value="ANR">A&R</option>
-                </select>
-              </div>
-              <div className="space-y-2 flex items-end ">
-                <Button type="submit" className="p-5">
-                  Add User
-                </Button>
-              </div>
+            <div>
+              <Button className="me-3" onClick={() => setIsModalVisible(true)}>
+                Assign Role
+              </Button>
+              <Button>
+                <Link href={"/employees/profile"}>New Employee <i className="bi bi-person-add"></i></Link>
+              </Button>
             </div>
-          </form>
+          </div>
+
+
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold mb-6">User List</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {/* <TableHead>ID</TableHead> */}
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>{user?.username}</TableCell>
-                  <TableCell>{user?.email}</TableCell>
-                  <TableCell>{user?.usertype}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {employees && <EmployeeDataTable data={employees} />}
         </div>
+
+        <AssignRoleModal isVisible={isModalVisible} onClose={handleClose} />
+
+
       </div>
     </div>
   );

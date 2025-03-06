@@ -27,7 +27,7 @@
    "src/dbConfig/dbConfig.ts", "src/context/UserProvider.tsx", 
    "src/components/HomeStatsCard.tsx", 
    "src/app/(dashboard)/albums/components/InputElement.js",
-    "src/app/(dashboard)/payments/label/[labelid]/components/PaymentModal.tsx", 
+    "src/app/(dashboard)/payments/label/payin/[labelid]/components/PaymentModal.tsx", 
     "src/app/(dashboard)/albums/new-release/page.tsx", 
     "src/app/(dashboard)/albums/components/MultiSelect.js", "src/components/Navbar.tsx", "src/components/email"],
   "exclude": ["node_modules"]
