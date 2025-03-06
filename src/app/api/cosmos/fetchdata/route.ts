@@ -293,14 +293,35 @@ export async function POST(req: Request) {
       return NextResponse.json(responseData, { status: externalApiResponse.status });
     }
 
-    const { signed_albums } = responseData.data   ;
+    // Add logging to see the actual response structure
+    console.log('Response Data:', responseData);
+
+    // Check if data and signed_albums exist and have content
+    if (!responseData.data?.signed_albums?.length) {
+      throw new Error('No signed albums data received from the API');
+    }
+
+    const { signed_albums } = responseData.data;
+
+    // Add additional safety checks before accessing the data
+    if (!signed_albums[0]?.inlay?.signed_url) {
+      throw new Error('Missing inlay signed URL in the response');
+    }
 
     // Fetch the album art and upload it using the signed URL
     const albumArtBuffer = await fetchFileFromS3(thumbnailUrl);
     await uploadFileToSignedUrl(signed_albums[0].inlay.signed_url, albumArtBuffer, 'image/jpeg');
 
+    // Add safety check for songs array
+    if (!signed_albums[0]?.songs?.length) {
+      throw new Error('No signed URLs received for songs');
+    }
+
     // Fetch and upload each track using the signed URLs
     for (let i = 0; i < tracks.length; i++) {
+      if (!signed_albums[0].songs[i]?.media?.signed_url) {
+        throw new Error(`Missing signed URL for track ${i}`);
+      }
       const trackBuffer = await fetchFileFromS3(`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${tracks[i].albumId}ba3/tracks/${tracks[i].audioFile}`);
       await uploadFileToSignedUrl(signed_albums[0].songs[i].media.signed_url, trackBuffer, 'audio/mp4');
     }
