@@ -39,15 +39,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const existingLabelByLabelName = await Label.findOne({ lable: lable });
+    console.log("usertype");
+    console.log(usertype);
 
-    if (existingLabelByLabelName) {
-      return NextResponse.json({
-        message: "Already exists an account with same Label Name",
-        success: false,
-        status: 400,
-      });
+    if (usertype !== "normal") {
+      const existingLabelByLabelName = await Label.findOne({ lable: lable });
+
+      if (existingLabelByLabelName) {
+        return NextResponse.json({
+          message: "Already exists an account with same Label Name",
+          success: false,
+          status: 400,
+        });
+      }
+      
     }
+
     const extingUserVerifiedByEmail = await Label.findOne({ email });
 
     if (extingUserVerifiedByEmail) {
@@ -57,7 +64,6 @@ export async function POST(request: NextRequest) {
         status: 400,
       });
     }
-
 
     const razorpayApiKey = process.env.RAZORPAY_KEY_ID;
     const razorpayApiSecret = process.env.RAZORPAY_KEY_SECRET;
@@ -85,7 +91,6 @@ export async function POST(request: NextRequest) {
 
     const razorpayData = (await razorpayResponse.json()) as RazorpayResponse;
 
-
     if (!razorpayResponse.ok) {
       console.error("Failed to create Razorpay contact:", razorpayData);
       return NextResponse.json({
@@ -97,7 +102,6 @@ export async function POST(request: NextRequest) {
     }
 
     const razorpayContactId = razorpayData.id;
-
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
@@ -114,19 +118,19 @@ export async function POST(request: NextRequest) {
 
     await newUser.save();
 
-    
-    const emailTemplate = <AccountActivationEmailTemplate clientName={username} />;
+    const emailTemplate = (
+      <AccountActivationEmailTemplate clientName={username} />
+    );
     const emailStatus = await sendMail({
       to: email, // Key 'to' must be specified
       subject: "Welcome to SwaLay Plus - Account Activated", // Key 'subject' must be specified
       emailTemplate, // This passes the rendered template
     });
 
-
     return NextResponse.json({
       message: "Razorpay contact created and user registered successfully",
       userData: reqBody,
-      razorpayData,
+      // razorpayData,
       success: true,
       status: 200,
     });

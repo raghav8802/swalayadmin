@@ -75,11 +75,7 @@ const EmployeeSchema = new Schema<IEmployee>({
     },
     panCardNumber: {
       type: String,
-      required: true,
-      validate: {
-        validator: (pan: string) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan), // PAN Card validation
-        message: 'Invalid PAN Card Number',
-      },
+      
     },
     bankAccountNumber: { type: String, required: true },
     ifscCode: { type: String, required: true },

@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
 
     // Handle file uploads for existing employees
     if (ndaFileBuffer && ndaFileName) {
+      console.log("nda");
+      
       const retFile = await uploadEmployeeNdaToS3({
         file: ndaFileBuffer, // Pass the file buffer as 'file'
         fileName: ndaFileName, // Pass the file name as 'fileName'
@@ -89,6 +91,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (workPolicyFileBuffer && workPolicyFileName) {
+      console.log("work policy");
+      
       const retFile = await uploadWorkPolicyToS3({
         file: workPolicyFileBuffer, // Pass the file buffer as 'file'
         fileName: workPolicyFileName, // Pass the file name as 'fileName'
@@ -100,86 +104,94 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (existingEmployee) {
-      // Update existing employee
-      const updateFields: Record<string, any> = {
-        fullName: name,
-        personalEmail: email,
-        officialEmail,
-        phoneNumber: phone,
-        address,
-        dateOfBirth: dob,
-        aadharCardNumber: aadhar,
-        panCardNumber: pan,
-        bankAccountNumber: bankAccount,
-        ifscCode: ifsc,
-        bank,
-        branch,
-        joiningDate,
-        role,
-        department,
-        manager: {
-          name: manager,
-          contact: managerContact,
-        },
-        status,
-        employeeVerification,
-      };
+    // if (existingEmployee) {
+    // Update existing employee
+    // const updateFields: Record<string, any> = {
+    //   fullName: name,
+    //   personalEmail: email,
+    //   officialEmail,
+    //   phoneNumber: phone,
+    //   address,
+    //   dateOfBirth: dob,
+    //   aadharCardNumber: aadhar,
+    //   panCardNumber: pan,
+    //   bankAccountNumber: bankAccount,
+    //   ifscCode: ifsc,
+    //   bank,
+    //   branch,
+    //   joiningDate,
+    //   role,
+    //   department,
+    //   manager: {
+    //     name: manager,
+    //     contact: managerContact,
+    //   },
+    //   status,
+    //   employeeVerification,
+    // };
 
-      if (NdaSignatureFile) {
-        updateFields.ndaSignature = { status: ndaSignatureStatus, document: NdaSignatureFile };
-      }
-      if (WorkPolicyFile) {
-        updateFields.workPolicy = { status: workPolicyStatus, document: WorkPolicyFile };
-      }
+    // if (NdaSignatureFile) {
+    //   updateFields.ndaSignature = {
+    //     status: ndaSignatureStatus,
+    //     document: NdaSignatureFile,
+    //   };
+    // }
+    // if (WorkPolicyFile) {
+    //   updateFields.workPolicy = {
+    //     status: workPolicyStatus,
+    //     document: WorkPolicyFile,
+    //   };
+    // }
 
-      await Employee.findByIdAndUpdate(existingEmployee._id, updateFields, {
-        new: true,
-      });
-      
-      return NextResponse.json({
-        message: "Employee data updated",
-        success: true,
-        status: 200,
-      });
-    } else {
-      // Add new employee
-      const newEmployee = new Employee({
-        fullName: name,
-        personalEmail: email,
-        officialEmail,
-        phoneNumber: phone,
-        address,
-        dateOfBirth: dob,
-        aadharCardNumber: aadhar,
-        panCardNumber: pan,
-        bankAccountNumber: bankAccount,
-        ifscCode: ifsc,
-        bank,
-        branch,
-        joiningDate,
-        role,
-        department,
-        manager: {
-          name: manager,
-          contact: managerContact,
-        },
-        status,
-        ndaSignature: { status: ndaSignatureStatus, document: NdaSignatureFile  },
-        workPolicy: { status: workPolicyStatus,  document: WorkPolicyFile },
-        employeeVerification,
-      });
+    // await Employee.findByIdAndUpdate(existingEmployee._id, updateFields, {
+    //   new: true,
+    // });
 
-      // Save the employee before uploading files
-      const savedEmployee = await newEmployee.save();
+    // return NextResponse.json({
+    //   message: "Employee data updated",
+    //   success: true,
+    //   status: 200,
+    // });
+    // } else {
+    // Add new employee
 
-      return NextResponse.json({
-        message: "Employee added successfully",
-        success: true,
-        status: 201,
-        data: savedEmployee,
-      });
-    }
+    const newEmployee = new Employee({
+      fullName: name,
+      personalEmail: email,
+      officialEmail,
+      phoneNumber: phone,
+      address,
+      dateOfBirth: dob,
+      aadharCardNumber: aadhar,
+      panCardNumber: pan,
+      bankAccountNumber: bankAccount,
+      ifscCode: ifsc,
+      bank,
+      branch,
+      joiningDate,
+      role,
+      department,
+      manager: {
+        name: manager,
+        contact: managerContact,
+      },
+      status,
+      ndaSignature: { status: ndaSignatureStatus, document: NdaSignatureFile },
+      workPolicy: { status: workPolicyStatus, document: WorkPolicyFile },
+      employeeVerification,
+    });
+
+    // Save the employee before uploading files
+    const savedEmployee = await newEmployee.save();
+
+    return NextResponse.json({
+      message: "Employee added successfully",
+      success: true,
+      status: 201,
+      data: savedEmployee,
+    });
+
+    // }
   } catch (error: any) {
     console.error("Error:", error.message);
 

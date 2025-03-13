@@ -109,8 +109,7 @@ export default function EmployeeProfile() {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const encodedEmployeeId = query.get("employeeid");
-    console.log("employeeId :");
-    console.log(encodedEmployeeId);
+    
     if (encodedEmployeeId) {
       try {
         let employeeid = atob(encodedEmployeeId);
@@ -127,9 +126,7 @@ export default function EmployeeProfile() {
     try {
       const result = await apiGet(`/api/employee/details?employeeid=${id}`);
       const data = result.data;
-      console.log("data ==>");
-      console.log(data);
-      console.log(data.employeeVerification);
+      
       setExsitsNdaFile(data.ndaSignature?.document);
       setExsitsWorkPolicy(data.workPolicy?.document);
       const fromatedDob = new Date(data.dateOfBirth).toISOString().split("T")[0];
@@ -237,7 +234,6 @@ export default function EmployeeProfile() {
     try {
       e.preventDefault();
       if (validateForm()) {
-        console.log("Form submitted:", formData);
 
         // Prepare FormData object
         const formDataObj = new FormData();
@@ -261,25 +257,21 @@ export default function EmployeeProfile() {
           }
         }
 
-        formDataObj.forEach((value, key) => {
-          console.log(`${key}: Value:`, value);
-        });
 
         // Send to API
         toast.loading("Creating Employee Profile");
         const response = await apiFormData("/api/employee/add", formDataObj);
 
-        console.log("api repsonse");
-        // console.log(response);
-        // if (response.success) {
-        //   toast.success(`d ${response.message}`);
-        // } else {
-        //   toast.error(response.error);
-        // }
+        if (response.success) {
+          toast.success(`Employee Profile created`);
+        } else {
+          toast.error(response.error);
+        }
       } else {
         alert("Please fix the errors before submitting.");
       }
-    } catch (error) {
+    } catch (error:any) {
+      console.log(error);
       toast.error("Internal Server Error");
     }
   };
