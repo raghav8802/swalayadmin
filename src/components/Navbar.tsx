@@ -174,9 +174,9 @@ const Navbar = () => {
 
   return (
     <div>
-      <header className="header">
-        <div className="header__container">
-          <Link href="/" className="header__logo">
+      <header className="header dark">
+        <div className="header__container dark ">
+          <Link href="/" className="header__logo ">
             SwaLay
           </Link>
 
@@ -185,11 +185,11 @@ const Navbar = () => {
               <label htmlFor="search" className="sr-only">
                 Search
               </label>
-              <div className="relative">
+              <div className="relative dark">
                 <input
                   id="search"
                   name="search"
-                  className="header__input"
+                  className="header__input text-white"
                   placeholder="Search album or track"
                   type="search"
                   value={searchTerm}
@@ -237,7 +237,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="header__toggle">
+          <div className="header__toggle dark">
             <i
               className={`bi ${showMenu ? "bi-x" : "bi-list"}`}
               id="header-toggle"
