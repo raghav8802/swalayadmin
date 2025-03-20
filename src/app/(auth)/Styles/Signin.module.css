@@ -7,7 +7,6 @@
 /* Left Container */
 .containerLeft {
     width: 30%;
-    top: 75%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -118,16 +117,17 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end; /* Align to the right */   
-    padding-right: 100px; /* Add some padding to the right */
-    padding-top: 100px; /* Adjust this value to move it up */
+    padding-right: 0px; /* Add some padding to the right */
+    padding-top: 90px; /* Adjust this value to move it up */
     width: 70%; /* Adjust width as needed */
 }
 
 /* Logo Text */
 .logoText {
     margin-top: 10px; /* Space between the logo and the text */
-    font-size: 1.5rem; /* Adjust font size as needed */
-    text-align: center; /* Center the text */
+    font-size: 1.5rem; 
+    padding-right: 10px;/* Adjust font size as needed */
+    text-align: right; /* Center the text */
     color: #e7e6e6; /* Change text color as needed */
     font-weight: bold; /* Make the text bold */
 }
@@ -204,7 +204,7 @@
 .musicnote2IconsContainer {
     position: absolute;
     top: 22%; /* Adjust as needed */
-    right: 49%; /* Adjust as needed */
+    right: 55%; /* Adjust as needed */
     z-index: 5; /* Ensure icons are above other elements */
 }
 
@@ -268,6 +268,55 @@
     color: #e7e6e6; /* Change icon color as needed */
     font-size: 24px; /* Adjust icon size as needed */
     animation: pulse 2.7s infinite; /* Different pulsing animation duration */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .containerLeft {
+        width: 90%; /* Full width on smaller screens */
+        padding: 20px; /* Adjust padding */
+    }
+
+    .containerLeftInner {
+        width: 100%; /* Full width for inner container */
+        padding: 20px; /* Adjust padding */
+    }
+
+    .heading {
+        font-size: 28px; /* Smaller font size for heading */
+    }
+
+    .inputField {
+        max-width: 100%; /* Full width for input fields */
+    }
+
+    .submitButton {
+        width: 100%; /* Full width for button */
+    }
+
+    .containerRight {
+        padding-right: 20px; /* Less padding on smaller screens */
+        padding-top: 50px; /* Adjust padding */
+    }
+
+    .logoTopLeft {
+        top: 10px; /* Adjust logo position */
+        left: 10px; /* Adjust logo position */
+    }
+
+    .musicIconsContainer {
+        right: 5%; /* Adjust icon container position */
+    }
+}
+
+@media (max-width: 480px) {
+    .heading {
+        font-size: 24px; /* Even smaller font size for very small screens */
+    }
+
+    .bottomrightContainer {
+        font-size: 0.8rem; /* Smaller font size for copyright text */
+    }
 }
 
 
