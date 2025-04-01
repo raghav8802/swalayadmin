@@ -1,32 +1,28 @@
-import axios, {  Method } from "axios";
+import axios, { Method } from "axios";
 
-interface ApiRequestParams {
+interface ApiRequestParams<T = unknown> {
   endpoint: string;
-  data?: any;
+  data?: T;
   method: Method;
   headers?: Record<string, string>;
 }
 
-export const apiRequest = async ({
+export const apiRequest = async <T = unknown>({
   endpoint,
   data,
   method,
   headers,
-}: ApiRequestParams): Promise<any> => {
-  try {
-    const response = await axios({
-      url: endpoint,
-      method: method,
-      data: data,
-      headers: headers,
-    });
-    return response.data;
-  } catch (error) {
-    return error;
-  }
+}: ApiRequestParams<T>): Promise<T> => {
+  const response = await axios({
+    url: endpoint,
+    method: method,
+    data: data,
+    headers: headers,
+  });
+  return response.data;
 };
 
-export const apiPost = (endpoint: string, data: any): Promise<any> => {
+export const apiPost = <T = unknown>(endpoint: string, data: T): Promise<T> => {
   const apiHeaders = {
     "Content-Type": "application/json",
   };
@@ -34,27 +30,20 @@ export const apiPost = (endpoint: string, data: any): Promise<any> => {
   return apiRequest({ endpoint, data, method: "post", headers: apiHeaders });
 };
 
-export const apiGet = (endpoint: string, data: any = null): Promise<any> => {
+export const apiGet = <T = unknown>(endpoint: string, data: T | null = null): Promise<T | null> => {
   const apiHeaders = {
     "Content-Type": "application/json",
   };
   return apiRequest({ endpoint, data, method: "get", headers: apiHeaders });
 };
 
-export const apiFormData = async (endpoint:string, formDataObj:any) => {
-
-  try {
-    const response = await axios.post(endpoint, formDataObj, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error adding album:", error);
-    throw error;
-  }
-
+export const apiFormData = async <T = unknown>(endpoint: string, formDataObj: FormData): Promise<T> => {
+  const response = await axios.post(endpoint, formDataObj, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
 };
 
 

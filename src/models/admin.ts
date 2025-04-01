@@ -29,7 +29,7 @@ const AdminSchema: Schema<iAdmin> = new Schema({
         required: [true, 'Email required'],
         trim: true,
         unique: true,
-        match: [/.+\@.+\..+/, "Please use a valid email address"]
+        match: [/^.+@.+\..+$/, "Please use a valid email address"]
     },
     password: {
         type: String,

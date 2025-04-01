@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
+import PropTypes from 'prop-types'
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -27,6 +28,10 @@ const AlertDialogOverlay = React.forwardRef<
 ))
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName
 
+AlertDialogOverlay.propTypes = {
+  className: PropTypes.string,
+}
+
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
@@ -45,6 +50,10 @@ const AlertDialogContent = React.forwardRef<
 ))
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName
 
+AlertDialogContent.propTypes = {
+  className: PropTypes.string,
+}
+
 const AlertDialogHeader = ({
   className,
   ...props
@@ -58,6 +67,10 @@ const AlertDialogHeader = ({
   />
 )
 AlertDialogHeader.displayName = "AlertDialogHeader"
+
+AlertDialogHeader.propTypes = {
+  className: PropTypes.string,
+}
 
 const AlertDialogFooter = ({
   className,
@@ -73,6 +86,10 @@ const AlertDialogFooter = ({
 )
 AlertDialogFooter.displayName = "AlertDialogFooter"
 
+AlertDialogFooter.propTypes = {
+  className: PropTypes.string,
+}
+
 const AlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
@@ -84,6 +101,10 @@ const AlertDialogTitle = React.forwardRef<
   />
 ))
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName
+
+AlertDialogTitle.propTypes = {
+  className: PropTypes.string,
+}
 
 const AlertDialogDescription = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Description>,
@@ -98,6 +119,10 @@ const AlertDialogDescription = React.forwardRef<
 AlertDialogDescription.displayName =
   AlertDialogPrimitive.Description.displayName
 
+AlertDialogDescription.propTypes = {
+  className: PropTypes.string,
+}
+
 const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
@@ -109,6 +134,10 @@ const AlertDialogAction = React.forwardRef<
   />
 ))
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName
+
+AlertDialogAction.propTypes = {
+  className: PropTypes.string,
+}
 
 const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
@@ -125,6 +154,10 @@ const AlertDialogCancel = React.forwardRef<
   />
 ))
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
+
+AlertDialogCancel.propTypes = {
+  className: PropTypes.string,
+}
 
 export {
   AlertDialog,

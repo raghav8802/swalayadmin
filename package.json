@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "start": "npm run dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "module": "^1.1.0",
     "mongoose": "^8.4.5",
     "next": "^14.2.24",
+    "next-auth": "^4.24.11",
     "nodemailer": "^6.9.14",
     "papaparse": "^5.5.2",
     "quill": "^2.0.3",
@@ -61,12 +63,15 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.6",
+    "@types/next-auth": "^3.15.0",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.15",
     "@types/papaparse": "^5.3.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-slick": "^0.23.13",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",

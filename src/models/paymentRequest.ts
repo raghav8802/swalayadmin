@@ -26,11 +26,10 @@ const PaymentRequestSchema: Schema = new Schema({
   },
   status: {
     type: String,
+    enum: [PaymentStatus.PENDING, PaymentStatus.APPROVED],
     default: PaymentStatus.PENDING,
-    enum: Object.values(PaymentStatus),
     required: true,
   }
-
 });
 
 const PaymentRequest =

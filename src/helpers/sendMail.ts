@@ -12,7 +12,7 @@ interface SendMailOptions {
 
 const sendMail = async ({ to, subject, emailTemplate }: SendMailOptions): Promise<void> => {
   try {
-    const { data, error } = await resend.emails.send({
+    const {  error } = await resend.emails.send({
       from: "SwaLay India <swalay.care@talantoncore.in>",
       to: Array.isArray(to) ? to : [to],
       subject,

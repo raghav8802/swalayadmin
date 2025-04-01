@@ -67,7 +67,7 @@ const TrackList: React.FC<TrackListProps> = ({ albumId, onTrackClick }) => {
     };
 
     fetchTracks();
-  }, [albumId]);
+  }, [albumId, onTrackClick]);
 
   // Handle track item click
   const handleTrackClick = (trackId: string) => {

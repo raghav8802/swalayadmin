@@ -18,7 +18,7 @@ import { apiGet } from "@/helpers/axiosRequest";
 import CopyRightsModalForm from "./components/CopyRightsModalForm";
 import { CopyRightsDataTable } from "./components/CopyRightsDataTable";
 
-const copyrights = () => {
+const Copyrights = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
 
@@ -97,4 +97,4 @@ const copyrights = () => {
   );
 };
 
-export default copyrights;
+export default Copyrights;

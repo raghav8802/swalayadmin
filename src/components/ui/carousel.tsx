@@ -8,6 +8,7 @@ import useEmblaCarousel, {
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import PropTypes from 'prop-types'
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -150,6 +151,15 @@ const Carousel = React.forwardRef<
 )
 Carousel.displayName = "Carousel"
 
+Carousel.propTypes = {
+  orientation: PropTypes.oneOf(["horizontal", "vertical"]),
+  opts: PropTypes.object,
+  setApi: PropTypes.func,
+  plugins: PropTypes.array,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+}
+
 const CarouselContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -171,6 +181,10 @@ const CarouselContent = React.forwardRef<
   )
 })
 CarouselContent.displayName = "CarouselContent"
+
+CarouselContent.propTypes = {
+  className: PropTypes.string,
+}
 
 const CarouselItem = React.forwardRef<
   HTMLDivElement,
@@ -194,6 +208,10 @@ const CarouselItem = React.forwardRef<
 })
 CarouselItem.displayName = "CarouselItem"
 
+CarouselItem.propTypes = {
+  className: PropTypes.string,
+}
+
 const CarouselPrevious = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
@@ -206,7 +224,7 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute  h-8 w-8 rounded-full",
+        "absolute h-8 w-8 rounded-full",
         orientation === "horizontal"
           ? "-left-12 top-1/2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -222,6 +240,12 @@ const CarouselPrevious = React.forwardRef<
   )
 })
 CarouselPrevious.displayName = "CarouselPrevious"
+
+CarouselPrevious.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(["default", "destructive", "outline", "secondary", "ghost", "link"]),
+  size: PropTypes.oneOf(["default", "sm", "lg", "icon"]),
+}
 
 const CarouselNext = React.forwardRef<
   HTMLButtonElement,
@@ -251,6 +275,12 @@ const CarouselNext = React.forwardRef<
   )
 })
 CarouselNext.displayName = "CarouselNext"
+
+CarouselNext.propTypes = {
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(["default", "destructive", "outline", "secondary", "ghost", "link"]),
+  size: PropTypes.oneOf(["default", "sm", "lg", "icon"]),
+}
 
 export {
   type CarouselApi,

@@ -1,6 +1,6 @@
 "use client";
 import { apiGet } from "@/helpers/axiosRequest";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import {
   Breadcrumb,
@@ -59,7 +59,7 @@ const ArtistPage = ({ params }: { params: { id: string } }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [albumData, setAlbumData] = useState([]);
 
-  const fetchArtistDetails = async () => {
+  const fetchArtistDetails = useCallback(async () => {
     try {
       const response = await apiGet(
         `/api/artist/getArtistDetails?artistId=${decodedArtistId}`
@@ -76,11 +76,11 @@ const ArtistPage = ({ params }: { params: { id: string } }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [decodedArtistId]);
 
   useEffect(() => {
     fetchArtistDetails();
-  }, [decodedArtistId]);
+  }, [fetchArtistDetails]);
 
   const handleClose = () => {
     setIsModalVisible(false);

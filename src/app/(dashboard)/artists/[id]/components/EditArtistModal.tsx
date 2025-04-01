@@ -19,12 +19,12 @@ const validateAndExtract = {
     return match ? match[1] : null;
   },
   instagram: (url: string) => {
-    const regex = /^https:\/\/www\.instagram\.com\/([\w\.\_]+)/;
+    const regex = /^https:\/\/www\.instagram\.com\/([\w._]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
   },
   facebook: (url: string) => {
-    const regex = /^https:\/\/www\.facebook\.com\/([\w\.]+)/;
+    const regex = /^https:\/\/www\.facebook\.com\/([\w.]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
   },
@@ -40,7 +40,7 @@ const EditArtistModal = ({
   artistData: any; // Required prop for existing artist data
 }) => {
   const context = useContext(UserContext);
-  const labelId = context?.user?._id;
+  // const labelId = context?.user?._id; // Unused variable, consider removing
 
   const [formData, setFormData] = useState<{
     artistName: string;
@@ -125,28 +125,30 @@ const EditArtistModal = ({
     const newErrors = { ...errors };
 
     switch (name) {
-      case "spotifyID":
+      case "spotifyID": {
         const spotifyID = validateAndExtract.spotify(value);
         newFormData.spotifyID = spotifyID || "";
         newErrors.spotifyID = spotifyID ? "" : "Enter a valid Spotify URL";
         break;
-      case "appleID":
+      }
+      case "appleID": {
         const appleID = validateAndExtract.apple(value);
         newFormData.appleID = appleID || "";
         newErrors.appleID = appleID ? "" : "Enter a valid Apple Music URL";
         break;
-      case "instagramID":
+      }
+      case "instagramID": {
         const instagramID = validateAndExtract.instagram(value);
         newFormData.instagramID = instagramID || "";
-        newErrors.instagramID = instagramID
-          ? ""
-          : "Enter a valid Instagram URL";
+        newErrors.instagramID = instagramID ? "" : "Enter a valid Instagram URL";
         break;
-      case "facebookID":
+      }
+      case "facebookID": {
         const facebookID = validateAndExtract.facebook(value);
         newFormData.facebookID = facebookID || "";
         newErrors.facebookID = facebookID ? "" : "Enter a valid Facebook URL";
         break;
+      }
       default:
         break;
     }
@@ -211,11 +213,12 @@ const EditArtistModal = ({
       } else {
         toast.error("Something went wrong. Please try again.");
       }
-      setIsSubmitting(false);
     } catch (error) {
       toast.error(
         "An error occurred while updating the artist. Please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -516,6 +519,15 @@ const EditArtistModal = ({
           )}
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={isSubmitting}
+        className={`btn ${isSubmitting ? "loading" : ""}`}
+      >
+        {isSubmitting ? "Updating..." : "Update Artist"}
+      </button>
     </Modal>
   );
 };

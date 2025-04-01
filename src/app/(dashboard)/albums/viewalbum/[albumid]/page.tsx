@@ -44,7 +44,7 @@ enum AlbumProcessingStatus {
   Live = 4,
 }
 
-const albums = ({ params }: { params: { albumid: string } }) => {
+const Albums = ({ params }: { params: { albumid: string } }) => {
   const context = useContext(UserContext);
   const userType = context?.user?.usertype || "";
 
@@ -140,6 +140,7 @@ const albums = ({ params }: { params: { albumid: string } }) => {
               href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${albumId}ba3/cover/${albumDetails.thumbnail}`}
               download={albumDetails.thumbnail as string}
               target="_blank"
+              rel="noreferrer"
               className="w-full"
             >
               <Image
@@ -311,4 +312,4 @@ const albums = ({ params }: { params: { albumid: string } }) => {
   );
 };
 
-export default albums;
+export default Albums;

@@ -2,11 +2,7 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
-import {
-  NameType,
-  Payload,
-  ValueType,
-} from "recharts/types/component/DefaultTooltipContent"
+import PropTypes from 'prop-types'
 
 import { cn } from "@/lib/utils"
 
@@ -57,7 +53,7 @@ const ChartContainer = React.forwardRef<
         data-chart={chartId}
         ref={ref}
         className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
+          "flex aspect-video justify-center text-xs",
           className
         )}
         {...props}
@@ -72,9 +68,25 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+// Update prop types validation for ChartContainer
+ChartContainer.propTypes = {
+  id: PropTypes.string,
+  className: PropTypes.string,
+  config: PropTypes.shape({
+    label: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
+    icon: PropTypes.elementType.isRequired,
+    color: PropTypes.string.isRequired,
+    theme: PropTypes.shape({
+      light: PropTypes.string,
+      dark: PropTypes.string,
+    }),
+  }).isRequired,
+  children: PropTypes.element.isRequired,
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([_, config]) => config.theme || config.color
+    ([key, itemConfig]) => itemConfig.theme || itemConfig.color
   )
 
   if (!colorConfig.length) {
@@ -261,6 +273,23 @@ const ChartTooltipContent = React.forwardRef<
 )
 ChartTooltipContent.displayName = "ChartTooltip"
 
+// Add prop types validation for ChartTooltipContent
+ChartTooltipContent.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.array,
+  className: PropTypes.string,
+  indicator: PropTypes.oneOf(["line", "dot", "dashed"]),
+  hideLabel: PropTypes.bool,
+  hideIndicator: PropTypes.bool,
+  label: PropTypes.node,
+  labelFormatter: PropTypes.func,
+  labelClassName: PropTypes.string,
+  formatter: PropTypes.func,
+  color: PropTypes.string,
+  nameKey: PropTypes.string,
+  labelKey: PropTypes.string,
+}
+
 const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
@@ -320,6 +349,15 @@ const ChartLegendContent = React.forwardRef<
   }
 )
 ChartLegendContent.displayName = "ChartLegend"
+
+// Add prop types validation for ChartLegendContent
+ChartLegendContent.propTypes = {
+  className: PropTypes.string,
+  hideIcon: PropTypes.bool,
+  payload: PropTypes.array.isRequired,
+  verticalAlign: PropTypes.oneOf(["top", "bottom"]),
+  nameKey: PropTypes.string,
+}
 
 // Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(

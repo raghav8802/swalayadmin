@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 
 // Define a type for your response structure
-export type ResponseType = {
+export type ResponseType <T>= {
     status: number;
-    data: any; // Adjust 'any' as per your specific output type
+    data: T; // Adjust 'any' as per your specific output type
     success: boolean;
     message: string;
 };
 
 // Function to create a standardized response and NextResponse object
-export const ApiResponse = (status: number, data: any, success: boolean, message: string) => {
-    const responseObject: ResponseType = {
+export const ApiResponse = <T>(status: number, data: T, success: boolean, message: string) => {
+    const responseObject: ResponseType <T> = {
         status,
         data,
         success,

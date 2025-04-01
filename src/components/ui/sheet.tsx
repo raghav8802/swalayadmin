@@ -4,6 +4,7 @@ import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { Cross2Icon } from "@radix-ui/react-icons"
 import { cva, type VariantProps } from "class-variance-authority"
+import PropTypes from 'prop-types'
 
 import { cn } from "@/lib/utils"
 
@@ -29,6 +30,10 @@ const SheetOverlay = React.forwardRef<
   />
 ))
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
+
+SheetOverlay.propTypes = {
+  className: PropTypes.string,
+}
 
 const sheetVariants = cva(
   "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
@@ -74,6 +79,12 @@ const SheetContent = React.forwardRef<
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
+SheetContent.propTypes = {
+  className: PropTypes.string,
+  side: PropTypes.oneOf(['top', 'bottom', 'left', 'right']),
+  children: PropTypes.node,
+}
+
 const SheetHeader = ({
   className,
   ...props
@@ -87,6 +98,10 @@ const SheetHeader = ({
   />
 )
 SheetHeader.displayName = "SheetHeader"
+
+SheetHeader.propTypes = {
+  className: PropTypes.string,
+}
 
 const SheetFooter = ({
   className,
@@ -102,6 +117,10 @@ const SheetFooter = ({
 )
 SheetFooter.displayName = "SheetFooter"
 
+SheetFooter.propTypes = {
+  className: PropTypes.string,
+}
+
 const SheetTitle = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
@@ -114,6 +133,10 @@ const SheetTitle = React.forwardRef<
 ))
 SheetTitle.displayName = SheetPrimitive.Title.displayName
 
+SheetTitle.propTypes = {
+  className: PropTypes.string,
+}
+
 const SheetDescription = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
@@ -125,6 +148,10 @@ const SheetDescription = React.forwardRef<
   />
 ))
 SheetDescription.displayName = SheetPrimitive.Description.displayName
+
+SheetDescription.propTypes = {
+  className: PropTypes.string,
+}
 
 export {
   Sheet,

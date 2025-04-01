@@ -2,7 +2,7 @@
 
 import { Modal } from "@/components/Modal";
 import { apiPost } from "@/helpers/axiosRequest";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 const AssignRoleModal = ({
