@@ -1,8 +1,8 @@
 import { connect } from "@/dbConfig/dbConfig"; // Assuming this is your database connection file
 import Label from "@/models/Label"; // Import the Label model
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Connect to the database
   await connect();
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       message: "Labels fetched successfully",
       success: true,
     });
-  } catch (error) {
+  } catch {
     // Handle any errors
     return NextResponse.json({
       status: 500,

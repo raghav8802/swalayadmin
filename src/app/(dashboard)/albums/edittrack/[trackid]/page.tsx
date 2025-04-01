@@ -121,7 +121,7 @@ export default function UpdateTrack({
     };
 
   // fetch track details
-  const fetchTrackDetails = async () => {
+  const fetchTrackDetails = async (): Promise<Track> => {
     try {
       const response = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
@@ -157,8 +157,10 @@ export default function UpdateTrack({
       } else {
         setError(response.message);
       }
+      return trackData;
     } catch (error) {
       console.log(error);
+      return null;
     }
   };
 
@@ -166,7 +168,7 @@ export default function UpdateTrack({
     if (trackId) {
       fetchTrackDetails();
     }
-  }, [trackId]);
+  }, [fetchTrackDetails]);
 
   //! fetch artist
   const fetchArtist = async (labelId: string) => {

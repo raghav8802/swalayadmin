@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
       success: true,
       status: 200,
     });
-  } catch (error: any) {
-    console.error("Error deleting track:", error);
+  } catch {
+    console.error("Error deleting track:");
     return NextResponse.json({
       message: "internal server error",
       success: false,

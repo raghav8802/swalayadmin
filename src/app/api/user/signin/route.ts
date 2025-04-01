@@ -51,15 +51,19 @@ await connect()
         return response;
 
 
-    } catch (error: any) {
-        console.log("error :: ");
-        console.log(error);
-        
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json({
+                error: error.message,
+                success: false,
+                status: 500
+            });
+        }
         return NextResponse.json({
-            error: error.message,
+            error: 'An unknown error occurred',
             success: false,
             status: 500
-        })
+        });
     }
 
 

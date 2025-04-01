@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       data: lyrics
     });
 
-  } catch (error) {
+  } catch {
 
     return NextResponse.json({
       message: "Internal server error",

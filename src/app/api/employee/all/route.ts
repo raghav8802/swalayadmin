@@ -1,10 +1,9 @@
 import { connect } from "@/dbConfig/dbConfig";
-import Admin from "@/models/admin";
 import Employee from "@/models/Employee";
 
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   await connect();
 
   try {

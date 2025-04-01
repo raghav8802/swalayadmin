@@ -31,7 +31,7 @@ type Employee = {
 export default function UserManagement() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [ setPassword] = useState("");
   const [role, setRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -43,7 +43,7 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const result = await apiGet("/api/employee/all");
+      const result = await apiGet("/api/employee/all") as { data: Employee[] };
       console.log("fetch employee result");
       console.log(result.data);
       setEmployees(result.data);

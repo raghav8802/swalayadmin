@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {  NextResponse } from 'next/server';
 import Album, { AlbumStatus } from '@/models/albums';
 import { connect } from '@/dbConfig/dbConfig';
 // import TotalBalance from '@/models/totalBalance';
@@ -7,7 +7,7 @@ import Label from '@/models/Label';
 
 
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await connect();
 
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       data: data,
     });
 
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       message: "Internal Server Error",
       success: false,

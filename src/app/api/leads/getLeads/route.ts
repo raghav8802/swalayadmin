@@ -1,10 +1,10 @@
 import { connect } from "@/dbConfig/dbConfig";
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import Lead from "@/models/leadModel";
 
 connect();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         // Fetch all leads from the database
         const leads = await Lead.find({})

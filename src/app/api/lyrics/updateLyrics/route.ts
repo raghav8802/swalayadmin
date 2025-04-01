@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
-import mongoose from 'mongoose';
 import Lyrics from '@/models/Lyrics';
 
 export async function POST(req: NextRequest) {

@@ -1,17 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
 import Support from '@/models/support';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     await connect();
 
-    const searchParams = req.nextUrl.searchParams;
-    const labelId = searchParams.get('labelId');
-
-    // Create query object based on whether labelId is provided
-    const query = labelId ? { labelId } : {};
-
+   
     const tickets = await Support.aggregate([
       {
         $addFields: {
@@ -36,8 +31,8 @@ export async function GET(req: NextRequest) {
       data: tickets
     });
 
-  } catch (error: any) {
-    console.error('Error fetching support tickets:', error);
+  } catch  {
+    console.error('Error fetching support tickets:');
     return NextResponse.json({
       message: "Internal server error",
       success: false,

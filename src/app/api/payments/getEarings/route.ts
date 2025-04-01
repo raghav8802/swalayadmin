@@ -1,9 +1,9 @@
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label"; // Import the Label model
 import Payment from "@/models/Payments";
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Establish a connection to the database
   await connect();
 
@@ -49,11 +49,11 @@ export async function GET(request: NextRequest) {
       success: true,
       status: 200,
     });
-  } catch (error: any) {
+  } catch  {
     // Handle any errors that occur during processing
     return NextResponse.json({
       message: "An error occurred while fetching the payments",
-      error: error.message,
+      error: "error ",
       success: false,
       status: 500,
     });

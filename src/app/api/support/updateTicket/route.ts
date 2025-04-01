@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, data: updatedTicket });
-  } catch (error) {
+  } catch  {
     return NextResponse.json({ success: false, message: "Server error" });
   }
 } 

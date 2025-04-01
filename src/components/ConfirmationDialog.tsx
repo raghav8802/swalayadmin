@@ -26,7 +26,6 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onClose,
   onContinue,
   confrimationText="Continue",
-  triggerText = "Show Dialog",
   title = "Are you absolutely sure?",
   description = "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
 }) => {

@@ -69,8 +69,12 @@ export async function POST(req: Request) {
 
     // Send a success response back to the frontend
     return NextResponse.json({ success: true, result });
-  } catch (error : any) {
-    // Handle errors and send the error response
-    return NextResponse.json({ success: false, error : error.message });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      // Handle the error message if it's an instance of Error
+      return NextResponse.json({ success: false, error: error.message });
+    }
+    // Handle unexpected error types
+    return NextResponse.json({ success: false, error: 'An unknown error occurred' });
   }
 }

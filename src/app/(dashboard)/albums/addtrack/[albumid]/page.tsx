@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { useContext, useEffect, useState } from "react";
 import {
   Breadcrumb,
@@ -110,16 +111,11 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
   //! fetch artist
   const fetchArtist = async (labelId: string) => {
     try {
-      const response = await apiGet(
-        `/api/artist/fetchArtists?labelId=${labelId}`
-      );
-      // console.log(response);
-      // console.log(response.success);
-      // console.log(response.data);
+      const response = await apiGet(`/api/artist/fetchArtists?labelId=${labelId}`) as { success: boolean; data: any[]; message?: string };
       if (response.success) {
         setArtistData(response.data);
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "An error occurred");
       }
     } catch (error) {
       toast.error("Something went wrong to fetch artist");
@@ -210,8 +206,8 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
     );
 
     try {
-      setIsUploading(true)
-      const response = await apiFormData("/api/track/addtrack", formData);
+      setIsUploading(true);
+      const response = await apiFormData("/api/track/addtrack", formData) as { success: boolean; message?: string };
       console.log("API response:");
       console.log(response);
 
@@ -219,11 +215,11 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
         toast.success("Song uploaded successfully!");
         router.push(`/albums/viewalbum/${btoa(albumId!)}`);
       } else {
-        setIsUploading(false)
-        toast.error(response.message);
+        setIsUploading(false);
+        toast.error(response.message || "An error occurred while uploading the song.");
       }
     } catch (error) {
-      setIsUploading(false)
+      setIsUploading(false);
       toast.error("Something went wrong while uploading the song.");
       console.error("Error:", error);
     }

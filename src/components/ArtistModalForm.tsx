@@ -1,7 +1,6 @@
 import { Modal } from "@/components/Modal";
-import UserContext from "@/context/userContext";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 interface LabelData {
@@ -11,7 +10,7 @@ interface LabelData {
   usertype: string;
 }
 
-const extractID = (url: any) => {
+const extractID = (url: string) => {
   const id = url.split("/").pop();
   return id || "";
 };
@@ -23,9 +22,6 @@ const ArtistModalForm = ({
   isVisible: boolean;
   onClose: () => void;
 }) => {
-//   const context = useContext(UserContext);
-//   const labelId = context?.user?._id;
-
   const [formData, setFormData] = useState({
     labelId: "",
     artistName: "",
@@ -48,8 +44,7 @@ const ArtistModalForm = ({
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels");
-      console.log(response.data);
+      const response = await apiGet("/api/labels/getLabels") as { success: boolean; data: LabelData[] };
 
       if (response.success) {
         setLabelData(response.data);
@@ -63,7 +58,7 @@ const ArtistModalForm = ({
     fetchLabels();
   }, []);
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const newFormData = {
       ...formData,
@@ -91,8 +86,6 @@ const ArtistModalForm = ({
   };
 
   const handleSave = async () => {
-    console.log("all data");
-    console.log(formData);
     const data = {
       labelId: formData.labelId,
       artistName: formData.artistName,
@@ -107,11 +100,9 @@ const ArtistModalForm = ({
       isComposer: artistType.composer,
       isProducer: artistType.producer,
     };
-    console.log("artist label data :");
-    console.log(JSON.stringify(data));
+
     const response = await apiPost("/api/artist/addArtist", data);
-    console.log("api response");
-    console.log(response);
+    console.log("api response", response);
 
     setFormData({
       artistName: "",
@@ -175,13 +166,7 @@ const ArtistModalForm = ({
         >
           <option value="">Select Label</option>
           {labelData.map((item) => {
-            let displayText;
-            if (item.lable) {
-              displayText = item.lable;
-            } else {
-              displayText = item.username;
-            }
-
+            const displayText = item.lable || item.username;
             return (
               <option key={item._id} value={item._id}>
                 {displayText} ({item.usertype})
@@ -256,54 +241,6 @@ const ArtistModalForm = ({
           <label className="form-label" htmlFor="isIPRSMember">
             IPRS Member?
           </label>
-          {/* <ul className="flex items-center">
-            <li className="w-1/2">
-              <div className="flex items-center ps-3">
-                <input
-                  id="horizontal-list-radio-license"
-                  type="radio"
-                  value="true"
-                  name="isIPRSMember"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 cursor-pointer"
-                  checked={formData.isIPRSMember === true}
-                  onChange={(e) => setFormData(prevFormData => ({
-                    ...prevFormData,
-                    isIPRSMember: e.target.value === "true"
-                  }))}
-                />
-                <label
-                  htmlFor="horizontal-list-radio-license"
-                  className="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >
-                  Yes
-                </label>
-              </div>
-            </li>
-
-            <li className="w-1/2">
-              <div className="flex items-center ps-3">
-                <input
-                  id="horizontal-list-radio-id"
-                  type="radio"
-                  value="false"
-                  name="isIPRSMember"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 cursor-pointer"
-                  checked={formData.isIPRSMember === false}
-                  onChange={(e) =>  setFormData(prevFormData => ({
-                    ...prevFormData,
-                    isIPRSMember: e.target.value === "false"
-                  }))}
-                />
-                <label
-                  htmlFor="horizontal-list-radio-id"
-                  className="cursor-pointer w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >
-                  No
-                </label>
-              </div>
-            </li>
-          </ul> */}
-
           <ul className="flex items-center">
             <li className="w-1/2">
               <div className="flex items-center ps-3">

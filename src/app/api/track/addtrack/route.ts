@@ -93,8 +93,8 @@ export async function POST(req: NextRequest) {
       status: 201,
     });
 
-  } catch (error: any) {
-    console.error("Error creating track:", error);
+  } catch  {
+    console.error("Error creating track:");
 
     return NextResponse.json({
       message: "Internal server error",

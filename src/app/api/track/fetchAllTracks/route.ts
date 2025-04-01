@@ -1,10 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+import { NextResponse } from "next/server";
 import Track from "@/models/track";
-import Artist from "@/models/Artists"; // Import Artist model
 import { connect } from "@/dbConfig/dbConfig";
-
-export async function GET(req: NextRequest) {
+export async function GET() {
   await connect();
 
   try {
@@ -57,7 +54,7 @@ export async function GET(req: NextRequest) {
     //   data: trackDetails,
       data: tracks,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       message: "Internal server error",
       success: false,

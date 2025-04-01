@@ -72,21 +72,23 @@ ChartContainer.displayName = "Chart"
 ChartContainer.propTypes = {
   id: PropTypes.string,
   className: PropTypes.string,
-  config: PropTypes.shape({
-    label: PropTypes.oneOfType([PropTypes.node, PropTypes.string]).isRequired,
-    icon: PropTypes.elementType.isRequired,
-    color: PropTypes.string.isRequired,
-    theme: PropTypes.shape({
-      light: PropTypes.string,
-      dark: PropTypes.string,
-    }),
-  }).isRequired,
-  children: PropTypes.element.isRequired,
+  config: PropTypes.objectOf(
+    PropTypes.shape({
+      label: PropTypes.node.isRequired,
+      icon: PropTypes.elementType.isRequired,
+      color: PropTypes.string,
+      theme: PropTypes.shape({
+        light: PropTypes.string,
+        dark: PropTypes.string,
+      }),
+    }).isRequired
+  ).isRequired,
+  children: PropTypes.node.isRequired,
 }
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([key, itemConfig]) => itemConfig.theme || itemConfig.color
+    ([itemConfig]) => itemConfig.theme || itemConfig.color
   )
 
   if (!colorConfig.length) {

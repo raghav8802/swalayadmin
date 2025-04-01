@@ -1,9 +1,16 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import Style from "../app/styles/HomeStatsCard.module.css";
 import UserContext from "@/context/userContext";
 import { apiGet } from "@/helpers/axiosRequest";
+
+// Define the expected structure of the API response
+interface NumberCountsResponse {
+  totalAlbums: number;
+  totalTracks: number;
+  totalArtist: number;
+}
 
 const HomeStatsCard = () => {
   const context = useContext(UserContext);
@@ -16,40 +23,39 @@ const HomeStatsCard = () => {
 
   const userName = context?.user?.username || 'Guest';
 
-  const fetchNumberCounts = async () => {
+  const fetchNumberCounts = useCallback(async () => {
     try {
-      const response = await apiGet(`/api/numbers?labelId=${labelId}`);
+      const response = await apiGet(`/api/numbers?labelId=${labelId}`) as NumberCountsResponse | null;
 
-      if (response?.data) {
+      if (response) {
         setStats({
-          albums: response.data.totalAlbums,
-          tracks: response.data.totalTracks,
-          labels: response.data.totalArtist,
+          albums: response.totalAlbums,
+          tracks: response.totalTracks,
+          labels: response.totalArtist,
         });
       }
     } catch (error) {
       console.error(error);
     }
-  }
+  }, [labelId]);
 
   useEffect(() => {
     if (labelId) {
       fetchNumberCounts();
     }
-  }, [labelId]);
+  }, [labelId, fetchNumberCounts]);
 
   return (
-    
     <div className={Style.statsContainer}>
       <div className={Style.greetContainer}>
         <h1 className={Style.heading}>Welcome, {userName}</h1>
         {/* <p className={Style.para}>Lorem ipsum dolor sit amet consectetur, adipisicing elit.</p> */}
       </div>
 
-      {/* <div className={Style.statusCardContainer}>
+      <div className={Style.statusCardContainer}>
         <div className={Style.statusCard}>
           <div className={Style.statCardDetails}>
-            <p className={Style.statNumber}>{ stats && stats.albums}</p>
+            <p className={Style.statNumber}>{stats.albums}</p>
             <p className={Style.statLabel}>Albums</p>
           </div>
           <i className={`bi bi-vinyl ${Style.statIcon}`}></i>
@@ -57,7 +63,7 @@ const HomeStatsCard = () => {
 
         <div className={Style.statusCard}>
           <div className={Style.statCardDetails}>
-            <p className={Style.statNumber}>{stats && stats.tracks}</p>
+            <p className={Style.statNumber}>{stats.tracks}</p>
             <p className={Style.statLabel}>Tracks</p>
           </div>
           <i className={`bi bi-music-note ${Style.statIcon}`}></i>
@@ -65,14 +71,12 @@ const HomeStatsCard = () => {
 
         <div className={Style.statusCard}>
           <div className={Style.statCardDetails}>
-            <p className={Style.statNumber}>{stats && stats.labels}</p>
+            <p className={Style.statNumber}>{stats.labels}</p>
             <p className={Style.statLabel}>Labels</p>
           </div>
           <i className={`bi bi-person-circle ${Style.statIcon}`}></i>
         </div>
-
-      </div> */}
-
+      </div>
     </div>
   )
 }

@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
     try {
         // const token = jwt.sign(, process.env.TOKEN_SECRET!, {expiresIn: '1d'} );
 
+        // Example usage of req
+        // const token = req.cookies.get("authtoken");
 
         const response = NextResponse.json({
             message: "Logout Success",
@@ -16,15 +18,20 @@ export async function POST(req: NextRequest) {
         // response.cookies.delete('token')
         return response;
 
-    } catch (error: any) {
-        console.log("error :: ");
-        console.log(error);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.log("error :: ", error);
+            return NextResponse.json({
+                error: error.message,
+                success: false,
+                status: 500
+            });
+        }
         return NextResponse.json({
-            error: error.message,
+            error: 'An unknown error occurred',
             success: false,
             status: 500
-        })
-
+        });
     }
 
 }

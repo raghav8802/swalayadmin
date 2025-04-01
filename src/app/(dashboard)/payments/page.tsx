@@ -22,8 +22,7 @@ interface LabelData {
   usertype: string;
 }
 
-const page = () => {
-  const [payoutRequestData, setPayoutRequestData] = useState([]);
+const Page = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   
   const [labelData, setLabelData] = useState<LabelData[]>([]);
@@ -49,15 +48,19 @@ const page = () => {
       }
   
       // Use the apiFormData helper function
-      const response = await apiFormData('/api/payments/addPayment', formData);
+      const response = await apiFormData('/api/payments/addPayment', formData) as { success: boolean };
       
+      if (response.success) {
+        toast.success("Payment added successfully");
+        setIsModalVisible(false);  // Close modal on success
+        fetchRequestedData();      // Refresh data
+      }
       setData({ amount: "", period: "", lable: "", type: "", payout_report_url: "" });
       setPdfFile(null); // Clear the uploaded file
-    } catch (error) {
-      toast.error("Internal server error");
+    } catch (error: any) {
+      toast.error(error.message || "Internal server error");
     }
   };
-  
 
   const handleClose = () => {
     setIsModalVisible(false);
@@ -66,10 +69,9 @@ const page = () => {
   const [earningData, setEarningData] = useState()
   const fetchRequestedData = async () => {
     try {
-      const response = await apiGet(`/api/payments/getEarings`);
+      const response = await apiGet<{ success: boolean; data: any }>(`/api/payments/getEarings`);
       
-      if (response.success) {
-        setPayoutRequestData(response.data);
+      if (response && response.success) {
         setEarningData(response.data)
       }
     } catch (error) {
@@ -79,8 +81,8 @@ const page = () => {
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels");
-      if (response.success) {
+      const response = await apiGet<{ success: boolean; data: any }>(`/api/labels/getLabels`);
+      if (response && response.success) {
         setLabelData(response.data);
       }
     } catch (error) {
@@ -216,7 +218,7 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
 
 
 

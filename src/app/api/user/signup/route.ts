@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import bcryptjs from 'bcryptjs'
-import { sendEmail } from "@/helpers/mailer";
+import bcryptjs from 'bcryptjs';
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 
@@ -68,7 +67,6 @@ export async function POST(request: NextRequest) {
         console.log(reqBody);
         console.log(username, email, password);
 
-        await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id })
 
         return NextResponse.json({
             message: "User signup successfully",
@@ -79,12 +77,19 @@ export async function POST(request: NextRequest) {
 
 
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json({
+                error: error.message,
+                success: false,
+                status: 500
+            });
+        }
         return NextResponse.json({
-            error: error.message,
+            error: 'An unknown error occurred',
             success: false,
             status: 500
-        })
+        });
     }
 
 

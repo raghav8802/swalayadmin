@@ -92,16 +92,9 @@ export async function POST(request: NextRequest) {
           success: true,
           status: 201,
         });
-      } catch (dbError: any) {
-        console.error("Database error:", dbError);
-        return NextResponse.json({
-          message: "Recognition successful but failed to save to database",
-          error: dbError.message,
-          fileId: uploadedFileId,
-          fileDetails: fileDetails,
-          success: false,
-          status: 500,
-        });
+      } catch  {
+        console.error("Database error:");
+        
       }
     } else {
       console.log("File upload failed. Response:", uploadResponseData);
@@ -112,15 +105,7 @@ export async function POST(request: NextRequest) {
         status: 500,
       });
     }
-  } catch (error: any) {
-    console.log("Error:", error.message); // Log the error  
-    return NextResponse.json(
-      {
-        error: error.message || "An unknown error occurred",
-        success: false,
-        status: 500,
-      },
-      { status: 500 }
-    );
+  } catch  {
+    console.log("Error:", ); 
   }
 }
