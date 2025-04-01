@@ -20,7 +20,10 @@ const LeadModalForm = ({
 
   const handleSave = async () => {
     try {
-      const response = await apiPost<{ success: boolean; message?: string; data?: any}>("/api/leads/create", formData);
+      const response = await apiPost<{ success: boolean; message?: string; data?: any}>("/api/leads/create", {
+        success: true,
+        ...formData,
+      });
       
       if (response && response.success) {
         setFormData({

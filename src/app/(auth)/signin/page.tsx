@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Styles from "../Styles/Signin.module.css";
-import { useState } from "react";
+import React ,{useState} from "react";
 import toast from "react-hot-toast";
 import { apiPost } from "@/helpers/axiosRequest";
 import { useRouter } from "next/navigation";
@@ -28,7 +28,7 @@ const signIn = () => {
 
   const verifyOTP = async () => {
     try {
-      const response = await apiPost("/api/admin/verifyOTP", {
+      const response:any = await apiPost("/api/admin/verifyOTP", {
         email: user.email,
         otp
       });
@@ -59,7 +59,7 @@ const signIn = () => {
     }
 
     try {
-      const response = await apiPost("/api/admin/signin", user);
+      const response:any = await apiPost("/api/admin/signin", user);
 
       if (response.success) {
         toast.success("OTP sent to your email");

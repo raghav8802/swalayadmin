@@ -75,7 +75,7 @@ ChartContainer.propTypes = {
   config: PropTypes.objectOf(
     PropTypes.shape({
       label: PropTypes.node.isRequired,
-      icon: PropTypes.elementType.isRequired,
+      icon: PropTypes.elementType,
       color: PropTypes.string,
       theme: PropTypes.shape({
         light: PropTypes.string,
@@ -88,7 +88,7 @@ ChartContainer.propTypes = {
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([itemConfig]) => itemConfig.theme || itemConfig.color
+    ([, itemConfig]) => itemConfig.theme || itemConfig.color
   )
 
   if (!colorConfig.length) {

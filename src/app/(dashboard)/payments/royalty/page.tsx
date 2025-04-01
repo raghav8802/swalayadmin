@@ -23,7 +23,7 @@ interface LabelData {
   usertype: string;
 }
 
-const page = () => {
+const RoyaltyPage = () => {
   const [payoutRequestData, setPayoutRequestData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -73,9 +73,8 @@ const page = () => {
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels");
-
-      if (response.success) {
+      const response: { success: boolean; data: LabelData[] } | null = await apiGet("/api/labels/getLabels");
+      if (response && response.success) {
         setLabelData(response.data);
       }
     } catch (error) {
@@ -237,4 +236,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default RoyaltyPage;

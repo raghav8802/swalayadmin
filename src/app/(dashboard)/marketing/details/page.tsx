@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import React from "react";
 import { useEffect, useState, FC } from "react";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import Image from "next/image";
@@ -104,7 +105,7 @@ export default function AlbumPage() {
   const fetchDetails = async () => {
     setIsLoading(true);
     try {
-      const response = await apiGet(
+      const response:any  = await apiGet(
         "/api/marketing/details?albumId=66d01f1db9e30e24d3d17f9a"
       );
       if (response.success) {
@@ -130,10 +131,10 @@ export default function AlbumPage() {
     setIsModalVisible(false)
     try {
 
-      let marketingId = MarketingData?._id;
-      let message = requestData?.message;
+      const marketingId = MarketingData?._id;
+      const message = requestData?.message;
 
-      const response = await apiPost("/api/marketing/requestExtraFile", {
+      const response:any = await apiPost("/api/marketing/requestExtraFile", {
         marketingId,
         message,
       });

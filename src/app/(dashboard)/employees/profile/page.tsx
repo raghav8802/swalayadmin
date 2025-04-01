@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -124,7 +124,7 @@ export default function EmployeeProfile() {
 
   const fetchEmployeeDetails = async (id: string) => {
     try {
-      const result = await apiGet(`/api/employee/details?employeeid=${id}`);
+      const result = await apiGet(`/api/employee/details?employeeid=${id}`) as { data: any };
       const data = result.data;
       
       setExsitsNdaFile(data.ndaSignature?.document);
@@ -234,7 +234,6 @@ export default function EmployeeProfile() {
     try {
       e.preventDefault();
       if (validateForm()) {
-
         // Prepare FormData object
         const formDataObj = new FormData();
 
@@ -257,10 +256,9 @@ export default function EmployeeProfile() {
           }
         }
 
-
         // Send to API
         toast.loading("Creating Employee Profile");
-        const response = await apiFormData("/api/employee/add", formDataObj);
+        const response:any = await apiFormData("/api/employee/add", formDataObj) as { success: boolean; error?: string };
 
         if (response.success) {
           toast.success(`Employee Profile created`);
@@ -270,7 +268,7 @@ export default function EmployeeProfile() {
       } else {
         alert("Please fix the errors before submitting.");
       }
-    } catch (error:any) {
+    } catch (error: any) {
       console.log(error);
       toast.error("Internal Server Error");
     }

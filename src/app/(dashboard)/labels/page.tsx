@@ -8,17 +8,14 @@ import { apiGet } from "@/helpers/axiosRequest"
 import { LabelList } from "./components/LabelList"
 import Agreement from "./components/Agreement"
 
+const Labels = () => {
 
-
-
-const lables = () => {
-
-  const [labelData, setLabelData] = useState([])
+  const [labelData, setLabelData] = useState<any[]>([])
 
   
-  const fetchLebels = async () => {
+  const fetchLabels = async () => {
     try {
-      const response = await apiGet('/api/labels/getLabels')  
+      const response: { success: boolean; data: any[] } = await apiGet('/api/labels/getLabels')  
   
       if (response.success) {
         setLabelData(response.data)
@@ -32,7 +29,7 @@ const lables = () => {
 
 
   useEffect(() => {
-    fetchLebels()
+    fetchLabels()
   }, [])
 
 
@@ -80,4 +77,4 @@ const lables = () => {
   )
 }
 
-export default lables
+export default Labels

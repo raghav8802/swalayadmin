@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import toast from "react-hot-toast";
@@ -31,7 +31,7 @@ type Employee = {
 export default function UserManagement() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [ setPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -65,7 +65,7 @@ export default function UserManagement() {
         return;
       }
 
-      const result = await apiPost("/api/employee/add", {
+      const result:any = await apiPost("/api/employee/add", {
         name,
         email,
         role,

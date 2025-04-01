@@ -23,29 +23,17 @@ import ErrorSection from "@/components/ErrorSection";
 import { TrackDataTable } from "./components/TrackDataTable";
 // import DataTableUi from '../components/DataTable'
 
-const tracks = () => {
-  // const filter = params.filter;
-  //   const filter = params.filter.charAt(0).toUpperCase() + params.filter.slice(1).toLowerCase();
-
-  //   const validFilters = ["All", "Draft", "Processing", "Approved", "Rejected", "Live"];
-  //   if (!validFilters.includes(filter)) {
-  //     return (
-  //        <ErrorSection message="Invalid URL or Not Found" />
-  //     );
-  //   }
-  // i want if filter is none of them then it show invalid url or url not NotFound
-
-  //   const context = useContext(UserContext);
-  //   const labelId = context?.user?._id;
+const Tracks = () => {
+  
   const [tracksData, setTracksData] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
-  // walayadmin-main\src\app\api\\route.ts
+  
 
   const fetchTracks = async () => {
     try {
-      const response = await apiGet(`/api/track/fetchAllTracks`);
-      if (response.success) {
+      const response: { success: boolean; data: any } | null = await apiGet(`/api/track/fetchAllTracks`);
+      if (response && response.success) {
         console.log(response.data);
         setIsLoading(false);
         setTracksData(response.data);
@@ -103,4 +91,4 @@ const tracks = () => {
   );
 };
 
-export default tracks;
+export default Tracks;

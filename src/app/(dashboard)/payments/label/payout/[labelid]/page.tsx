@@ -1,5 +1,5 @@
 "use client";
-import React, {  useEffect, useState } from "react";
+import React, {  useEffect, useState, useCallback } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,30 +33,30 @@ const Payments = ({ params }: { params: { labelid: string } }) => {
   const [availableBalance, setAvailableBalance] = useState(0);
   const [labelName, setLabelName] = useState("");
 
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
-      const response = await apiGet(
+      const response: any = await apiGet(
         `/api/payments/getPayments?labelId=${labelId}`
       );
       console.log("response.data earning");
       console.log(response.data);
 
       if (response.success) {
-        setPaymentData(response.data.payments);
-        setTotalPayoutBalance(response.data.totalPayoutBalance);
-        setAvailableBalance(response.data.totalBalance);
-        setLabelName(response.data.LabelName);
+        setPaymentData((response as any).data.payments);
+        setTotalPayoutBalance((response as any).data.totalPayoutBalance);
+        setAvailableBalance((response as any).data.totalBalance);
+        setLabelName((response as any).data.LabelName);
       }
     } catch (error) {
       console.log("error");
     }
-  };
+  }, [labelId]);
 
 
-  const fetchPayOut = async () => {
+  const fetchPayOut = useCallback(async () => {
     
     try {
-      const response = await apiGet(
+      const response: any = await apiGet(
         `/api/payments/payout/getPayouts?labelId=${labelId}`
       );
       if (response.success) {
@@ -65,14 +65,14 @@ const Payments = ({ params }: { params: { labelid: string } }) => {
     } catch (error) {
       console.log("error");
     }
-  };
+  }, [labelId]);
 
   useEffect(() => {
     if (labelId) {
       fetchPayments();
       fetchPayOut();
     }
-  }, [labelId]);
+  }, [labelId, fetchPayments, fetchPayOut]);
 
 
 
