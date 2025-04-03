@@ -90,6 +90,6 @@ const LabelSchema: Schema<iLabel> = new Schema({
   }
 });
 
-const Label = (mongoose.models.Labels as mongoose.Model<iLabel>) || mongoose.model<iLabel>('Labels', LabelSchema);
+const Label = mongoose.models.Label || mongoose.model<iLabel>('Label', LabelSchema);
 
 export default Label;

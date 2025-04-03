@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 
 import {
   Breadcrumb,
@@ -31,7 +31,7 @@ type ArtistTypeOption = {
 
 interface Track {
   songName: string;
-  primarySinger: string;
+  primarySinger: { _id: string };
   singers: string[];
   composers: string[];
   lyricists: string[];
@@ -44,6 +44,12 @@ interface Track {
   trackType: string;
   audioFile?: string; // Add optional field for audio file
   albumId?: string;
+}
+
+interface TrackResponse {
+  success: boolean;
+  data: Track;
+  message?: string;
 }
 
 export default function UpdateTrack({
@@ -121,29 +127,26 @@ export default function UpdateTrack({
     };
 
   // fetch track details
-  const fetchTrackDetails = async (): Promise<Track> => {
+  const fetchTrackDetails = useCallback(async () => {
+    if (!trackId) return;
+    
     try {
-      const response = await apiGet(
+      const response = await apiGet<TrackResponse>(
         `/api/track/getTrackDetails?trackId=${trackId}`
       );
-      console.log("response : ");
-      console.log(response.data);
       
-      if (response.success) {
+      if (response?.success) {
         const trackData = response.data;
         setTrack(trackData);
         setAlbumId(trackData.albumId || "");
-        console.log(trackData.primarySinger._id);
-        setPrimarySinger(trackData.primarySinger._id)
+        setPrimarySinger(trackData.primarySinger._id);
 
-        let ss =  trackData.singers.map((s: string) => ({ value: s, label: s }));
-        console.log("ss : ");
-        console.log(ss);
+        const singers = trackData.singers.map((s: string) => ({ 
+          value: s, 
+          label: s 
+        }));
         
-
-        setSelectedSingers(
-          trackData.singers.map((s: string) => ({ value: s, label: s }))
-        );
+        setSelectedSingers(singers);
         setSelectedComposers(
           trackData.composers.map((c: string) => ({ value: c, label: c }))
         );
@@ -155,25 +158,24 @@ export default function UpdateTrack({
         );
         setCallerTuneTime(trackData.crbt || "00:00:00");
       } else {
-        setError(response.message);
+        setError(response?.message || "Failed to fetch track details");
       }
-      return trackData;
     } catch (error) {
-      console.log(error);
-      return null;
+      console.error(error);
+      setError("Error fetching track details");
     }
-  };
+  }, [trackId]);
 
   useEffect(() => {
     if (trackId) {
       fetchTrackDetails();
     }
-  }, [fetchTrackDetails]);
+  }, [trackId, fetchTrackDetails]);
 
   //! fetch artist
   const fetchArtist = async (labelId: string) => {
     try {
-      const response = await apiGet(
+      const response:any = await apiGet(
         `/api/artist/fetchArtists?labelId=${labelId}`
       );
       if (response.success) {
@@ -255,7 +257,7 @@ export default function UpdateTrack({
 
     try {
       setIsUploading(true);
-      const response = await apiFormData("/api/track/updateTrack", formData);
+      const response:any = await apiFormData("/api/track/updateTrack", formData);
       if (response.success) {
         toast.success("Track updated successfully!");
       } else {

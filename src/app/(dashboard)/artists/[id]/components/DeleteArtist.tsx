@@ -22,7 +22,7 @@ const DeleteArtist: React.FC<AlbumDeleteProps> = ({ artistId }) => {
   const handleContinue = async () => {
 
       try {
-        const response = await apiPost(`/api/artist/deleteArtist?artistId=${artistId}`, { });
+        const response:any = await apiPost(`/api/artist/deleteArtist?artistId=${artistId}`, { });
 
         if (response.success) {
           toast.success("Success! Your artists is deleted");

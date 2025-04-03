@@ -29,7 +29,7 @@ export default function MyTickets() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await apiGet('/api/support/getAllTickets');
+        const response:any = await apiGet('/api/support/getAllTickets');
         if (response.success) {
           setTickets(response.data);
         } else {
@@ -48,7 +48,7 @@ export default function MyTickets() {
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {
       setUpdating({ ...updating, [ticketId]: true });
-      const response = await apiPost('/api/support/updateTicket', {
+      const response:any = await apiPost('/api/support/updateTicket', {
         ticketId,
         status: newStatus
       });
@@ -72,7 +72,7 @@ export default function MyTickets() {
   const handleReply = async (ticketId: string) => {
     try {
       setUpdating({ ...updating, [ticketId]: true });
-      const response = await apiPost('/api/support/replyTicket', {
+      const response:any = await apiPost('/api/support/replyTicket', {
         ticketId,
         reply: replyText[ticketId]
       });

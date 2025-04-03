@@ -36,6 +36,26 @@ interface AlbumDetails {
   _id: string;
 }
 
+interface ApiResponse {
+  data: AlbumDetails;
+  success: boolean;
+  message?: string;
+}
+
+interface UpdateStatusPayload {
+  id: string | null;
+  labelid: string | undefined;
+  albumName: string | undefined;
+  status: AlbumProcessingStatus;
+  comment: string;
+}
+
+interface UpdateStatusResponse {
+  success: boolean;
+  message?: string;
+  data?: AlbumDetails;
+}
+
 enum AlbumProcessingStatus {
   Draft = 0, // on information submit
   Processing = 1, // on final submit
@@ -48,7 +68,6 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
   const context = useContext(UserContext);
   const userType = context?.user?.usertype || "";
 
-  const albumIdParams = params.albumid;
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [albumDetails, setAlbumDetails] = useState<AlbumDetails | null>(null);
@@ -56,23 +75,21 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    const albumIdParams = params.albumid;
-
     try {
-      const decodedAlbumId = atob(albumIdParams);
+      const decodedAlbumId = atob(params.albumid);
       setAlbumId(decodedAlbumId);
     } catch (e) {
       setError("Invalid Url");
     }
-  }, [albumIdParams]);
+  }, [params.albumid]);
 
   const fetchAlbumDetails = async (albumId: string) => {
     try {
-      const response = await apiGet(
+      const response = await apiGet<ApiResponse>(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
-      if (response.data) {
+      if (response?.data) {
         setAlbumDetails(response.data);
         setIsLoading(false);
       } else {
@@ -94,7 +111,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
   };
 
   const handleContinue = async () => {
-    const payload = {
+    const payload: UpdateStatusPayload = {
       id: albumId,
       labelid: albumDetails?.labelId,
       albumName: albumDetails?.title,
@@ -103,11 +120,10 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
     };
 
     try {
-      const response = await apiPost("/api/albums/updateStatus", payload);
+      const response = await apiPost<UpdateStatusResponse, UpdateStatusPayload>("/api/albums/updateStatus", payload);
 
-      if (response.success) {
+      if (response?.success) {
         toast.success("Thank you! Your album(s) are currently being processed");
-        // check it
         if (albumDetails) {
           setAlbumDetails((prevDetails) =>
             prevDetails
@@ -119,7 +135,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
           );
         }
       } else {
-        toast.error(response.message);
+        toast.error(response?.message || "Failed to update status");
       }
     } catch (error) {
       console.log("error in api", error);

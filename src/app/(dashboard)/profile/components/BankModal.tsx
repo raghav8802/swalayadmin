@@ -49,7 +49,7 @@ const BankModal = ({ isVisible, onClose }: { isVisible: boolean; onClose: () => 
         try {
 
 
-            const response = await apiPost('/api/bank/updatedetails',
+            const response:any = await apiPost('/api/bank/updatedetails',
                 {
                     labelId, accountDetails
                 })

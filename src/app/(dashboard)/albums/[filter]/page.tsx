@@ -7,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 
 // import Style from '../'
 import Style from "../../../styles/Albums.module.css";
@@ -22,52 +22,55 @@ import AlbumsLoading from "@/components/AlbumsLoading";
 import ErrorSection from "@/components/ErrorSection";
 // import DataTableUi from '../components/DataTable'
 
-const albums = ({ params }: { params: { filter: string } }) => {
-  // const filter = params.filter;
+interface AlbumResponse {
+  success: boolean;
+  data: any[];
+  error?: string;
+}
+
+const Albums = ({ params }: { params: { filter: string } }) => {
   const filter = params.filter.charAt(0).toUpperCase() + params.filter.slice(1).toLowerCase();
-
-
-  const validFilters = ["All", "Draft", "Processing", "Approved", "Rejected", "Live"];
-  if (!validFilters.includes(filter)) {
-    return (
-       <ErrorSection message="Invalid URL or Not Found" />
-    );
-  }
-  // i want if filter is none of them then it show invalid url or url not NotFound
-  
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
-
-  const [albumList, setAlbumList] = useState([]);
-
+  const [albumList, setAlbumList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInvalidFilter, setIsInvalidFilter] = useState(false);
 
-  const fetchAlbums = async (labelId: string) => {
+  const validFilters = ["All", "Draft", "Processing", "Approved", "Rejected", "Live"];
+
+  useEffect(() => {
+    if (!validFilters.includes(filter)) {
+      setIsInvalidFilter(true);
+    }
+  }, [filter, validFilters]);
+
+  const fetchAlbums = useCallback(async (labelId: string) => {
     try {
-      const response = await apiGet(
+      const response = await apiGet<AlbumResponse>(
         `/api/albums/filter?labelid=${labelId}&status=${filter}`
       );
-      if (response.success) {
+      if (response?.success) {
         setAlbumList(response.data);
       }
     } catch (error) {
       toast.error("Internal server error");
     }
     setIsLoading(false);
-  };
+  }, [filter]);
 
   useEffect(() => {
-    if (labelId) {
+    if (labelId && !isInvalidFilter) {
       fetchAlbums(labelId);
     }
-  }, [labelId]);
+  }, [labelId, fetchAlbums, isInvalidFilter]);
+
+  if (isInvalidFilter) {
+    return <ErrorSection message="Invalid URL or Not Found" />;
+  }
 
   if (isLoading) {
     return <AlbumsLoading />;
   }
-
-
-
 
   return (
     <div className="w-full h-dvh p-6 bg-white rounded-sm">
@@ -97,7 +100,7 @@ const albums = ({ params }: { params: { filter: string } }) => {
         </div>
 
         <div className={Style.musicList}>
-          {albumList ? (
+          {albumList.length > 0 ? (
             <AlbumDataTable data={albumList} />
           ) : (
             <h3 className="text-center mt-4">No Albums found</h3>
@@ -109,4 +112,4 @@ const albums = ({ params }: { params: { filter: string } }) => {
   );
 };
 
-export default albums;
+export default Albums;

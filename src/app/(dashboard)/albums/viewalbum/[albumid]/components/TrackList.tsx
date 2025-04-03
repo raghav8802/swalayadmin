@@ -47,7 +47,7 @@ const TrackList: React.FC<TrackListProps> = ({ albumId, onTrackClick }) => {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const response = await apiGet(
+        const response:any = await apiGet(
           `/api/track/getTracks?albumId=${albumId}`
         );
         if (response.data) {

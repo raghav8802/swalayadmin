@@ -4,46 +4,65 @@ import React, { useContext, useEffect, useState, useCallback } from "react";
 import Style from "../app/styles/HomeStatsCard.module.css";
 import UserContext from "@/context/userContext";
 import { apiGet } from "@/helpers/axiosRequest";
+import toast from "react-hot-toast";
 
 // Define the expected structure of the API response
 interface NumberCountsResponse {
-  totalAlbums: number;
-  totalTracks: number;
-  totalArtist: number;
+  success: boolean;
+  status: number;
+  message: string;
+  data: {
+    totalAlbums: number;
+    totalArtist: number;
+    totalLabels: number;
+    upcomingReleases: number;
+  };
 }
 
 const HomeStatsCard = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
-  const [stats, setStats] = useState<{ albums: number, tracks: number, labels: number }>({
+  const [stats, setStats] = useState<{ albums: number, artists: number, labels: number, upcomingReleases: number }>({
     albums: 0,
-    tracks: 0,
+    artists: 0,
     labels: 0,
+    upcomingReleases: 0
   });
 
   const userName = context?.user?.username || 'Guest';
 
   const fetchNumberCounts = useCallback(async () => {
     try {
-      const response = await apiGet(`/api/numbers?labelId=${labelId}`) as NumberCountsResponse | null;
+      console.log('Fetching stats...');
+      const response = await apiGet('/api/numbers') as NumberCountsResponse;
+      console.log('API Response:', response);
 
-      if (response) {
+      if (response?.success && response?.data) {
         setStats({
-          albums: response.totalAlbums,
-          tracks: response.totalTracks,
-          labels: response.totalArtist,
+          albums: response.data.totalAlbums || 0,
+          artists: response.data.totalArtist || 0,
+          labels: response.data.totalLabels || 0,
+          upcomingReleases: response.data.upcomingReleases || 0
         });
+        console.log('Updated Stats:', {
+          albums: response.data.totalAlbums,
+          artists: response.data.totalArtist,
+          labels: response.data.totalLabels,
+          upcomingReleases: response.data.upcomingReleases
+        });
+      } else {
+        console.error('Invalid API response:', response);
+        toast.error('Failed to fetch statistics');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching numbers:', error);
+      toast.error('Error loading statistics');
     }
-  }, [labelId]);
+  }, []);
 
   useEffect(() => {
-    if (labelId) {
-      fetchNumberCounts();
-    }
-  }, [labelId, fetchNumberCounts]);
+    fetchNumberCounts();
+  }, [fetchNumberCounts]);
 
   return (
     <div className={Style.statsContainer}>
@@ -63,8 +82,8 @@ const HomeStatsCard = () => {
 
         <div className={Style.statusCard}>
           <div className={Style.statCardDetails}>
-            <p className={Style.statNumber}>{stats.tracks}</p>
-            <p className={Style.statLabel}>Tracks</p>
+            <p className={Style.statNumber}>{stats.artists}</p>
+            <p className={Style.statLabel}>Artists</p>
           </div>
           <i className={`bi bi-music-note ${Style.statIcon}`}></i>
         </div>

@@ -1,18 +1,18 @@
 import axios, { Method } from "axios";
 
-interface ApiRequestParams<T = unknown> {
+interface ApiRequestParams<TRequest = unknown, TResponse = unknown> {
   endpoint: string;
-  data?: T;
+  data?: TRequest;
   method: Method;
   headers?: Record<string, string>;
 }
 
-export const apiRequest = async <T = unknown>({
+export const apiRequest = async <TRequest = unknown, TResponse = unknown>({
   endpoint,
   data,
   method,
   headers,
-}: ApiRequestParams<T>): Promise<T> => {
+}: ApiRequestParams<TRequest, TResponse>): Promise<TResponse> => {
   const response = await axios({
     url: endpoint,
     method: method,
@@ -22,12 +22,15 @@ export const apiRequest = async <T = unknown>({
   return response.data;
 };
 
-export const apiPost = <T = unknown>(endpoint: string, data: T): Promise<T> => {
+export const apiPost = <TResponse = unknown, TRequest = unknown>(
+  endpoint: string, 
+  data: TRequest
+): Promise<TResponse> => {
   const apiHeaders = {
     "Content-Type": "application/json",
   };
 
-  return apiRequest({ endpoint, data, method: "post", headers: apiHeaders });
+  return apiRequest<TRequest, TResponse>({ endpoint, data, method: "post", headers: apiHeaders });
 };
 
 export const apiGet = <T = unknown>(endpoint: string, data: T | null = null): Promise<T | null> => {

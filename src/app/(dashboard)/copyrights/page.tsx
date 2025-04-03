@@ -33,7 +33,7 @@ const Copyrights = () => {
   const fetchAllCopyrights = async (labelId: any) => {
     setIsLoading(true);
     try {
-      const response = await apiGet(`/api/copyright/getCopyrights`);
+      const response:any = await apiGet(`/api/copyright/getCopyrights`);
       console.log("fetch response copyrights :");
       console.log(response);
       

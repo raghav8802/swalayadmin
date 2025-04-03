@@ -31,7 +31,7 @@ const CopyRightsModalForm = ({
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels");
+      const response:any = await apiGet("/api/labels/getLabels");
 
       if (response.success) {
         setLabelData(response.data);
@@ -75,7 +75,7 @@ const CopyRightsModalForm = ({
       url: formData.youtubeUrl,
     });
 
-    const response = await apiPost("/api/copyright/addCopyright", {
+    const response:any = await apiPost("/api/copyright/addCopyright", {
       labelId: formData.labelId,
       link: formData.youtubeUrl,
     });

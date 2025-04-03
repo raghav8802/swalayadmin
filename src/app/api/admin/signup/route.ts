@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from 'bcryptjs';
-import { sendEmail } from "@/helpers/mailer";
 import { connect } from "@/dbConfig/dbConfig";
-// import User from "@/models/Label";
-// import Label from "@/models/Label"
 import Admin from "@/models/admin";
 
 
@@ -71,7 +68,7 @@ export async function POST(request: NextRequest) {
         console.log(reqBody);
         console.log(username, email, password);
 
-        await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id })
+      
 
         return NextResponse.json({
             message: "User signup successfully",

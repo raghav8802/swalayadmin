@@ -18,6 +18,7 @@ import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { apiGet, apiFormData } from "@/helpers/axiosRequest";
 import Link from "next/link";
+import Image from "next/image";
 
 type NestedField = {
   status: string;
@@ -112,7 +113,7 @@ export default function EmployeeProfile() {
     
     if (encodedEmployeeId) {
       try {
-        let employeeid = atob(encodedEmployeeId);
+        const employeeid = atob(encodedEmployeeId);
         setEmployeeId(employeeid);
         fetchEmployeeDetails(employeeid);
         setIsNew(false);
@@ -283,13 +284,13 @@ export default function EmployeeProfile() {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="space-y-8">
-              {/* <div className="flex flex-col items-center space-y-4">
+              <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32">
                   <AvatarImage src="/placeholder.svg" alt="Employee" />
                   <AvatarFallback>EP</AvatarFallback>
                 </Avatar>
-                <h2 className="text-2xl font-bold">John Doe</h2>
-              </div> */}
+                <h2 className="text-2xl font-bold">{formData.name || "Employee Name"}</h2>
+              </div>
 
               <Separator />
 
@@ -586,13 +587,22 @@ export default function EmployeeProfile() {
                           Upload
                         </Button>
                         {exsitsNdaFile && (
-                          <a
+                          <Link
                             href={exsitsNdaFile}
                             className="btn ms-3 bg-red-300 py-2 px-3 rounded"
                             target="_blank"
                           >
-                            File <i className="bi bi-file-earmark-pdf"></i>
-                          </a>
+                            <div className="flex items-center">
+                              <span>File</span>
+                              <Image
+                                src="/icons/pdf.svg"
+                                alt="PDF"
+                                width={20}
+                                height={20}
+                                className="ml-1"
+                              />
+                            </div>
+                          </Link>
                         )}
 
                         <input
@@ -605,8 +615,8 @@ export default function EmployeeProfile() {
                       </label>
                     )}
                   </div>
-               
                 </div>
+
                 {/* Display the selected file name */}
                 {selectedNdaFileName && (
                   <span className="text-sm text-gray-600">
@@ -637,17 +647,17 @@ export default function EmployeeProfile() {
                     </Select>
                     {formData.workPolicy.status === "Completed" && (
                       <div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() =>
-                          document
-                            .getElementById("fileInputWorkPolicy")
-                            ?.click()
-                        }
-                      >
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() =>
+                            document
+                              .getElementById("fileInputWorkPolicy")
+                              ?.click()
+                          }
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload
                         </Button>
                         {exsitsWorkPolicy && (
                           <Link
@@ -655,7 +665,16 @@ export default function EmployeeProfile() {
                             className="btn ms-3 bg-red-300 py-2 px-3 rounded"
                             target="_blank"
                           >
-                            File <i className="bi bi-file-earmark-pdf"></i>
+                            <div className="flex items-center">
+                              <span>File</span>
+                              <Image
+                                src="/icons/pdf.svg"
+                                alt="PDF"
+                                width={20}
+                                height={20}
+                                className="ml-1"
+                              />
+                            </div>
                           </Link>
                         )}
                         <input
@@ -665,7 +684,7 @@ export default function EmployeeProfile() {
                           accept=".pdf,.doc,.docx"
                           onChange={(e) => handleFileUpload(e, "workPolicy")}
                         />
-                     </div>
+                      </div>
                     )}
                   </div>
                 </div>

@@ -61,7 +61,7 @@ const ArtistPage = ({ params }: { params: { id: string } }) => {
 
   const fetchArtistDetails = useCallback(async () => {
     try {
-      const response = await apiGet(
+      const response:any = await apiGet(
         `/api/artist/getArtistDetails?artistId=${decodedArtistId}`
       );
 

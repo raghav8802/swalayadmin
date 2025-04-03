@@ -7,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { apiGet } from "@/helpers/axiosRequest";
 
 import Link from "next/link";
@@ -19,16 +19,11 @@ const Payments = ({ params }: { params: { filter: string } }) => {
   // const filter = params.filter;
   const filter = params.filter.charAt(0).toUpperCase() + params.filter.slice(1).toLowerCase();
   
-  const validFilters = ["All", "Pending", "Completed", "Rejected", "Failed", "Approved"]; 
-  if (!validFilters.includes(filter)) {
-    return <ErrorSection message="Invalid URL or Not Found" />;
-  }
-
   const [isLoading, setIsLoading] = useState(true);
   const [payoutRequestData, setPayoutRequestData] = useState([]);
 
-  const fetchRequestedData = async () => {
-    setIsLoading(true); // Set loading state before fetching
+  const fetchRequestedData = useCallback(async () => {
+    setIsLoading(true);
     try {
       const response: any = await apiGet(`/api/payments/payout/getAllPayouts?status=${filter}`);
       if (response.success) {
@@ -37,13 +32,18 @@ const Payments = ({ params }: { params: { filter: string } }) => {
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoading(false); // Reset loading state after fetching
+      setIsLoading(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchRequestedData();
-  }, [filter]); // Add filter to dependencies
+  }, [fetchRequestedData]);
+
+  const validFilters = ["All", "Pending", "Completed", "Rejected", "Failed", "Approved"]; 
+  if (!validFilters.includes(filter)) {
+    return <ErrorSection message="Invalid URL or Not Found" />;
+  }
 
   return (
     <div className="w-full h-dvh p-6 bg-white rounded-sm">

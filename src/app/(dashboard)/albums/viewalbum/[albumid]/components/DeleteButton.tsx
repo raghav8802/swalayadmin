@@ -25,7 +25,7 @@ const DeleteButton: React.FC<AlbumDeleteProps> = ({ albumId }) => {
     console.log(albumId)
 
       try {
-        const response = await apiPost("/api/albums/deleteAlbum", { albumId });
+        const response:any = await apiPost("/api/albums/deleteAlbum", { albumId });
 
         if (response.success) {
           toast.success("Success! Your album is deleted");

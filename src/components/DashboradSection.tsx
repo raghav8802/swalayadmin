@@ -141,32 +141,7 @@ export default function DashboradSection() {
         <div className="grid gap-4 lg:col-span-2">
           {/* counts  */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Releases</CardDescription>
-                <CardTitle className="text-4xl">{stats.albums}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Artists</CardDescription>
-                <CardTitle className="text-4xl">{stats.artists}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Labels</CardDescription>
-                <CardTitle className="text-4xl">{stats.labels}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Upcoming Releases</CardDescription>
-                <CardTitle className="text-4xl">
-                  {stats.upcomingReleases}
-                </CardTitle>
-              </CardHeader>
-            </Card>
+          
           </div>
           {/* counts  */}
 

@@ -3,7 +3,7 @@
 // import Style from "../../styles/Profile.module.css";
 import Style from "../../../styles/Profile.module.css";
 import toast from "react-hot-toast";
-import React, {  useEffect, useState } from "react";
+import React, {  useEffect, useState, useCallback } from "react";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 // import UserContext from "@/context/userContext";
 import Link from "next/link";
@@ -37,7 +37,14 @@ interface LabelData {
   _id: string;
 }
 
-const page = ({ params }: { params: { labelid: string } }) => {
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+  status?: number;
+}
+
+const LabelPage = ({ params }: { params: { labelid: string } }) => {
   const labelParams = params.labelid;
   // const [decodedArtistId, setDecodedArtistId] = useState('');
   const labelId = atob(labelParams as string);
@@ -50,9 +57,9 @@ const page = ({ params }: { params: { labelid: string } }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
 
-  const labelDetails = async () => {
+  const labelDetails = useCallback(async () => {
     try {
-      const response = await apiGet(`/api/labels/details?labelId=${labelId}`);
+      const response = await apiGet(`/api/labels/details?labelId=${labelId}`) as ApiResponse<LabelData>;
 
       if (response.success) {
         setLabelData(response.data);
@@ -63,13 +70,13 @@ const page = ({ params }: { params: { labelid: string } }) => {
       toast.error("Internal server down");
       console.log(error);
     }
-  };
+  }, [labelId]);
 
-  const fetchBankDetails = async () => {
+  const fetchBankDetails = useCallback(async () => {
     try {
       const response = await apiGet(
         `/api/bank/getbankdetails?labelid=${labelId}`
-      );
+      ) as ApiResponse<BankData>;
 
       if (response.success) {
         setBankData(response.data);
@@ -80,20 +87,20 @@ const page = ({ params }: { params: { labelid: string } }) => {
       toast.error("Internal server down");
       console.log(error);
     }
-  };
+  }, [labelId]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsModalVisible(false);
     setIsLoading(true);
     fetchBankDetails();
-  };
+  }, [fetchBankDetails]);
 
   useEffect(() => {
     if (labelId) {
       fetchBankDetails();
       labelDetails();
     }
-  }, [labelId]);
+  }, [labelId, fetchBankDetails, labelDetails]);
 
 
   const handleContinue = async () => {
@@ -102,14 +109,16 @@ const page = ({ params }: { params: { labelid: string } }) => {
     try {
       const response = await apiPost("/api/labels/deleteLabel", {
         labelId
-      });
-      console.log("response update staus");
+      }) as unknown as ApiResponse<{ labelId: string }>;
+      
+      console.log("response update status");
       console.log(response);
+      
       if (response.success) {
         toast.success("Success! album deleted successfully");
         router.push('/labels')
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "Failed to delete album");
       }
     } catch (error) {
       console.log("error in api", error);
@@ -312,4 +321,4 @@ const page = ({ params }: { params: { labelid: string } }) => {
   );
 };
 
-export default page;
+export default LabelPage;

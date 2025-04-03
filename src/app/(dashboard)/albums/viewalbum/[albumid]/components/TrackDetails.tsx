@@ -101,7 +101,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   const fetchTrackDetails = async () => {
     try {
-      const response = await apiGet(
+      const response:any = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
       );
 
@@ -123,7 +123,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   const fetchAlbumDetails = async (albumId: string) => {
     try {
-      const albumResponse = await apiGet(
+      const albumResponse:any = await apiGet(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
@@ -140,12 +140,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   useEffect(() => {
     fetchTrackDetails();
-  }, [trackId]);
-
-  useEffect(() => {
-    console.log ("here");
-    console.log("Track Details:", trackDetails);
-  }, [trackDetails]);
+  }, [fetchTrackDetails]);
 
   const downloadRef = useRef<HTMLAnchorElement>(null);
 
@@ -192,7 +187,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const uploadToComos = async (albumId: any) => {
     toast.loading("Uploading to cosmos");
     try {
-      const response = await apiPost("/api/cosmos/fetchdata", { albumId });
+      const response:any = await apiPost("/api/cosmos/fetchdata", { albumId });
       // console.log(response);
       if (response.success) {
         toast.success("Success! Your album is uploaded to cosmos");
@@ -265,7 +260,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
     try {
       // Call the recognition API and pass the audio file URL and trackId
-      const response = await apiPost("/api/recognition", {
+      const response:any = await apiPost("/api/recognition", {
         trackId,
         fileUrl: audioFileUrl,
       });

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState, FormEvent, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
@@ -53,19 +53,18 @@ const LabelRegistrationForm: React.FC = () => {
   const [labelId, setLabelId] = useState<string | null>(null);
   const [isNotVaildUrl, setIsNotVaildUrl] = useState(false);
 
-  const fetchLabelData = async (id: string) => {
+  const fetchLabelData = useCallback(async (id: string) => {
     try {
       const response:any = await apiGet(`/api/labels/details?labelId=${id}`);
 
       console.log(" api details response.data");
       console.log(response.data);
       
-
       if (response.success) {
         const labelData = response.data;
 
-        setFormData({
-          ...formData,
+        setFormData(prevData => ({
+          ...prevData,
           username: labelData.username || "",
           email: labelData.email || "",
           contact: labelData.contact || "",
@@ -76,7 +75,7 @@ const LabelRegistrationForm: React.FC = () => {
               ? "SwaLay Digital"
               : labelData.lable || "",
           state: labelData.state || "",
-        });
+        }));
       }
       if (!response.success && response.status === 500) {
         toast.error("internal server error");
@@ -86,7 +85,7 @@ const LabelRegistrationForm: React.FC = () => {
       toast.error("Error fetching label data.");
       console.error(error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);

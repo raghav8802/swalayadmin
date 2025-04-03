@@ -15,9 +15,9 @@ const Labels = () => {
   
   const fetchLabels = async () => {
     try {
-      const response: { success: boolean; data: any[] } = await apiGet('/api/labels/getLabels')  
+      const response = await apiGet<{ success: boolean; data: any[] }>('/api/labels/getLabels')  
   
-      if (response.success) {
+      if (response?.success) {
         setLabelData(response.data)
       }
 

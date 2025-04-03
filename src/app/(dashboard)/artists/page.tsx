@@ -28,7 +28,7 @@ function ArtistForm() {
   const fetchAllArtist = async (labelId: any) => {
     setIsLoading(true)
     try {
-      const response = await apiGet(`/api/artist/getArtists?labelid=${labelId}`)
+      const response:any = await apiGet(`/api/artist/getArtists?labelid=${labelId}`)
       if (response.success) {
         setArtists(response.data)
       }

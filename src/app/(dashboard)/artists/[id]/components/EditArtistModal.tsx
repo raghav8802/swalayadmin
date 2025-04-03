@@ -204,7 +204,7 @@ const EditArtistModal = ({
 
     try {
       // Use apiFormData to make the request
-      const response = await apiFormData(`/api/artist/updateArtist`, data);
+      const response:any = await apiFormData(`/api/artist/updateArtist`, data);
 
       if (response.success) {
         onClose();

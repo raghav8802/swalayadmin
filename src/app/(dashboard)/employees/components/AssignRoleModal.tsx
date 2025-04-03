@@ -23,7 +23,7 @@ const AssignRoleModal = ({
       }
       console.log({ email, role });
 
-      const result = await apiPost("/api/employee/assignrole", {
+      const result:any = await apiPost("/api/employee/assignrole", {
         email,
         role,
       });
