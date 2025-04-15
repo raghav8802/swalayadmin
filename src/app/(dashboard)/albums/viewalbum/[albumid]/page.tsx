@@ -74,6 +74,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Decode album ID only once
   useEffect(() => {
     try {
       const decodedAlbumId = atob(params.albumid);
@@ -83,7 +84,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
     }
   }, [params.albumid]);
 
-  const fetchAlbumDetails = async (albumId: string) => {
+  const fetchAlbumDetails = React.useCallback(async (albumId: string) => {
     try {
       const response = await apiGet<ApiResponse>(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
@@ -97,24 +98,27 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
       }
     } catch (error) {
       toast.error("Internal server error");
+      setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (albumId) {
+    if (albumId && isLoading) {
       fetchAlbumDetails(albumId);
     }
-  }, [albumId]);
+  }, [albumId, fetchAlbumDetails, isLoading]);
 
-  const onFinalSubmit = () => {
+  const onFinalSubmit = React.useCallback(() => {
     setIsDialogOpen(true);
-  };
+  }, []);
 
-  const handleContinue = async () => {
+  const handleContinue = React.useCallback(async () => {
+    if (!albumId || !albumDetails) return;
+
     const payload: UpdateStatusPayload = {
       id: albumId,
-      labelid: albumDetails?.labelId,
-      albumName: albumDetails?.title,
+      labelid: albumDetails.labelId,
+      albumName: albumDetails.title,
       status: AlbumProcessingStatus.Processing,
       comment: "",
     };
@@ -124,24 +128,18 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
 
       if (response?.success) {
         toast.success("Thank you! Your album(s) are currently being processed");
-        if (albumDetails) {
-          setAlbumDetails((prevDetails) =>
-            prevDetails
-              ? {
-                  ...prevDetails,
-                  status: AlbumProcessingStatus.Processing,
-                }
-              : null
-          );
-        }
+        setAlbumDetails(prev => prev ? {
+          ...prev,
+          status: AlbumProcessingStatus.Processing,
+        } : null);
       } else {
         toast.error(response?.message || "Failed to update status");
       }
     } catch (error) {
-      console.log("error in api", error);
+      console.error("Error in API:", error);
       toast.error("Internal server error");
     }
-  };
+  }, [albumId, albumDetails]);
 
   if (error) {
     return <ErrorSection message="Invalid Url" />;

@@ -56,16 +56,19 @@ const Albums = () => {
       );
       if (response?.success) {
         setAlbumList(response.data);
+      } else {
+        toast.error(response?.message || "Failed to fetch albums");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching albums:", error);
       toast.error("Internal server error");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
-    if (labelId) {
+    if (labelId && isLoading) {
       fetchAlbums(labelId);
     }
   }, [labelId]);

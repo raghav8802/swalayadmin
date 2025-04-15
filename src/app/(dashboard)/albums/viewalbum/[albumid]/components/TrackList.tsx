@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import Style from "../../../../../styles/ViewAlbums.module.css";
 import { apiGet } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { AnyAaaaRecord } from "node:dns";
 
 interface Track {
   albumId: string;
@@ -43,117 +46,104 @@ const TrackList: React.FC<TrackListProps> = ({ albumId, onTrackClick }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTrackId, setActiveTrackId] = useState<string | null>(null);
 
-  // Fetch all tracks by albumId
+  const handleTrackClick = (trackId: string) => {
+    setActiveTrackId(trackId);
+    onTrackClick(trackId);
+  };
+
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const response:any = await apiGet(
-          `/api/track/getTracks?albumId=${albumId}`
-        );
+        const response:any  = await apiGet(`/api/track/getTracks?albumId=${albumId}`);
         if (response.data) {
-          const reversedTracks = response.data.reverse(); // Reverse the tracks array
+          const reversedTracks = response.data.reverse();
           setTracks(reversedTracks);
-          if (reversedTracks.length > 0) {
-            const firstTrackId = reversedTracks[0]._id;
-            setActiveTrackId(firstTrackId);
-            onTrackClick(firstTrackId);
-          }
         }
       } catch (error) {
-        toast.error("Internal server error");
+        toast.error("Failed to fetch tracks");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchTracks();
-  }, [albumId, onTrackClick]);
-
-  // Handle track item click
-  const handleTrackClick = (trackId: string) => {
-    setActiveTrackId(trackId);
-    onTrackClick(trackId);
-  };
+  }, [albumId]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading tracks...</div>;
   }
 
   return (
-    <ul className={`mt-3 ${Style.trackList}`}>
+    <ul className={Style.trackList}>
       {tracks.length > 0 ? (
-        tracks.map((track, index) => {
-          // console.log(track.duration); // Log track duration
-          
-          return (
-            <li
-              key={track._id}
-              className={`mb-4 ${Style.trackItem} ${
-                activeTrackId === track._id ? Style.active : ""
+        tracks.map((track, index) => (
+          <li
+            key={track._id}
+            className={`mb-4 ${Style.trackItem} ${
+              activeTrackId === track._id ? Style.active : ""
+            }`}
+            onClick={() => handleTrackClick(track._id)}
+          >
+            <span
+              className={`me-2 ${Style.trackItemNumber} ${
+                activeTrackId === track._id ? Style.trackItemNumberActive : ""
               }`}
-              onClick={() => handleTrackClick(track._id)}
             >
-              <span
-                className={`me-2 ${Style.trackItemNumber} ${
-                  activeTrackId === track._id ? Style.trackItemNumberActive : ""
+              {String(index + 1).padStart(2, "0")}.
+            </span>
+            <div
+              className={`me-3 ${Style.trackItemIconBox} ${
+                activeTrackId === track._id ? Style.trackItemIconBoxActive : ""
+              }`}
+            >
+              <i
+                className={`bi bi-music-note ${
+                  activeTrackId === track._id
+                    ? Style.trackItemIconBoxIconActive
+                    : ""
                 }`}
-              >
-                {String(index + 1).padStart(2, "0")}.
-              </span>
-              <div
-                className={`me-3 ${Style.trackItemIconBox} ${
-                  activeTrackId === track._id ? Style.trackItemIconBoxActive : ""
-                }`}
-              >
-                <i
-                  className={`bi bi-music-note ${
+              ></i>
+            </div>
+            <div className={Style.trackItemInfo}>
+              <div>
+                <p
+                  className={` ${Style.trackItemTrackName} ${
                     activeTrackId === track._id
-                      ? Style.trackItemIconBoxIconActive
+                      ? Style.trackItemTrackNameActive
                       : ""
                   }`}
-                ></i>
+                >
+                  {track.songName}
+                </p>
+                <p className={`${Style.trackItemTrackSingerName}`}>
+                  {track.primarySinger}
+                </p>
               </div>
-              <div className={Style.trackItemInfo}>
-                <div>
-                  <p
-                    className={` ${Style.trackItemTrackName} ${
-                      activeTrackId === track._id
-                        ? Style.trackItemTrackNameActive
-                        : ""
-                    }`}
-                  >
-                    {track.songName}
-                  </p>
-                  <p className={`${Style.trackItemTrackSingerName}`}>
-                    {track.primarySinger}
-                  </p>
-                </div>
-                <div className={Style.controllers}>
-                  <div className={Style.controllersItem}>
-                    {track && track.category && (
-                      <span
-                        className="me-2 inline-flex items-center rounded-md bg-purple-50 px-2 py-1 font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10"
-                        style={{ fontSize: "12px" }}
-                      >
-                        {track.category}
-                      </span>
-                    )}
-                  </div>
-                  <div className={Style.controllersItem}>
-                    <span>
-                      <i className={`bi bi-stopwatch ${Style.stopwatchIcon}`}></i>{" "}
-                      {formatDuration(track.duration)} {/* Display formatted duration */}
+              <div className={Style.controllers}>
+                <div className={Style.controllersItem}>
+                  {track && track.category && (
+                    <span
+                      className="me-2 inline-flex items-center rounded-md bg-purple-50 px-2 py-1 font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10"
+                      style={{ fontSize: "12px" }}
+                    >
+                      {track.category}
                     </span>
-                  </div>
-
-                  {/* <div className="flex justify-end">
-                    <i className="bi bi-play-fill"></i>
-                  </div> */}
+                  )}
                 </div>
+                <div className={Style.controllersItem}>
+                  <span>
+                    <i className={`bi bi-stopwatch ${Style.stopwatchIcon}`}></i>{" "}
+                    {formatDuration(track.duration)} {/* Display formatted duration */}
+                  </span>
+                </div>
+
+                {/* <div className="flex justify-end">
+                  <i className="bi bi-play-fill"></i>
+                </div> */}
               </div>
-            </li>
-          );
-        })
+            </div>
+          </li>
+        ))
       ) : (
         <h1 className="text-center mt-5">No Tracks Found</h1>
       )}

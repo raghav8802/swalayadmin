@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -99,7 +99,24 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const fetchTrackDetails = async () => {
+  const fetchAlbumDetails = useCallback(async (albumId: string) => {
+    try {
+      const albumResponse:any = await apiGet(
+        `/api/albums/getAlbumsDetails?albumId=${albumId}`
+      );
+
+      if (albumResponse.success) {
+        setAlbumDetails(albumResponse.data);
+      } else {
+        setError(albumResponse.message);
+      }
+    } catch (error) {
+      console.log("Error fetching album details:", error);
+      setError("Failed to fetch album details");
+    }
+  }, []);
+
+  const fetchTrackDetails = useCallback(async () => {
     try {
       const response:any = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
@@ -119,24 +136,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     } catch (error) {
       setError("Internal server error");
     }
-  };
-
-  const fetchAlbumDetails = async (albumId: string) => {
-    try {
-      const albumResponse:any = await apiGet(
-        `/api/albums/getAlbumsDetails?albumId=${albumId}`
-      );
-
-      if (albumResponse.success) {
-        setAlbumDetails(albumResponse.data); // Set album details in state
-      } else {
-        setError(albumResponse.message);
-      }
-    } catch (error) {
-      console.log("Error fetching album details:", error);
-      setError("Failed to fetch album details");
-    }
-  };
+  }, [trackId, onFetchDetails, fetchAlbumDetails]);
 
   useEffect(() => {
     fetchTrackDetails();
@@ -338,8 +338,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
       <div className={Style.trackDetailsTop}>
-        <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
-
+        <h5 className={`mt-3 ${Style.subheading}`}>Track Details</h5>
         {userType !== "customerSupport" && (
           <div className={Style.trackDetailsIconGroup}>
             <button
@@ -352,26 +351,18 @@ const TrackDetails: React.FC<TrackListProps> = ({
             >
               Audio Check
             </button>
-
             <button
               className="ms-3 px-2 py-2 bg-green-500 text-white rounded ms-2 bi bi-link-45deg"
-              onClick={() =>
-                onlinkfetch(`${trackDetails && trackDetails.isrc}`)
-              }
+              onClick={() => onlinkfetch(`${trackDetails && trackDetails.isrc}`)}
             >
               Link
             </button>
-
             <Link href={`/albums/edittrack/${btoa(trackId)}`}>
               <i className="bi bi-pencil-square" title="Edit track"></i>
             </Link>
-
             {trackDetails?.audioFile && (
               <div onClick={handleDownload}>
-                {/* Download icon */}
                 <i className="bi bi-download"></i>
-
-                {/* Hidden anchor tag to handle download */}
                 <a
                   ref={downloadRef}
                   href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
@@ -380,8 +371,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 >
                   Download
                 </a>
-
-                {/* Hidden audio tag (if you still need to keep it) */}
                 <audio style={{ display: "none" }} controls>
                   <source
                     src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
@@ -390,15 +379,13 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 </audio>
               </div>
             )}
-
             <button onClick={onDelete}>
               <i className="bi bi-trash"></i>
             </button>
           </div>
         )}
       </div>
-      <div className={`mt-2 ${Style.currentTrackDetails} `}>
-        {/* <p className={`mb-3 ${Style.trackInfoTrackName}`}><span className={Style.trackNameLable}>Track Name: </span> Lost in Mountain</p> */}
+      <div className={`mt-2 ${Style.currentTrackDetails}`}>
         <p className={`mb-3 ${Style.trackInfoTrackName}`}>
           <i className={`bi bi-music-note-list ${Style.trackNameIcon}`}></i>
           {trackDetails && trackDetails?.songName}
@@ -409,9 +396,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
             {userType !== "customerSupport" && (
               <Link
                 className="px-3 py-2 bg-cyan-600 text-white rounded my-3"
-                href={`/albums/tracks/addLyrics/${btoa(
-                  trackId ?? ""
-                )}?trackname=${encodeURIComponent(
+                href={`/albums/tracks/addLyrics/${btoa(trackId ?? "")}?trackname=${encodeURIComponent(
                   trackDetails?.songName ?? ""
                 )}&trackurl=${encodeURIComponent(
                   trackDetails?.audioFile
@@ -435,7 +420,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
                 <button
                   className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
-                  onClick={handleUploadAndPublish} // The onClick function is now here
+                  onClick={handleUploadAndPublish}
                 >
                   <i className="bi bi-youtube me-2"></i> YT Delivery
                 </button>
@@ -452,7 +437,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
               <TabsTrigger value="links">Track Links</TabsTrigger>
             </TabsList>
             <TabsContent value="track">
-              <div className={`mt-2  ${Style.trackInfoListContainer}`}>
+              <div className={`mt-2 ${Style.trackInfoListContainer}`}>
                 <ul className="p-3">
                   <li className={`mb-2 ${Style.albumInfoItem}`}>
                     <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -471,19 +456,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
                       TrackType:
                     </span>{" "}
                     {trackDetails && trackDetails.trackType}
-                  </li>
-                  <li className={`mb-2 ${Style.albumInfoItem}`}>
-                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                      Version:
-                    </span>{" "}
-                    {trackDetails && trackDetails.version}
-                  </li>
-
-                  <li className={`mb-2 ${Style.albumInfoItem}`}>
-                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                      Crbt:
-                    </span>{" "}
-                    {trackDetails && trackDetails.crbt}
                   </li>
                 </ul>
               </div>

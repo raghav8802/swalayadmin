@@ -2,7 +2,7 @@ import React from 'react'
 
 const loading = () => {
   return (
-    <div>loading baby</div>
+    <div>Great Thing Take Time </div>
   )
 }
 
