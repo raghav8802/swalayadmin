@@ -6,7 +6,6 @@ import Style from "../../styles/Labels.module.css"
 import React from "react"
 import { apiGet } from "@/helpers/axiosRequest"
 import { LabelList } from "./components/LabelList"
-import Agreement from "./components/Agreement"
 import { useQuery } from "@tanstack/react-query"
 
 const Labels = () => {
@@ -19,8 +18,10 @@ const Labels = () => {
       }
       throw new Error('Failed to fetch labels')
     },
-    staleTime: 1000 * 60, // Consider data fresh for 1 minute
-    refetchInterval: 1000 * 60, // Refetch every minute
+    staleTime: 1000 * 30, // 30 seconds
+    refetchInterval: 1000 * 30, // 30 seconds
+    refetchOnWindowFocus: false,
+    retry: false,
   })
 
   return (
