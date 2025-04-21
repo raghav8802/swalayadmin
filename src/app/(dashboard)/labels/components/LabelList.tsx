@@ -52,8 +52,9 @@ export const artistColumns: ColumnDef<Label>[] = [
     cell: ({ row }) => row.index + 1,
   },
   {
-    accessorKey: "labelName",
+    accessorKey: "lable",
     header: "Labels",
+    enableColumnFilter: true,
     cell: ({ row }) => {
       const label = row.original;
       return <div className="ms-2 text-blue-600">{label.lable || "N/A"}</div>;
@@ -146,10 +147,10 @@ export function LabelList({ data }: { data: Label[] }) {
         <Input
           placeholder="Filter label names..."
           value={
-            (table.getColumn("labelName")?.getFilterValue() as string) ?? ""
+            (table.getColumn("lable")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("labelName")?.setFilterValue(event.target.value)
+            table.getColumn("lable")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
