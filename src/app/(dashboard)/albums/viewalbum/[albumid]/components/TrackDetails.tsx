@@ -20,6 +20,11 @@ interface TrackListProps {
   onFetchDetails: (songName: string, url: string) => void;
 }
 
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+}
+
 interface Props {
   trackId: string;
 }
@@ -378,7 +383,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     if (!trackId || !trackDetails) return;
 
     try {
-      const response = await apiPost("/api/tracks/updateISRC", {
+      const response = await apiPost<ApiResponse>("/api/tracks/updateISRC", {
         id: trackId,
         isrc: editedISRC
       });
