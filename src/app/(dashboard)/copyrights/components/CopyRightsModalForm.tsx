@@ -51,43 +51,35 @@ const CopyRightsModalForm = ({
   };
 
   const handleSave = async () => {
-    // console.log("all data");
-    // console.log(formData);
-
-    if (!formData.labelId && formData.labelId === "") {
-      toast.error("Please select a track");
+    if (!formData.labelId) {
+      toast.error("Please select a label");
       return;
     }
-    if (!formData.youtubeUrl && formData.youtubeUrl === "") {
-      toast.error("Please paste your youtube link");
+    if (!formData.youtubeUrl) {
+      toast.error("Please paste your YouTube link");
       return;
     }
 
-    if (!formData.youtubeUrl || !isValidYouTubeUrl(formData.youtubeUrl)) {
+    if (!isValidYouTubeUrl(formData.youtubeUrl)) {
       toast.error("Please paste a valid YouTube link");
       return;
     }
 
-    console.log("dsfsed");
+    try {
+      const response:any = await apiPost("/api/youtube", {
+        labelId: formData.labelId,
+        link: formData.youtubeUrl,
+      });
 
-    console.log({
-      label: formData.labelId,
-      url: formData.youtubeUrl,
-    });
-
-    const response:any = await apiPost("/api/copyright/addCopyright", {
-      labelId: formData.labelId,
-      link: formData.youtubeUrl,
-    });
-    console.log(response);
-
-    if (response.success) {
-      onClose();
-      toast.success("New Copyright added");
-      setFormData({ labelId: "", youtubeUrl: "" });
-    } else {
-      onClose();
-      toast.error("Internal server error");
+      if (response.success) {
+        onClose();
+        toast.success(response.message || "Copyright claim processed successfully");
+        setFormData({ labelId: "", youtubeUrl: "" });
+      } else {
+        toast.error(response.error || "Failed to process copyright claim");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred while processing the claim");
     }
   };
 
@@ -134,13 +126,13 @@ const CopyRightsModalForm = ({
 
       <div>
         <label className="form-label" htmlFor="trackname">
-          Youtube url
+          YouTube URL
         </label>
         <input
           id="inline-checkbox-singer"
           type="text"
           name="singer"
-          placeholder="Paste your youtbe url here"
+          placeholder="Paste your YouTube URL here"
           value={formData.youtubeUrl}
           onChange={(e) =>
             setFormData({ ...formData, youtubeUrl: e.target.value })

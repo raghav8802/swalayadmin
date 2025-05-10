@@ -12,6 +12,7 @@ import { onShare } from "@/helpers/urlShare";
 import { MouseEvent } from "react";
 import { AlbumDetailsTable } from "@/app/(dashboard)/marketing/details/components/AlbumDetailsTable";
 import UserContext from "@/context/userContext";
+import { Modal } from "@/components/Modal";
 
 interface TrackListProps {
   trackId: string;
@@ -57,6 +58,7 @@ interface TrackDetail {
   version: string | null;
   trackType: string | null;
   trackOrderNumber: string | null;
+  deliveryStatus: 'pending' | 'delivered' | 'failed' | null;
 }
 
 interface AlbumDetail {
@@ -77,8 +79,8 @@ interface AlbumDetail {
 }
 
 enum AlbumProcessingStatus {
-  Draft = 0, // on information submit
-  Processing = 1, // on final submit
+  Draft = 0,
+  Processing = 1,
   Approved = 2,
   Rejected = 3,
   Live = 4,
@@ -93,9 +95,14 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const [albumDetails, setAlbumDetails] = useState<AlbumDetail | null>(null);
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const context = useContext(UserContext);
   const userType = context?.user?.usertype || "";
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUPCModalOpen, setIsUPCModalOpen] = useState(false);
+  const [editedUPC, setEditedUPC] = useState("");
+  const [isDelivering, setIsDelivering] = useState(false);
+  const [isISRCModalOpen, setIsISRCModalOpen] = useState(false);
+  const [editedISRC, setEditedISRC] = useState("");
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -185,19 +192,51 @@ const TrackDetails: React.FC<TrackListProps> = ({
   };
 
   const uploadToComos = async (albumId: any) => {
+    if (isDelivering || trackDetails?.deliveryStatus === 'delivered') {
+      return;
+    }
+
+    setIsDelivering(true);
     toast.loading("Uploading to cosmos");
     try {
       const response:any = await apiPost("/api/cosmos/fetchdata", { albumId });
-      // console.log(response);
       if (response.success) {
+        // Update the track's delivery status
+        await apiPost("/api/track/updateDeliveryStatus", {
+          trackId,
+          status: 'delivered'
+        });
+        setTrackDetails(prev => prev ? {
+          ...prev,
+          deliveryStatus: 'delivered'
+        } : null);
         toast.success("Success! Your album is uploaded to cosmos");
-        window.location.reload();
       } else {
+        // Update the track's delivery status to failed
+        await apiPost("/api/track/updateDeliveryStatus", {
+          trackId,
+          status: 'failed'
+        });
+        setTrackDetails(prev => prev ? {
+          ...prev,
+          deliveryStatus: 'failed'
+        } : null);
         toast.error(response.message);
       }
     } catch (error) {
+      // Update the track's delivery status to failed
+      await apiPost("/api/track/updateDeliveryStatus", {
+        trackId,
+        status: 'failed'
+      });
+      setTrackDetails(prev => prev ? {
+        ...prev,
+        deliveryStatus: 'failed'
+      } : null);
       console.log("error in api", error);
       toast.error("Internal server error");
+    } finally {
+      setIsDelivering(false);
     }
   };
 
@@ -335,6 +374,31 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
+  const handleISRCUpdate = async () => {
+    if (!trackId || !trackDetails) return;
+
+    try {
+      const response = await apiPost("/api/tracks/updateISRC", {
+        id: trackId,
+        isrc: editedISRC
+      });
+
+      if (response?.success) {
+        setTrackDetails(prev => prev ? {
+          ...prev,
+          isrc: editedISRC
+        } : null);
+        setIsISRCModalOpen(false);
+        toast.success("ISRC updated successfully");
+      } else {
+        toast.error(response?.message || "Failed to update ISRC");
+      }
+    } catch (error) {
+      console.error("Error updating ISRC:", error);
+      toast.error("Failed to update ISRC");
+    }
+  };
+
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
       <div className={Style.trackDetailsTop}>
@@ -412,10 +476,20 @@ const TrackDetails: React.FC<TrackListProps> = ({
               albumStatus === AlbumProcessingStatus.Live) && (
               <>
                 <button
-                  className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
+                  className={`ms-3 px-3 py-2 rounded my-3 ${
+                    trackDetails?.deliveryStatus === 'delivered'
+                      ? 'bg-gray-500 cursor-not-allowed'
+                      : isDelivering
+                      ? 'bg-gray-400 cursor-wait'
+                      : 'bg-cyan-500 hover:bg-cyan-600'
+                  } text-white`}
                   onClick={() => uploadToComos(trackDetails?.albumId)}
+                  disabled={isDelivering || trackDetails?.deliveryStatus === 'delivered'}
                 >
-                  DSP Delivery
+                  {isDelivering ? 'Uploading...' : 
+                   trackDetails?.deliveryStatus === 'delivered' ? 'Delivered' :
+                   trackDetails?.deliveryStatus === 'failed' ? 'Retry Delivery' :
+                   'DSP Delivery'}
                 </button>
 
                 <button
@@ -440,10 +514,25 @@ const TrackDetails: React.FC<TrackListProps> = ({
               <div className={`mt-2 ${Style.trackInfoListContainer}`}>
                 <ul className="p-3">
                   <li className={`mb-2 ${Style.albumInfoItem}`}>
-                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                      ISRC:
-                    </span>{" "}
-                    {trackDetails && trackDetails.isrc}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                        ISRC:
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {trackDetails?.isrc || "Not set"}
+                        {userType !== "customerSupport" && (
+                          <button
+                            onClick={() => {
+                              setIsISRCModalOpen(true);
+                              setEditedISRC(trackDetails?.isrc || "");
+                            }}
+                            className="btn btn-sm btn-outline-primary"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </li>
                   <li className={`mb-2 ${Style.albumInfoItem}`}>
                     <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -660,6 +749,28 @@ const TrackDetails: React.FC<TrackListProps> = ({
           description="Once you delete this track, you will no longer be able to retrieve the tracks associated with it."
         />
       </div>
+
+      <Modal
+        isVisible={isISRCModalOpen}
+        triggerLabel="Save"
+        title="Update ISRC"
+        onSave={handleISRCUpdate}
+        onClose={() => setIsISRCModalOpen(false)}
+      >
+        <div>
+          <label className="form-label" htmlFor="isrc">
+            ISRC
+          </label>
+          <input
+            id="isrc"
+            type="text"
+            value={editedISRC}
+            onChange={(e) => setEditedISRC(e.target.value)}
+            className="form-control"
+            placeholder="Enter ISRC"
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

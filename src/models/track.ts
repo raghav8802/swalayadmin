@@ -28,6 +28,7 @@ export interface ITrack extends Document {
   version: string | null;
   trackType: string | null;
   trackOrderNumber: string | null;
+  deliveryStatus: 'pending' | 'delivered' | 'failed' | null;
 }
 
 // Define the schema
@@ -110,6 +111,11 @@ const trackSchema: Schema<ITrack> = new Schema({
     type: String,
     default: null,
   },
+  deliveryStatus: {
+    type: String,
+    enum: ['pending', 'delivered', 'failed', null],
+    default: null
+  }
 });
 
 

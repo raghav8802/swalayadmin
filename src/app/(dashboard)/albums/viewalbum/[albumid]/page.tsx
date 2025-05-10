@@ -13,6 +13,7 @@ import ConfirmationDialog from "@/components/ConfirmationDialog";
 import DeleteButton from "./components/DeleteButton";
 import AlbumStatusUpdate from "./components/AlbumStatusUpdate";
 import UserContext from "@/context/userContext";
+import { Modal } from "@/components/Modal";
 
 // import MusicPlayer from '../components/MusicPlayer'
 
@@ -73,6 +74,8 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
   const [albumDetails, setAlbumDetails] = useState<AlbumDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUPCModalOpen, setIsUPCModalOpen] = useState(false);
+  const [editedUPC, setEditedUPC] = useState("");
 
   // Decode album ID only once
   useEffect(() => {
@@ -140,6 +143,34 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
       toast.error("Internal server error");
     }
   }, [albumId, albumDetails]);
+
+  const handleUPCUpdate = async () => {
+    if (!albumId || !albumDetails) return;
+
+    try {
+      const response = await apiPost<UpdateStatusResponse, { id: string; upc: string }>(
+        "/api/albums/updateUPC",
+        {
+          id: albumId,
+          upc: editedUPC
+        }
+      );
+
+      if (response?.success) {
+        setAlbumDetails(prev => prev ? {
+          ...prev,
+          upc: editedUPC
+        } : null);
+        setIsUPCModalOpen(false);
+        toast.success("UPC updated successfully");
+      } else {
+        toast.error(response?.message || "Failed to update UPC");
+      }
+    } catch (error) {
+      console.error("Error updating UPC:", error);
+      toast.error("Failed to update UPC");
+    }
+  };
 
   if (error) {
     return <ErrorSection message="Invalid Url" />;
@@ -209,10 +240,25 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
               {albumDetails?.language}
             </li>
             <li className={`mb-2 ${Style.albumInfoItem}`}>
-              <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                UPC:{" "}
-              </span>
-              {albumDetails?.upc}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                  UPC:
+                </span>
+                <div className="flex items-center gap-2">
+                  {albumDetails?.upc || "Not set"}
+                  {userType !== "customerSupport" && albumDetails?.upc && (
+                    <button
+                      onClick={() => {
+                        setIsUPCModalOpen(true);
+                        setEditedUPC("");
+                      }}
+                      className="btn btn-sm btn-outline-primary"
+                    >
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
             </li>
             <li className={`mb-2 ${Style.albumInfoItem}`}>
               <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -320,6 +366,28 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
         title="Are You Sure ?"
         description="Please note that once you submit your final details, you will not be able to make any further changes."
       />
+
+      <Modal
+        isVisible={isUPCModalOpen}
+        triggerLabel="Save"
+        title="Update UPC"
+        onSave={handleUPCUpdate}
+        onClose={() => setIsUPCModalOpen(false)}
+      >
+        <div>
+          <label className="form-label" htmlFor="upc">
+            UPC
+          </label>
+          <input
+            id="upc"
+            type="text"
+            value={editedUPC}
+            onChange={(e) => setEditedUPC(e.target.value)}
+            className="form-control"
+            placeholder="Enter UPC"
+          />
+        </div>
+      </Modal>
 
       {/* list of tracks  */}
     </div>
