@@ -246,7 +246,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
                 </span>
                 <div className="flex items-center gap-2">
                   {albumDetails?.upc || "Not set"}
-                  {userType !== "customerSupport" && albumDetails?.upc && (
+                  {userType !== "customerSupport"  && (
                     <button
                       onClick={() => {
                         setIsUPCModalOpen(true);
