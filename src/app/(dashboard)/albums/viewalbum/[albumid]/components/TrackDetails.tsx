@@ -482,17 +482,15 @@ const TrackDetails: React.FC<TrackListProps> = ({
               <>
                 <button
                   className={`ms-3 px-3 py-2 rounded my-3 ${
-                    trackDetails?.deliveryStatus === 'delivered'
-                      ? 'bg-gray-500 cursor-not-allowed'
-                      : isDelivering
+                    isDelivering
                       ? 'bg-gray-400 cursor-wait'
                       : 'bg-cyan-500 hover:bg-cyan-600'
                   } text-white`}
                   onClick={() => uploadToComos(trackDetails?.albumId)}
-                  disabled={isDelivering || trackDetails?.deliveryStatus === 'delivered'}
+                  disabled={isDelivering}
                 >
                   {isDelivering ? 'Uploading...' : 
-                   trackDetails?.deliveryStatus === 'delivered' ? 'Delivered' :
+                   trackDetails?.deliveryStatus === 'delivered' ? 'Delivery Again' :
                    trackDetails?.deliveryStatus === 'failed' ? 'Retry Delivery' :
                    'DSP Delivery'}
                 </button>
