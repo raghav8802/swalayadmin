@@ -197,7 +197,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
   };
 
   const uploadToComos = async (albumId: any) => {
-    if (isDelivering || trackDetails?.deliveryStatus === 'delivered') {
+    if (isDelivering) {
       return;
     }
 
@@ -487,12 +487,9 @@ const TrackDetails: React.FC<TrackListProps> = ({
                       : 'bg-cyan-500 hover:bg-cyan-600'
                   } text-white`}
                   onClick={() => uploadToComos(trackDetails?.albumId)}
-                  disabled={isDelivering}
                 >
                   {isDelivering ? 'Uploading...' : 
-                   trackDetails?.deliveryStatus === 'delivered' ? 'Delivery Again' :
-                   trackDetails?.deliveryStatus === 'failed' ? 'Retry Delivery' :
-                   'DSP Delivery'}
+                   trackDetails?.deliveryStatus ? 'Re Delivery' : 'DSP Delivery'}
                 </button>
 
                 <button
