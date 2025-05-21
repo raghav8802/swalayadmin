@@ -263,7 +263,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
       !ytIsrc ||
       !ytstitle
     ) {
-      alert("Missing required track details.");
+      toast.error("Missing required track details.");
       return;
     }
 
@@ -287,15 +287,13 @@ const TrackDetails: React.FC<TrackListProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        alert("Track uploaded and published successfully.");
-        // console.log('Response:', data.result);
+        toast.success("Track uploaded and published successfully.");
       } else {
-        alert("Error: " + data.error);
-        // console.error('Error:', data.error);
+        toast.error(data.error || "Failed to upload track");
       }
     } catch (error) {
-      alert("Failed to upload and publish track.");
-      // console.error('Upload error:', error);
+      toast.error("Failed to upload and publish track.");
+      console.error("Upload error:", error);
     }
   };
 

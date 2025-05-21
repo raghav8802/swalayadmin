@@ -185,44 +185,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, result });
     }
     
-    // Handle copyright claim request
-    const { labelId, link } = data as CopyrightRequest;
+    // Handle track upload request
+    const { trackLink, ytLabel, ytAlbum, ytArtist, ytIsrc, ytstitle } = data;
 
     // Validate input
-    if (!labelId || !link) {
+    const validation = validateInput(data);
+    if (!validation.isValid) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: validation.error },
         { status: 400 }
       );
     }
 
-    // Extract video ID from YouTube URL
-    const videoId = extractVideoId(link);
-    if (!videoId) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid YouTube URL' },
-        { status: 400 }
-      );
-    }
-
-    // Create release claim request
-    const releaseData: ReleaseClaimRequest = {
-      release: [
-        {
-          type: 'video',
-          id: videoId
-        }
-      ]
-    };
-
-    // Process the claim
-    const result = await handleReleaseClaim(releaseData);
+    // Process the upload
+    const result = await handleUpload(
+      trackLink,
+      ytLabel,
+      ytAlbum,
+      ytArtist,
+      ytIsrc,
+      ytstitle
+    );
 
     // Send a success response back to the frontend
     return NextResponse.json({ 
       success: true, 
       result,
-      message: 'Copyright claim processed successfully'
+      message: 'Track uploaded and published successfully'
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
