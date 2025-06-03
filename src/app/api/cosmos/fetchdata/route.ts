@@ -190,7 +190,7 @@ export async function POST(req: Request) {
           lyricists: lyricistsDetails.filter(Boolean).map(lyricist => ({
             id: lyricist._id,
             name : lyricist.artistName,
-            apple_id: lyricist.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: lyricist.facebook,
             insta_artist_page_url: lyricist.instagram,
             spotify_id: lyricist.spotify,
@@ -200,7 +200,7 @@ export async function POST(req: Request) {
           composers: composersDetails.filter(Boolean).map(composer => ({
             id: composer._id,
             name : composer.artistName,
-            apple_id: composer.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: composer.facebook,
             insta_artist_page_url: composer.instagram,
             spotify_id: composer.spotify,
@@ -210,7 +210,7 @@ export async function POST(req: Request) {
           producers: producersDetails.filter(Boolean).map(producer => ({
             id: producer._id,
             name : producer.artistName,
-            apple_id: producer.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: producer.facebook,
             insta_artist_page_url: producer.instagram,
             spotify_id: producer.spotify,
@@ -221,7 +221,7 @@ export async function POST(req: Request) {
           track_main_artist : singersDetails.filter(Boolean).map(singer => ({
             id: singer._id,
             name : singer.artistName,
-            apple_id: singer.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: singer.facebook,
             insta_artist_page_url: singer.instagram,
             spotify_id: singer.spotify,
