@@ -336,6 +336,14 @@ export async function POST(req: Request) {
 
     const verifiedMeta = await verifyAlbumMeta(token, albumId);
 
+    // Update the album with the UPC from the API response
+    if (verifiedMeta.data?.albumRes?.upc) {
+      await Album.findByIdAndUpdate(albumObjectId, {
+        $set: { upc: verifiedMeta.data.albumRes.upc }
+      });
+      console.log('Updated album UPC:', verifiedMeta.data.albumRes.upc);
+    }
+
     return NextResponse.json({ message: 'Success', data: verifiedMeta, success: true, status: 201 });
   
   } catch (error: any) {
