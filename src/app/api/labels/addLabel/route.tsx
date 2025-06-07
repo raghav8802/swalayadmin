@@ -51,7 +51,6 @@ export async function POST(request: NextRequest) {
           status: 400,
         });
       }
-      
     }
 
     const extingUserVerifiedByEmail = await Label.findOne({ email });
@@ -87,6 +86,7 @@ export async function POST(request: NextRequest) {
         }),
       }
     );
+    
 
     const razorpayData = (await razorpayResponse.json()) as RazorpayResponse;
 
@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
     const emailTemplate = (
       <AccountActivationEmailTemplate clientName={username} />
     );
+
     const emailStatus = await sendMail({
       to: email, // Key 'to' must be specified
       subject: "Welcome to SwaLay Plus - Account Activated", // Key 'subject' must be specified

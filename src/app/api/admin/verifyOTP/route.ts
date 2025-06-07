@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
         // Get admin details for token
         const admin = await Admin.findOne({ email });
         const tokenData = {
-            id: admin._id,
-            username: admin.username
+            id: admin?._id,
+            username: admin?.username
         };
 
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: '5d' });

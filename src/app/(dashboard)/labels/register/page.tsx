@@ -390,6 +390,7 @@ const LabelRegistrationForm: React.FC = () => {
             <option value="Ladakh">Ladakh</option>
             <option value="Jammu and Kashmir">Jammu and Kashmir</option>
           </select>
+          
         </div>
 
         <button
