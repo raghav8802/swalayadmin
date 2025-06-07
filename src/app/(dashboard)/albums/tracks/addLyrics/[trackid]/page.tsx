@@ -76,7 +76,7 @@ const Page = ({ params }: { params: { trackid: string } }) => {
 
   const fetchLyrics = async (trackId: string) => {
     try {
-      const response = await apiGet(`/api/lyrics/getLyrics?trackid=${trackId}`);
+      const response:any = await apiGet(`/api/lyrics/getLyrics?trackid=${trackId}`);
       if (response.success) {
         setLyrics(response.data.lyrics);
       } else {
@@ -97,7 +97,7 @@ const Page = ({ params }: { params: { trackid: string } }) => {
   const saveLyrics = async () => {
     
     try {
-      const response = await apiPost("/api/lyrics/updateLyrics/", {
+      const response:any = await apiPost("/api/lyrics/updateLyrics/", {
         trackId,
         lyrics,
       });

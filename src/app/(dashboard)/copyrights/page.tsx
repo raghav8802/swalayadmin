@@ -18,7 +18,7 @@ import { apiGet } from "@/helpers/axiosRequest";
 import CopyRightsModalForm from "./components/CopyRightsModalForm";
 import { CopyRightsDataTable } from "./components/CopyRightsDataTable";
 
-const copyrights = () => {
+const Copyrights = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
 
@@ -33,7 +33,7 @@ const copyrights = () => {
   const fetchAllCopyrights = async (labelId: any) => {
     setIsLoading(true);
     try {
-      const response = await apiGet(`/api/copyright/getCopyrights`);
+      const response:any = await apiGet(`/api/copyright/getCopyrights`);
       console.log("fetch response copyrights :");
       console.log(response);
       
@@ -97,4 +97,4 @@ const copyrights = () => {
   );
 };
 
-export default copyrights;
+export default Copyrights;

@@ -77,20 +77,20 @@ export default function AlbumStatusEmailTemplate({
 
           {status === "approved" && (
             <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              We're pleased to inform you that your album {albumName} is now
+              Were pleased to inform you that your album {albumName} is now
               successfully approved by our team.
             </p>
           )}
           {status === "live" && (
             <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              We're pleased to inform you that your album {albumName} is
+              Were pleased to inform you that your album {albumName} is
               successfully Live Now.
             </p>
           )}
 
           {status === "rejected" && (
             <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              Your album {albumName} was rejected during our review process.
+              We are sorry to inform that your album {albumName} was rejected during our review process.
             </p>
           )}
 
@@ -112,7 +112,7 @@ export default function AlbumStatusEmailTemplate({
           {status === "approved" && (
             <p style={{ fontSize: "16px", marginBottom: "20px" }}>
               Your songs will be delivered to the platform shortly and will be
-              live in some time or on your scheduled release date. We can't wait
+              live in some time or on your scheduled release date. We cant wait
               to get your music live! For promotions and marketing, kindly
               utilize the SwaLay Plus platform.
             </p>
@@ -139,7 +139,7 @@ export default function AlbumStatusEmailTemplate({
                 <p
                   style={{ fontSize: "16px", marginBottom: "20px" }}
                   dangerouslySetInnerHTML={{
-                    __html: `<strong>Reason :</strong> ${message}`,
+                    __html: `<strong>Reason :</strong> ${message.replace(/'/g, "&apos;")}`,
                   }}
                 ></p>
               </div>
@@ -152,6 +152,7 @@ export default function AlbumStatusEmailTemplate({
             <a
               href="mailto:swalay.care@talantoncore.in"
               target="_blank"
+              rel="noreferrer"
               style={{
                 color: "#007bff",
                 textDecoration: "none",

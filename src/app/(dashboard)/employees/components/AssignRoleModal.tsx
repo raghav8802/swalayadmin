@@ -2,7 +2,7 @@
 
 import { Modal } from "@/components/Modal";
 import { apiPost } from "@/helpers/axiosRequest";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 const AssignRoleModal = ({
@@ -23,7 +23,7 @@ const AssignRoleModal = ({
       }
       console.log({ email, role });
 
-      const result = await apiPost("/api/employee/assignrole", {
+      const result:any = await apiPost("/api/employee/assignrole", {
         email,
         role,
       });

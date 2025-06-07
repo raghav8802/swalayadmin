@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardHeader,
@@ -11,6 +11,7 @@ import Link from "next/link";
 import UserContext from "@/context/userContext";
 import { apiGet } from "@/helpers/axiosRequest";
 import { NotificationSection } from "./NotificationSection";
+import Image from "next/image";
 
 interface Stats {
   albums: number;
@@ -51,6 +52,14 @@ interface ArtistData {
   _id: string;
 }
 
+// Define the expected structure of the API response
+interface NumberCountsResponse {
+  totalAlbums: number;
+  totalArtist: number;
+  totalLabels: number;
+  upcomingReleases: number;
+}
+
 export default function DashboradSection() {
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
@@ -67,75 +76,64 @@ export default function DashboradSection() {
   const [draftAlbums, setDraftAlbums] = useState<Album[]>([]);
   const [artistData, setArtistData] = useState<ArtistData[]>([]);
 
-  const fetchNumberCounts = async () => {
+  const fetchNumberCounts = useCallback(async () => {
     try {
-      const response = await apiGet(`/api/numbers`);
+      const response = await apiGet(`/api/numbers`) as NumberCountsResponse;
 
-
-      if (response?.data) {
+      if (response) {
         setStats({
-          albums: response.data.totalAlbums,
-          artists: response.data.totalArtist,
-          labels: response.data.totalLabels,
-          upcomingReleases: response.data.upcomingReleases,
+          albums: response.totalAlbums,
+          artists: response.totalArtist,
+          labels: response.totalLabels,
+          upcomingReleases: response.upcomingReleases,
         });
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching number counts:", error);
     }
-  };
+  }, []);
 
-  const fetchNewRelese = async (labelId: string) => {
+  const fetchNewRelese = useCallback(async () => {
     try {
-      const response = await apiGet(
-        `/api/albums/filter?status=Live&limit=3}`
-      );
+      const response = await apiGet(`/api/albums/filter?status=Live&limit=3`) as { success: boolean; data: Album[] };
       if (response.success) {
         setNewReleseData(response.data);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching new releases:", error);
     }
-  };
+  }, []);
 
-  const fetchDraft = async (labelId: string) => {
+  const fetchDraft = useCallback(async () => {
     try {
-      const response = await apiGet(
-        `/api/albums/filter?status=Draft&limit=3}`
-      );
+      const response = await apiGet(`/api/albums/filter?status=Draft&limit=3`) as { success: boolean; data: Album[] };
       if (response.success) {
         setDraftAlbums(response.data);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error fetching draft albums:", error);
     }
-  };
+  }, []);
 
-  const fetchAllArtist = async (labelId: any) => {
-
-
+  const fetchAllArtist = useCallback(async () => {
     try {
-      const response = await apiGet(
-        `/api/artist/getArtists?labelId=${labelId}&limit=3`
-      );
-
-
+      const response = await apiGet(`/api/artist/getArtists?labelId=${labelId}&limit=3`) as { success: boolean; data: ArtistData[] };
       if (response.success) {
         setArtistData(response.data);
       }
     } catch (error) {
-      console.log("Error");
+      console.log("Error fetching artists:", error);
     }
-  };
+  }, [labelId]);
 
   useEffect(() => {
     if (labelId) {
       fetchNumberCounts();
-      fetchNewRelese(labelId);
-      fetchDraft(labelId);
-      fetchAllArtist(labelId);
+      fetchNewRelese();
+      fetchDraft();
+      fetchAllArtist();
     }
-  }, [labelId]);
+  }, [labelId, fetchNumberCounts, fetchNewRelese, fetchDraft, fetchAllArtist]);
 
   return (
     <div className="flex w-full flex-col bg-muted/40">
@@ -143,32 +141,7 @@ export default function DashboradSection() {
         <div className="grid gap-4 lg:col-span-2">
           {/* counts  */}
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Releases</CardDescription>
-                <CardTitle className="text-4xl">{stats.albums}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Artists</CardDescription>
-                <CardTitle className="text-4xl">{stats.artists}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Total Labels</CardDescription>
-                <CardTitle className="text-4xl">{stats.labels}</CardTitle>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader className="pb-3">
-                <CardDescription>Upcoming Releases</CardDescription>
-                <CardTitle className="text-4xl">
-                  {stats.upcomingReleases}
-                </CardTitle>
-              </CardHeader>
-            </Card>
+          
           </div>
           {/* counts  */}
 
@@ -190,7 +163,7 @@ export default function DashboradSection() {
                               key={album._id}
                             >
                               <div className="flex items-center gap-2">
-                                <img
+                                <Image
                                   src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${album._id}ba3/cover/${album.thumbnail}`}
                                   alt="Album Cover"
                                   width={40}
@@ -242,7 +215,7 @@ export default function DashboradSection() {
                               key={album._id}
                             >
                               <div className="flex items-center gap-2">
-                                <img
+                                <Image
                                   src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${album._id}ba3/cover/${album.thumbnail}`}
                                   alt="Album Cover"
                                   width={40}

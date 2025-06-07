@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from "react";
-// import Style from "../app/styles/Notification.module.css";
+
 import {
   Card,
   CardHeader,
@@ -38,9 +38,9 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ labelI
 
   // Fetch notifications when the component mounts or when labelId changes
   useEffect(() => {
-    const fetchNotifications = async (labelID: string) => {
+    const fetchNotifications = async () => {
       try {
-        const response = await apiGet(`/api/notification/getAll`);
+        const response = await apiGet(`/api/notification/getAll`) as { data: Notification[] };
 
         setNotificationData(response.data);
       } catch (error) {
@@ -49,7 +49,7 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ labelI
     };
 
     if (labelId) {
-      fetchNotifications(labelId);
+      fetchNotifications();
     }
   }, [labelId]);
 

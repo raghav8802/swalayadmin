@@ -7,6 +7,9 @@ import UserContext from './userContext';
 interface User {
   _id: string;
   username: string;
+  usertype: string;
+  email: string;
+  role: string;
   // Add other user properties here
 }
 
@@ -19,7 +22,7 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   const fetchUserDetails = async () => {
     try {
-      const response = await apiGet('/api/admin/userdetails');
+      const response:any = await apiGet('/api/admin/userdetails');
       // console.log("invaild user why");
       // console.log(response);
       if (response.success) {

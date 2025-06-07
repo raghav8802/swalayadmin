@@ -1,16 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {  NextResponse } from 'next/server';
 import Album, { AlbumStatus } from '@/models/albums';
 import { connect } from '@/dbConfig/dbConfig';
 // import TotalBalance from '@/models/totalBalance';
 import Artist from '@/models/Artists';
 import Label from '@/models/Label';
 
-
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await connect();
-
 
     // Get all album IDs under the specific labelId without status draft
     const albums = await Album.find({ status: { $ne: AlbumStatus.Draft } });
@@ -21,10 +18,10 @@ export async function GET(request: NextRequest) {
     // Count the unique artists under the labelId
     const totalArtists = await Artist.countDocuments();
 
-    // Fetch the total lables with isvarified true
-    const totalLabels = await Label.find({isVerified: true}).countDocuments()
+    // Fetch the total labels
+    const totalLabels = await Label.countDocuments();
+    console.log('Total Labels Count:', totalLabels);
     
-
     // Count the albums with status 'Processing'
     const upcomingReleases = await Album.countDocuments({ status: AlbumStatus.Processing });
 
@@ -35,6 +32,8 @@ export async function GET(request: NextRequest) {
       upcomingReleases,
     };
 
+    console.log('API Response Data:', data);
+
     return NextResponse.json({
       message: "Numbers are fetched",
       success: true,
@@ -43,6 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
+    console.error('Error in numbers API:', error);
     return NextResponse.json({
       message: "Internal Server Error",
       success: false,

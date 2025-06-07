@@ -13,7 +13,7 @@ interface ArtistNameMap {
 
 
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   await connect();
 
   const albumId = req.nextUrl.searchParams.get("albumId");
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
     // Create a map of artist IDs to artist names
     const artistNameMap: ArtistNameMap = artists.reduce((map, artist) => {
-      const artistId = artist._id as mongoose.Types.ObjectId; // Explicitly type _id
+      const artistId = artist._id as unknown as mongoose.Types.ObjectId; // Use unknown first
       map[artistId.toString()] = artist.artistName;
 
       return map;
@@ -90,7 +90,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       status: 200,
       data: tracksWithArtistNames,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({
+        message: "Internal server error",
+        success: false,
+        status: 500,
+      });
+    }
     return NextResponse.json({
       message: "Internal server error",
       success: false,

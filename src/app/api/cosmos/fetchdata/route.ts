@@ -7,7 +7,7 @@ import Label from '@/models/Label';
 import Track from '@/models/track';
 import ApiResponse from '@/lib/apiResponse';
 import crypto from 'crypto';
-import fetch from 'node-fetch';
+
 
 import axios from 'axios';
 
@@ -190,7 +190,7 @@ export async function POST(req: Request) {
           lyricists: lyricistsDetails.filter(Boolean).map(lyricist => ({
             id: lyricist._id,
             name : lyricist.artistName,
-            apple_id: lyricist.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: lyricist.facebook,
             insta_artist_page_url: lyricist.instagram,
             spotify_id: lyricist.spotify,
@@ -200,7 +200,7 @@ export async function POST(req: Request) {
           composers: composersDetails.filter(Boolean).map(composer => ({
             id: composer._id,
             name : composer.artistName,
-            apple_id: composer.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: composer.facebook,
             insta_artist_page_url: composer.instagram,
             spotify_id: composer.spotify,
@@ -210,7 +210,7 @@ export async function POST(req: Request) {
           producers: producersDetails.filter(Boolean).map(producer => ({
             id: producer._id,
             name : producer.artistName,
-            apple_id: producer.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: producer.facebook,
             insta_artist_page_url: producer.instagram,
             spotify_id: producer.spotify,
@@ -221,7 +221,7 @@ export async function POST(req: Request) {
           track_main_artist : singersDetails.filter(Boolean).map(singer => ({
             id: singer._id,
             name : singer.artistName,
-            apple_id: singer.appleMusic,
+            apple_id: "",
             facebook_artist_page_url: singer.facebook,
             insta_artist_page_url: singer.instagram,
             spotify_id: singer.spotify,
@@ -293,14 +293,35 @@ export async function POST(req: Request) {
       return NextResponse.json(responseData, { status: externalApiResponse.status });
     }
 
-    const { signed_albums } = responseData.data   ;
+    // Add logging to see the actual response structure
+    console.log('Response Data:', responseData);
+
+    // Check if data and signed_albums exist and have content
+    if (!responseData.data?.signed_albums?.length) {
+      throw new Error('No signed albums data received from the API');
+    }
+
+    const { signed_albums } = responseData.data;
+
+    // Add additional safety checks before accessing the data
+    if (!signed_albums[0]?.inlay?.signed_url) {
+      throw new Error('Missing inlay signed URL in the response');
+    }
 
     // Fetch the album art and upload it using the signed URL
     const albumArtBuffer = await fetchFileFromS3(thumbnailUrl);
     await uploadFileToSignedUrl(signed_albums[0].inlay.signed_url, albumArtBuffer, 'image/jpeg');
 
+    // Add safety check for songs array
+    if (!signed_albums[0]?.songs?.length) {
+      throw new Error('No signed URLs received for songs');
+    }
+
     // Fetch and upload each track using the signed URLs
     for (let i = 0; i < tracks.length; i++) {
+      if (!signed_albums[0].songs[i]?.media?.signed_url) {
+        throw new Error(`Missing signed URL for track ${i}`);
+      }
       const trackBuffer = await fetchFileFromS3(`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${tracks[i].albumId}ba3/tracks/${tracks[i].audioFile}`);
       await uploadFileToSignedUrl(signed_albums[0].songs[i].media.signed_url, trackBuffer, 'audio/mp4');
     }
@@ -314,6 +335,14 @@ export async function POST(req: Request) {
     }
 
     const verifiedMeta = await verifyAlbumMeta(token, albumId);
+
+    // Update the album with the UPC from the API response
+    if (verifiedMeta.data?.albumRes?.upc) {
+      await Album.findByIdAndUpdate(albumObjectId, {
+        $set: { upc: verifiedMeta.data.albumRes.upc }
+      });
+      console.log('Updated album UPC:', verifiedMeta.data.albumRes.upc);
+    }
 
     return NextResponse.json({ message: 'Success', data: verifiedMeta, success: true, status: 201 });
   

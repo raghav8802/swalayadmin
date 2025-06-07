@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -41,7 +41,6 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
   const router = useRouter();
 
   useEffect(() => {
-    const albumIdParams = params.albumid;
     try {
       const decodedAlbumId = atob(albumIdParams);
       setAlbumId(decodedAlbumId);
@@ -108,29 +107,24 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
   const [primarySinger, setPrimarySinger] = useState("");
 
   //! fetch artist
-  const fetchArtist = async (labelId: string) => {
+  const fetchArtist = useCallback(async (labelId: string) => {
     try {
-      const response = await apiGet(
-        `/api/artist/fetchArtists?labelId=${labelId}`
-      );
-      // console.log(response);
-      // console.log(response.success);
-      // console.log(response.data);
+      const response = await apiGet(`/api/artist/fetchArtists?labelId=${labelId}`) as { success: boolean; data: any[]; message?: string };
       if (response.success) {
         setArtistData(response.data);
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "An error occurred");
       }
     } catch (error) {
       toast.error("Something went wrong to fetch artist");
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (labelId) {
       fetchArtist(labelId);
     }
-  }, [labelId]);
+  }, [labelId, fetchArtist]);
 
   const [callerTuneTime, setCallerTuneTime] = useState("00:00:00");
   const [errors, setErrors] = useState<any>({});
@@ -142,15 +136,12 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
 
   // ! Handel form submit -->
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  
-
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     if (albumId) {
       formData.append("albumId", albumId);
-      console.log("album id added");
     }
 
     const audioFile = formData.get("audioFile") as File;
@@ -163,15 +154,9 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
 
     audio.onloadedmetadata = () => {
       const audioDuration = audio.duration;
-      console.log("audio.duration");
-      console.log(audioDuration);
-      console.log(" | ");
-      console.log(audioDuration.toString());
       formData.append("duration", audioDuration.toString());
 
       const callerTuneDuration = convertToSeconds(callerTuneTime);
-      console.log("callerTuneDuration");
-      console.log(callerTuneDuration);
       if (callerTuneDuration > audioDuration) {
         toast.error(
           "Caller Tune Time can't be greater than audio file duration."
@@ -179,18 +164,6 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
         return;
       }
     };
-
-    const data: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
-    });
-
-    console.log(data);
-    console.log("selected other artist");
-    console.log(selectedSingers);
-    console.log(selectedComposers);
-    console.log(selectedLyricists);
-    console.log(selectedProducers);
 
     formData.append(
       "singers",
@@ -210,34 +183,22 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
     );
 
     try {
-      setIsUploading(true)
-      const response = await apiFormData("/api/track/addtrack", formData);
-      console.log("API response:");
-      console.log(response);
+      setIsUploading(true);
+      const response = await apiFormData("/api/track/addtrack", formData) as { success: boolean; message?: string };
 
       if (response.success) {
         toast.success("Song uploaded successfully!");
         router.push(`/albums/viewalbum/${btoa(albumId!)}`);
       } else {
-        setIsUploading(false)
-        toast.error(response.message);
+        setIsUploading(false);
+        toast.error(response.message || "An error occurred while uploading the song.");
       }
     } catch (error) {
-      setIsUploading(false)
+      setIsUploading(false);
       toast.error("Something went wrong while uploading the song.");
       console.error("Error:", error);
     }
-
-    // console.log(data)
-    // const result = TrackSchema.safeParse(data);
-    // if (!result.success) {
-    //   setErrors(result.error.format());
-    // } else {
-    //   setErrors({});
-    //   // handle successful form submission
-    //   console.log(data);
-    // }
-  };
+  }, [albumId, callerTuneTime, selectedSingers, selectedComposers, selectedLyricists, selectedProducers, router]);
 
   if (error) {
     return <ErrorSection message="Invalid track url" />;

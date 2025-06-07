@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import toast from "react-hot-toast";
@@ -43,7 +43,7 @@ export default function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const result = await apiGet("/api/employee/all");
+      const result = await apiGet("/api/employee/all") as { data: Employee[] };
       console.log("fetch employee result");
       console.log(result.data);
       setEmployees(result.data);
@@ -65,7 +65,7 @@ export default function UserManagement() {
         return;
       }
 
-      const result = await apiPost("/api/employee/add", {
+      const result:any = await apiPost("/api/employee/add", {
         name,
         email,
         role,

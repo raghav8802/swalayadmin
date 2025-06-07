@@ -55,26 +55,29 @@ const Page = ({ params }: { params: { payoutid: string } }) => {
     },
   });
 
-  const fetchPayoutDetails = async () => {
+  const fetchPayoutDetails = useCallback(async () => {
     try {
-      const response = await apiGet(
+      const response: { success: boolean; data: PayoutDetails } | null = await apiGet(
         `/api/payments/payout/payoutDetails?payoutId=${payoutId}`
       );
-      if (response.success) {
+      if (response && response.success) {
         setPayoutDetails(response.data);
-        setFormData({ ...formData, status: response.data.status });
-        setFormData({ ...formData, amount: response.data.amount.toString() });
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          status: response.data.status,
+          amount: response.data.amount.toString(),
+        }));
       }
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [payoutId]);
 
   useEffect(() => {
     if (payoutId) {
       fetchPayoutDetails();
     }
-  }, [payoutId]);
+  }, [payoutId, fetchPayoutDetails]);
 
   const handleSubmit = async () => {
     const payload = {
@@ -89,11 +92,13 @@ const Page = ({ params }: { params: { payoutid: string } }) => {
       const response = await apiPost(
         `/api/payments/payout/submitPayout`,
         payload
-      );
-      console.log("Payout submitted successfully:", response);
+      ) as unknown as { success: boolean; message?: string; data?: any }; // Use 'unknown' first
+
       if (response.success) {
         toast.success("Payout has been successfully processed.");
         window.location.reload();
+      } else {
+        toast.error(response.message || "Failed to process payout.");
       }
     } catch (error) {
       toast.error("Internal server error");

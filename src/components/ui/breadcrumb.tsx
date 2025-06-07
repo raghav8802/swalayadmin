@@ -1,6 +1,7 @@
 import * as React from "react"
 import { ChevronRightIcon, DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { Slot } from "@radix-ui/react-slot"
+import PropTypes from "prop-types"
 
 import { cn } from "@/lib/utils"
 
@@ -27,6 +28,10 @@ const BreadcrumbList = React.forwardRef<
 ))
 BreadcrumbList.displayName = "BreadcrumbList"
 
+BreadcrumbList.propTypes = {
+  className: PropTypes.string,
+}
+
 const BreadcrumbItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentPropsWithoutRef<"li">
@@ -38,6 +43,10 @@ const BreadcrumbItem = React.forwardRef<
   />
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
+
+BreadcrumbItem.propTypes = {
+  className: PropTypes.string,
+}
 
 const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
@@ -57,6 +66,11 @@ const BreadcrumbLink = React.forwardRef<
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
+BreadcrumbLink.propTypes = {
+  asChild: PropTypes.bool,
+  className: PropTypes.string,
+}
+
 const BreadcrumbPage = React.forwardRef<
   HTMLSpanElement,
   React.ComponentPropsWithoutRef<"span">
@@ -71,6 +85,10 @@ const BreadcrumbPage = React.forwardRef<
   />
 ))
 BreadcrumbPage.displayName = "BreadcrumbPage"
+
+BreadcrumbPage.propTypes = {
+  className: PropTypes.string,
+}
 
 const BreadcrumbSeparator = ({
   children,
@@ -102,7 +120,11 @@ const BreadcrumbEllipsis = ({
     <span className="sr-only">More</span>
   </span>
 )
-BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
+BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
+
+BreadcrumbEllipsis.propTypes = {
+  className: PropTypes.string,
+}
 
 export {
   Breadcrumb,

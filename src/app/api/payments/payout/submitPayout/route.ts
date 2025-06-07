@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
       status: 201,
       data: updateRequest,
     });
-  } catch (error: any) {
-    console.error("Error submitting payout request:", error);
+  } catch  {
+    console.error("Error submitting payout request:");
 
     return NextResponse.json({
       message: "Internal server error",

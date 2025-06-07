@@ -4,6 +4,7 @@ import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,7 +37,7 @@ const NotificationPage: React.FC = () => {
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels");
+      const response:any = await apiGet("/api/labels/getLabels");
       console.log(response.data);
 
       if (response.success) {
@@ -61,7 +62,7 @@ const NotificationPage: React.FC = () => {
     try {
       const labelIds = selectedLabels.map((label) => label.value); // Extract the _id of selected labels
 
-      const response = await apiPost("/api/notification/add", {
+      const response:any = await apiPost("/api/notification/add", {
         labels: labelIds.length > 0 ? labelIds : null,
         category,
         message: notification,

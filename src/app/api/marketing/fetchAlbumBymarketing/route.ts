@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import {  NextResponse } from 'next/server';
 import Album from '@/models/albums';
 import Marketing from '@/models/Marketing';
 import { connect } from '@/dbConfig/dbConfig';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   await connect();
 
   try {

@@ -16,31 +16,59 @@ import AlbumsLoading from "@/components/AlbumsLoading";
 import AlbumSlider from "./components/AlbumSlider";
 // import DataTableUi from '../components/DataTable'
 
-const albums = () => {
+interface Album {
+  _id: string;
+  artist: string;
+  cline: string;
+  comment: string | null;
+  date: string;
+  genre: string;
+  labelId: string;
+  language: string;
+  platformLinks: string | null;
+  pline: string;
+  releasedate: string;
+  status: number;
+  thumbnail: string | null;
+  title: string;
+  totalTracks: number;
+  upc: string | null;
+}
+
+interface AlbumsResponse {
+  success: boolean;
+  data: Album[];
+  message?: string;
+}
+
+const Albums = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
 
-  const [albumList, setAlbumList] = useState([]);
+  const [albumList, setAlbumList] = useState<Album[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchAlbums = async (labelId: string) => {
     try {
-      const response = await apiGet(
+      const response = await apiGet<AlbumsResponse>(
         `./api/albums/getAlbums?labelid=${labelId}`
       );
-      if (response.success) {
+      if (response?.success) {
         setAlbumList(response.data);
+      } else {
+        toast.error(response?.message || "Failed to fetch albums");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching albums:", error);
       toast.error("Internal server error");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
-    if (labelId) {
+    if (labelId && isLoading) {
       fetchAlbums(labelId);
     }
   }, [labelId]);
@@ -92,7 +120,7 @@ const albums = () => {
         </div>
 
         <div className={Style.musicList}>
-          {albumList ? (
+          {albumList.length > 0 ? (
             <AlbumDataTable data={albumList} />
           ) : (
             <h3 className="text-center mt-4">No Albums found</h3>
@@ -104,4 +132,4 @@ const albums = () => {
   );
 };
 
-export default albums;
+export default Albums;

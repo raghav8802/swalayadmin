@@ -8,7 +8,7 @@ import { apiPost } from '@/helpers/axiosRequest'
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation'
 
-const register = () => {
+const Register = () => {
 
   const router = useRouter()
   const initialState = {
@@ -56,49 +56,33 @@ const register = () => {
     console.log(user.email);
     console.log(user.password);
     console.log(user.confirmPassword);
+    
     if (user.password !== user.confirmPassword) {
-      console.log("password are not matched");
-      toast.error("Password are not matched")
-      return
+      console.log("Passwords do not match");
+      toast.error("Passwords do not match");
+      return;
     }
-
-    console.log(user);
 
     const { confirmPassword, ...userData } = user;
 
-    console.log(userData);
     try {
-      const response = await apiPost('/api/admin/signup', userData)
+      const response = await apiPost('/api/admin/signup', userData) as { success: boolean; message: string }; // Ensure correct type assertion
+
       console.log(response);
-      console.log(response.status);
-      console.log(response.message);
-      console.log(response.success);
-      console.log("axios response end ------");
+      
       if (!response.success) {
-        console.log("success n");
-
-        toast.error(response.message)
+        toast.error(response.message);
       } else {
-        toast.success(response.message)
-        setUser(initialState)
-        setIsSignUp(true)
-        router.push('/message')
+        toast.success(response.message);
+        setUser(initialState);
+        setIsSignUp(true);
+        router.push('/message');
       }
-
-      // console.log("-------- ---- ------");
-
     } catch (error) {
-      console.log("here error");
-      console.log(error);
-
-      toast.error("Network Error: check your connection")
+      console.log("Network Error:", error);
+      toast.error("Network Error: check your connection");
     }
-
-
-
-
-
-  }
+  };
 
 
 
@@ -207,4 +191,4 @@ const register = () => {
 
 }
 
-export default register
+export default Register

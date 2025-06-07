@@ -7,7 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState, FC } from "react";
+
+import { useEffect, useState, FC, useCallback } from "react";
+import React from "react";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import Image from "next/image";
 import Link from "next/link";
@@ -82,7 +84,7 @@ type MarketingType = {
   tracks: Track[];
 };
 
-const page = ({ params }: { params: { albumid: string } }) => {
+const Page = ({ params }: { params: { albumid: string } }) => {
   const albumIdParams = params.albumid;
 
   const [albumId, setAlbumId] = useState<string | null>(null);
@@ -100,14 +102,36 @@ const page = ({ params }: { params: { albumid: string } }) => {
       setError("Invalid Url");
       console.error("Decoding error:", e);
     }
-  }, [albumIdParams]);
+  }, [params.albumid]);
+  
+  const fetchDetails = useCallback(async () => {
+    if (!albumId) return;  // Avoid making API calls if albumId is null
+    setIsLoading(true);
+    
+    try {
+      const response: any = await apiGet(`/api/marketing/details?albumId=${albumId}`);
+      
+      if (response.success) {
+        console.log(response.data);
+        
+        setMarketingDetails(response.data);
+        setAlbumDetails(response.data.albumDetails);
+        setTrackDetails(response.data.tracks);
+        setMarketingData(response.data.marketing);
+      }
+    } catch (error) {
+      toast.error("Internal Server error");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [albumId]);
   
   // Call fetchDetails when albumId is set
   useEffect(() => {
     if (albumId) {
       fetchDetails();
     }
-  }, [albumId]);  // Fetch details only after albumId is set
+  }, [albumId, fetchDetails]);  // Fetch details only after albumId is set
   
 
   const [albumDetails, setAlbumDetails] = useState<AlbumDetailsType | null>(
@@ -129,39 +153,15 @@ const page = ({ params }: { params: { albumid: string } }) => {
     message: "",
   });
 
-  const fetchDetails = async () => {
-    if (!albumId) return;  // Avoid making API calls if albumId is null
-    setIsLoading(true);
-    
-    try {
-      const response = await apiGet(`/api/marketing/details?albumId=${albumId}`);
-      
-      if (response.success) {
-        console.log(response.data);
-        
-        setMarketingDetails(response.data);
-        setAlbumDetails(response.data.albumDetails);
-        setTrackDetails(response.data.tracks);
-        setMarketingData(response.data.marketing);
-      }
-    } catch (error) {
-      toast.error("Internal Server error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-
-
   const handleSave = async () => {
     toast.loading("updating...");
     setIsLoading(true);
     setIsModalVisible(false);
     try {
-      let marketingId = MarketingData?._id;
-      let message = requestData?.message;
+      const marketingId = MarketingData?._id;
+      const message = requestData?.message;
 
-      const response = await apiPost("/api/marketing/requestExtraFile", {
+      const response:any = await apiPost("/api/marketing/requestExtraFile", {
         marketingId,
         message,
         albumName: albumDetails?.title,
@@ -482,4 +482,4 @@ const page = ({ params }: { params: { albumid: string } }) => {
   );
 };
 
-export default page;
+export default Page;

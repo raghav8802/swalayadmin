@@ -1,207 +1,324 @@
-.mainContainer{
-    /* border: 2px solid red; */
+/* Main Container */
+.mainContainer {
     width: 100%;
+    background: linear-gradient(55deg, #000000 50%, #4e38e0 50%);
 }
 
-.containerLeft{
-    /* border: 2px solid black; */
-    width: 50%;
+/* Left Container */
+.containerLeft {
+    width: 30%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
-}
-.containerLeftInner{
-    width: 70%;
-    /* border: 2px solid blue; */
-  
 }
 
-
-.containerRight{
-    /* border: 2px solid black; */
-    width: 60%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background-color: #4e37e0;
-}
-.containerRight2{
-    /* border: 2px solid black; */
-    width: 60%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-
-.superHeading{
-    color: #fff;
-    font-size: 3rem;
-    font-weight: 600;
-}
-.subHeading{
-    color: #fff;
-    font-size: 1.1rem;
-}
-
-.imgContainer{
-    /* border: 2px solid blueviolet; */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 90%;
-}
-.imgContainer img {
-    width: 100%;
-    height: auto; /* Maintain aspect ratio */
-}
-
-.musicIcon{
-    position: fixed;
-    bottom: 10%;
-    right: 40%;
-    z-index: 99;
-}
-.musicIcon2{
-    position: fixed;
-    top: 15%;
-    left: 50%;
-    z-index: 99;
-}
-.headphoneIcon{
+.containerLeftInner {
     position: absolute;
-    top: 5%;
-    right: 8%;
-    z-index: 99;
+    top: 55%;
+    left: 20%;
+    width: 400px;
+    padding: 50px;
+    transform: translate(-50%, -50%);
+    background: rgba(42, 41, 41, 0.5);
+    box-sizing: border-box;
+    box-shadow: 0 10px 85px #4e38e0;
+    border-radius: 20px;
 }
 
-
-
-
-.heading{
+/* Heading */
+.heading {
     line-height: 1.66;
-    margin: 0;
+    margin: 10px;
     padding: 0;
     font-weight: 700;
-    color: #222;
+    color: #ffffff;
+    margin-bottom: 40px;
+    margin-top: 0;
     font-size: 36px;
     display: flex;
-    align-items: baseline;
-    justify-content: baseline;
+    justify-content: top;
 }
 
-
+/* Register Form */
 .registerform {
     width: 100%;
 }
 
-
+/* Form Group */
 .formGroup {
     position: relative;
     margin-bottom: 25px;
+    margin-top: 25px;
     overflow: hidden;
 }
 
+/* Input Label */
 .inputLable {
     position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    -moz-transform: translateY(-50%);
-    -webkit-transform: translateY(-50%);
-    -o-transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    color: #222;
+    width: 100%;
+    max-width: 400px;
+    top: 40px;
+    left: 90px;
+    right: 0;
+    padding: 10px 0;
+    font-size: 35px;
+    color: #ffffff;
+    pointer-events: none;
+    transition: .5s;
 }
 
 .inputLable i {
-    font-size: 18px;
+    font-size: 30px;
 }
 
+/* Input Field */
 .inputField {
     width: 100%;
-    display: block;
+    max-width: 400px;
+    padding: 10px;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 30px;
     border: none;
-    border-bottom: 1px solid #999;
-    padding: 6px 30px;
-    /* font-family: Poppins; */
-    box-sizing: border-box;
+    border-bottom: 1px solid #fff;
     outline: none;
-    appearance: unset !important;
-    -moz-appearance: unset !important;
-    -webkit-appearance: unset !important;
+    background: transparent;
 }
 
-/* input[type=checkbox]:not(old)+label {
+/* Submit Button */
+.submitButton {
     display: inline-block;
-    line-height: 1.5em;
-    margin-top: 6px;
-} */
-
-.labelagreeterm {
-    position: relative;
-    top: 0%;
-    transform: translateY(0);
-    -moz-transform: translateY(0);
-    -webkit-transform: translateY(0);
-    -o-transform: translateY(0);
-    -ms-transform: translateY(0);
-}
-
-.agreeTerm{
-    border: 2px solid rebeccapurple;
-    
-    display: inline-block;
-    width: 13px;
-    height: 13px;
-    margin-right: 15px;
-    margin-bottom: 3px;
-    border: 1px solid #999;
-    /* display: none; */
-}
-.termservice{
-    font-size: 13px;
-    color: #222;
-    text-decoration: underline;
-}
-
-
-.submitButton{
-    display: inline-block;
+    margin-top: 10px;
     background: #4e37e0;
     color: #fff;
-    border-bottom: none;
+    border: none;
     width: auto;
     padding: 10px 30px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -o-border-radius: 5px;
-    -ms-border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
-    /* margin-top: 25px; */
+    transition: none;
 }
 
-.submitButtonDisable{
+
+.submitButtonDisable {
     display: inline-block;
     background: #9fa5aa;
     color: #fff;
     border-bottom: none;
     width: auto;
     padding: 10px 30px;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -o-border-radius: 5px;
-    -ms-border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
 }
+
+/* Right Container */
+.containerRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align to the right */   
+    padding-right: 0px; /* Add some padding to the right */
+    padding-top: 90px; /* Adjust this value to move it up */
+    width: 70%; /* Adjust width as needed */
+}
+
+/* Logo Text */
+.logoText {
+    margin-top: 10px; /* Space between the logo and the text */
+    font-size: 1.5rem; 
+    padding-right: 10px;/* Adjust font size as needed */
+    text-align: right; /* Center the text */
+    color: #e7e6e6; /* Change text color as needed */
+    font-weight: bold; /* Make the text bold */
+}
+
+/* About Us Container */
+.bottomrightContainer {
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    right: 40px; /* Adjust as needed */
+    color: #e7e6e6; /* Change text color as needed */
+    font-size: 1rem; /* Adjust font size as needed */
+    text-align: right; /* Align text to the right */
+}
+
+.topleftContainer {
+    position: absolute;
+    bottom: 20px; /* Adjust as needed */
+    right: 20px; /* Adjust as needed */
+    color: #e7e6e6; /* Change text color as needed */
+    font-size: 1rem; /* Adjust font size as needed */
+    text-align: left; /* Align text to the right */
+}
+
+/* Logo at the Top Left */
+.logoTopLeft {
+    position: absolute;
+    top: 20px; /* Adjust as needed */
+    left: 20px; /* Adjust as needed */
+    z-index: 10; /* Ensure it appears above other elements */
+}
+
+/* Keyframe Animation for Pulsing Effect */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.5); /* Scale up */
+    }
+    100% {
+        transform: scale(1); /* Scale back to original */
+    }
+}
+
+/* Music Icons Container */
+.musicIconsContainer {
+    position: absolute;
+    top: 12%; /* Adjust as needed */
+    right: 44%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicIconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 1.5s infinite; /* Default pulsing animation */
+}
+
+/* Musicnote Icons */
+.musicnoteIconsContainer {
+    position: absolute;
+    top: 15%; /* Adjust as needed */
+    right: 18%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicnoteIconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 1.7s infinite; /* Different pulsing animation duration */
+}
+
+/* Musicnote2 Icons */
+.musicnote2IconsContainer {
+    position: absolute;
+    top: 22%; /* Adjust as needed */
+    right: 55%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicnote2IconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 1.9s infinite; /* Different pulsing animation duration */
+}
+
+/* Boombox Icons */
+.musicboomboxIconsContainer {
+    position: absolute;
+    top: 18%; /* Adjust as needed */
+    right: 33%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicboomboxIconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 2.1s infinite; /* Different pulsing animation duration */
+}
+
+/* Boombox2 Icons */
+.musicboombox2IconsContainer {
+    position: absolute;
+    top: 12%; /* Adjust as needed */
+    right: 10%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicboombox2IconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 2.3s infinite; /* Different pulsing animation duration */
+}
+
+/* Note-beamed Icons */
+.musicnotebeamedIconsContainer {
+    position: absolute;
+    top: 11%; /* Adjust as needed */
+    right: 27%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicnotebeamedIconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 2.5s infinite; /* Different pulsing animation duration */
+}
+
+/* Note-beamed2 Icons */
+.musicnotebeamed2IconsContainer {
+    position: absolute;
+    top: 19%; /* Adjust as needed */
+    right: 4%; /* Adjust as needed */
+    z-index: 5; /* Ensure icons are above other elements */
+}
+
+.musicnotebeamed2IconsContainer i {
+    color: #e7e6e6; /* Change icon color as needed */
+    font-size: 24px; /* Adjust icon size as needed */
+    animation: pulse 2.7s infinite; /* Different pulsing animation duration */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .containerLeft {
+        width: 90%; /* Full width on smaller screens */
+        padding: 20px; /* Adjust padding */
+    }
+
+    .containerLeftInner {
+        width: 100%; /* Full width for inner container */
+        padding: 20px; /* Adjust padding */
+    }
+
+    .heading {
+        font-size: 28px; /* Smaller font size for heading */
+    }
+
+    .inputField {
+        max-width: 100%; /* Full width for input fields */
+    }
+
+    .submitButton {
+        width: 100%; /* Full width for button */
+    }
+
+    .containerRight {
+        padding-right: 20px; /* Less padding on smaller screens */
+        padding-top: 50px; /* Adjust padding */
+    }
+
+    .logoTopLeft {
+        top: 10px; /* Adjust logo position */
+        left: 10px; /* Adjust logo position */
+    }
+
+    .musicIconsContainer {
+        right: 5%; /* Adjust icon container position */
+    }
+}
+
+@media (max-width: 480px) {
+    .heading {
+        font-size: 24px; /* Even smaller font size for very small screens */
+    }
+
+    .bottomrightContainer {
+        font-size: 0.8rem; /* Smaller font size for copyright text */
+    }
+}
+
 
 
 

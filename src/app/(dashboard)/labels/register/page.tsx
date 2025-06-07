@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState, FormEvent, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
@@ -53,35 +53,18 @@ const LabelRegistrationForm: React.FC = () => {
   const [labelId, setLabelId] = useState<string | null>(null);
   const [isNotVaildUrl, setIsNotVaildUrl] = useState(false);
 
-  // Check if we are editing an existing label
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    const encodedUserId = query.get("user");
-    if (encodedUserId) {
-      try {
-        let userId = atob(encodedUserId);
-        setLabelId(userId);
-        fetchLabelData(userId);
-      } catch (error) {
-        setIsNotVaildUrl(true);
-        console.error("Error decoding userId:", error);
-      }
-    }
-  }, []);
-
-  const fetchLabelData = async (id: string) => {
+  const fetchLabelData = useCallback(async (id: string) => {
     try {
-      const response = await apiGet(`/api/labels/details?labelId=${id}`);
+      const response:any = await apiGet(`/api/labels/details?labelId=${id}`);
 
       console.log(" api details response.data");
       console.log(response.data);
       
-
       if (response.success) {
         const labelData = response.data;
 
-        setFormData({
-          ...formData,
+        setFormData(prevData => ({
+          ...prevData,
           username: labelData.username || "",
           email: labelData.email || "",
           contact: labelData.contact || "",
@@ -92,7 +75,7 @@ const LabelRegistrationForm: React.FC = () => {
               ? "SwaLay Digital"
               : labelData.lable || "",
           state: labelData.state || "",
-        });
+        }));
       }
       if (!response.success && response.status === 500) {
         toast.error("internal server error");
@@ -102,7 +85,22 @@ const LabelRegistrationForm: React.FC = () => {
       toast.error("Error fetching label data.");
       console.error(error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const encodedUserId = query.get("user");
+    if (encodedUserId) {
+      try {
+        const userId = atob(encodedUserId);
+        setLabelId(userId);
+        fetchLabelData(userId);
+      } catch (error) {
+        setIsNotVaildUrl(true);
+        console.error("Error decoding userId:", error);
+      }
+    }
+  }, [fetchLabelData]);
 
   // const handleChange = (
   //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -184,7 +182,7 @@ const LabelRegistrationForm: React.FC = () => {
       const endpoint = labelId
         ? `/api/labels/updateLabel?labelId=${labelId}`
         : "/api/labels/addLabel";
-      const response = await apiPost(endpoint, formData);
+      const response:any = await apiPost(endpoint, formData);
 
       console.log("api response : ");
       console.log(response);
@@ -390,7 +388,6 @@ const LabelRegistrationForm: React.FC = () => {
             <option value="Ladakh">Ladakh</option>
             <option value="Jammu and Kashmir">Jammu and Kashmir</option>
           </select>
-          
         </div>
 
         <button

@@ -1,16 +1,17 @@
+import React from "react";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
-import fetch from "node-fetch";
-import sendMail from "@/helpers/sendMail";
 import AccountActivationEmailTemplate from "@/components/email/account-activation";
+import sendMail from "@/helpers/sendMail";
+
 
 interface RazorpayResponse {
   id: string;
   name: string;
   email: string;
-  contact: Number;
+  contact: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const {
       username,
       email,
-      password = "swalay@123",
+      password = "Swalay@123",
       contact,
       lable,
       usertype,
@@ -120,8 +121,7 @@ export async function POST(request: NextRequest) {
     const emailTemplate = (
       <AccountActivationEmailTemplate clientName={username} />
     );
-
-    const emailStatus = await sendMail({
+     await sendMail({
       to: email, // Key 'to' must be specified
       subject: "Welcome to SwaLay Plus - Account Activated", // Key 'subject' must be specified
       emailTemplate, // This passes the rendered template

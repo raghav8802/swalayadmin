@@ -95,11 +95,17 @@ export async function POST(req: NextRequest) {
       status: 200,
     });
 
-  } catch (error: any) {
-    console.error("Error updating track:", error);
-
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error updating track:", error);
+      return NextResponse.json({
+        message: error.message,
+        success: false,
+        status: 500,
+      });
+    }
     return NextResponse.json({
-      message: "Internal server error",
+      message: 'An unknown error occurred',
       success: false,
       status: 500,
     });

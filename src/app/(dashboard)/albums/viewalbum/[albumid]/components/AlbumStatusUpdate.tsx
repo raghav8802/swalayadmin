@@ -1,7 +1,7 @@
 "use client";
 
 import { apiPost } from "@/helpers/axiosRequest";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import toast from "react-hot-toast";
 
 interface AlbumStatusProps {
@@ -20,7 +20,7 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
-  const onStatusUpdate = async () => {
+  const onStatusUpdate = useCallback(async () => {
     try {
       if (status === "") {
         toast.error("Select a status");
@@ -30,29 +30,21 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
         toast.error("Reason required for rejection");
         return;
       }
-      
-      
-      
+
       const payload = {
         id: albumid,
         labelid,
         albumName,
-        status:  parseInt(status),
+        status: parseInt(status),
         comment: message,
       };
 
-      console.log("payload 2 ::");
-      console.log(payload);
+      const response: any = await apiPost("/api/albums/updateStatus", payload);
 
-      const response = await apiPost("/api/albums/updateStatus", payload);
-
-      console.log("update stattus response: ");
-      console.log(response);
-      
-
-      setStatus('')
       if (response.success) {
         toast.success("Status updated successfully");
+        setStatus("");
+        setMessage("");
         onUpdate();
       } else {
         toast.error("Failed to update status");
@@ -61,7 +53,7 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
       console.error(error);
       toast.error("An error occurred while updating the status");
     }
-  };
+  }, [status, message, albumid, labelid, albumName, onUpdate]);
 
   return (
     <div className="w-full">
@@ -72,7 +64,7 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
         required
       >
         <option value="">Select Status</option>
-        <option value="2">Approved </option>
+        <option value="2">Approved</option>
         <option value="4">Live</option>
         <option value="3">Reject</option>
       </select>
@@ -84,16 +76,12 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Write reason for rejection"
         />
-        
       )}
-
-    
 
       <button
         className="px-3 py-2 rounded text-white bg-cyan-600"
         onClick={onStatusUpdate}
       >
-        
         Update Status
       </button>
     </div>

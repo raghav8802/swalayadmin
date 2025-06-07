@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import TrackList from "./TrackList";
 import Style from "../../../../../styles/ViewAlbums.module.css";
 import { buttonVariants } from "@/components/ui/button";
 import TrackDetails from "./TrackDetails";
 import AudioPlayer from "./AudioPlayer";
+import { toast } from "react-hot-toast";
+import { apiGet } from "@/helpers/axiosRequest";
 
 interface TrackSectionProps {
   albumId: string;
@@ -22,21 +24,44 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
     songUrl: "",
   });
 
-  const handleTrackClick = (trackId: string) => {
+  const handleTrackClick = useCallback((trackId: string) => {
     setShowTrackDetails(true);
-    // console.log("Track ID clicked in section :", trackId);
     setTrackId(trackId);
-  };
+  }, []);
 
-  const getSongNameUrl = (songName: string, audioUrl: string) => {
+  const getSongNameUrl = useCallback((songName: string, audioUrl: string) => {
     setShowAudioPlayer(true);
-    // console.log("Track ID clicked in section :", trackId);
     setAudio({ songName, songUrl: audioUrl });
-  };
+  }, []);
+
+  const [tracks, setTracks] = useState([]);
+  const [activeTrackId, setActiveTrackId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchTracks = useCallback(async () => {
+    try {
+      const response:any = await apiGet(
+        `/api/track/getTracks?albumId=${albumId}`
+      );
+      if (response.data) {
+        const reversedTracks = response.data.reverse();
+        setTracks(reversedTracks);
+        if (reversedTracks.length > 0) {
+          const firstTrackId = reversedTracks[0]._id;
+          setActiveTrackId(firstTrackId);
+          handleTrackClick(firstTrackId);
+        }
+      }
+    } catch (error) {
+      toast.error("Internal server error");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [albumId, handleTrackClick]);
 
   useEffect(() => {
-    setTrackId(trackId);
-  }, [trackId]);
+    fetchTracks();
+  }, [fetchTracks]);
 
   return (
     <div>
@@ -54,14 +79,19 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
           </div>
 
           {albumId && (
-            <TrackList albumId={albumId} onTrackClick={handleTrackClick} />
+            <TrackList 
+              albumId={albumId} 
+              onTrackClick={handleTrackClick} 
+            />
           )}
         </div>
 
         {showTrackDetails && trackId && (
-          <TrackDetails trackId={trackId}
-          albumStatus={albumStatus}
-          onFetchDetails={getSongNameUrl} />
+          <TrackDetails 
+            trackId={trackId}
+            albumStatus={albumStatus}
+            onFetchDetails={getSongNameUrl} 
+          />
         )}
       </div>
 
@@ -69,10 +99,8 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
         <AudioPlayer
           trackName={audio.songName}
           audioSrc={audio.songUrl}
-          />
-        )}
-
-      
+        />
+      )}
     </div>
   );
 };

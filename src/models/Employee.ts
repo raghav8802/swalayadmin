@@ -103,7 +103,7 @@ const EmployeeSchema = new Schema<IEmployee>({
     terminationDate: {
       type: Date,
       validate: {
-        validator: function (this: IEmployee, date: Date) {
+        validator: function (date: Date) {
           return this.status === 'Not Active' ? !!date : true;
         },
         message: 'Termination date is required if the employee is Not Active',
@@ -124,7 +124,7 @@ const EmployeeSchema = new Schema<IEmployee>({
       },
       document: {
         type: String,
-        required: function (this: IEmployee) {
+        required: function () {
           return this.ndaSignature.status === 'Completed';
         },
       },
@@ -138,7 +138,7 @@ const EmployeeSchema = new Schema<IEmployee>({
       },
       document: {
         type: String,
-        required: function (this: IEmployee) {
+        required: function () {
           return this.workPolicy.status === 'Completed';
         },
       },

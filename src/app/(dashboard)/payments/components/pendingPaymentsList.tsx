@@ -163,7 +163,7 @@ export function PaymentPendingList({ data }: { data: Payment[] }) {
   const handleSave = async () => {
     if (modalData) {
       try {
-        const response = await apiPost("/api/payments/addPayment", {
+        const response:any = await apiPost("/api/payments/addPayment", {
           labelId: modalData.labelId,
           amount: modalData.amount,
           time: new Date().toISOString(), // Example for current time

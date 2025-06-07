@@ -14,11 +14,11 @@ interface FetchArtistDetailsResponse {
 
 export const fetchArtistDetails = async ({ artistId }: FetchArtistDetailsParams): Promise<FetchArtistDetailsResponse> => {
     try {
-        const response = await apiGet(`/api/artist/getArtistDetails?artistId=${artistId}`);
+        const response = await apiGet<FetchArtistDetailsResponse>(`/api/artist/getArtistDetails?artistId=${artistId}`);
         console.log("response arts");
         console.log(response);
         
-        if (response.success) {
+        if (response && response.success) {
             return {
                 success: true,
                 message: "Success",
@@ -30,10 +30,12 @@ export const fetchArtistDetails = async ({ artistId }: FetchArtistDetailsParams)
                 message: "No Artist Found"
             }
         }
-    } catch (error: any) {
+    } catch (error) {
+        // Ensure error is of type Error
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         return {
             success: false,
-            message: error.message
+            message: errorMessage
         }
     }
 }

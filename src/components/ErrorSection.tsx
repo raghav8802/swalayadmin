@@ -33,7 +33,11 @@ interface ErrorSectionProps {
   
 
 
-  function TriangleAlertIcon(props: any) {
+  interface IconProps {
+    className?: string; // Optional className prop
+  }
+
+  function TriangleAlertIcon(props: IconProps) {
     return (
       <svg
         {...props}
@@ -55,7 +59,9 @@ interface ErrorSectionProps {
   }
   
   
-  function XIcon(props:any) {
+  // Comment out the XIcon function if not needed right now
+  /*
+  function XIcon(props: IconProps) {
     return (
       <svg
         {...props}
@@ -74,3 +80,4 @@ interface ErrorSectionProps {
       </svg>
     )
   }
+  */

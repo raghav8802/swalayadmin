@@ -1,6 +1,7 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig"; // Database connection
+import Recognition from "@/models/recognitionModel"; // Add this import
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -30,9 +31,10 @@ export async function POST(request: NextRequest) {
 
     // Step 2: Upload the file to ACRCloud
     const api1_url = "https://api-v2.acrcloud.com/api/fs-containers/14982/files";
+    const authToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI3IiwianRpIjoiMzI4NmI1NjE4NTkyZGVkMTJiN2VjMTg1N2RkYWIwOTAxM2Y1NTAzZmI5ZThjYzYzOGEyNjdiNjQ1ZjU1ZDBmMmEzZmM0MDg4NzhlMzI3NTMiLCJpYXQiOjE3NDIxMzI5MzUuNTg1NTU1LCJuYmYiOjE3NDIxMzI5MzUuNTg1NTU4LCJleHAiOjIwNTc2NjU3MzUuNTUwODU2LCJzdWIiOiIxNDQwNzAiLCJzY29wZXMiOlsiKiIsIndyaXRlLWFsbCIsInJlYWQtYWxsIiwiYnVja2V0cyIsIndyaXRlLWJ1Y2tldHMiLCJyZWFkLWJ1Y2tldHMiLCJhdWRpb3MiLCJ3cml0ZS1hdWRpb3MiLCJyZWFkLWF1ZGlvcyIsImNoYW5uZWxzIiwid3JpdGUtY2hhbm5lbHMiLCJyZWFkLWNoYW5uZWxzIiwiYmFzZS1wcm9qZWN0cyIsIndyaXRlLWJhc2UtcHJvamVjdHMiLCJyZWFkLWJhc2UtcHJvamVjdHMiLCJ1Y2YiLCJ3cml0ZS11Y2YiLCJyZWFkLXVjZiIsImRlbGV0ZS11Y2YiLCJibS1wcm9qZWN0cyIsImJtLWNzLXByb2plY3RzIiwid3JpdGUtYm0tY3MtcHJvamVjdHMiLCJyZWFkLWJtLWNzLXByb2plY3RzIiwiYm0tYmQtcHJvamVjdHMiLCJ3cml0ZS1ibS1iZC1wcm9qZWN0cyIsInJlYWQtYm0tYmQtcHJvamVjdHMiLCJmaWxlc2Nhbm5pbmciLCJ3cml0ZS1maWxlc2Nhbm5pbmciLCJyZWFkLWZpbGVzY2FubmluZyIsIm1ldGFkYXRhIiwicmVhZC1tZXRhZGF0YSJdfQ.Eu1rqcNhBflt2k03yeY_XGjmWibVAzqYYhfs_7COOZ-IhgfAmA0HPyeUk8dCXeV1Ykljj6MKtVvBhGInzFn-w2np8zJ88_Bv344ABRepj1UpH9kZzssLyI8NkAyqHFKu15uC1hNUfvGy6_hz8KiSP4Wa7FVf3ulzrhNJgwuIHvTQVpRKrp90z38efQo8J5bsPZG6HWVhsDenhK-481rLxxezB1bjobBT-zh5D5s9Gg6XbdHzkKTliYDaT8f47Ne1mqeX5cPrxON1ms4KWH1tYxYSMgElXoM8oFZOWAIm9Pu0oVOY_HvUZ0DL1DE91ERaE_anZFZhmqC9F0JbfryxttvduVw3hxYj7nfGuGRDFtL9gqteUXF5MbzudQlR2sdu-kWAIT8HdTzNnOJtUitL_ED-YLhvlNaWflJ2r6LYyeMVGR54r3oOnx_GHQ3Eb0LJw1foN3ezawVkPZWki7aFez2Wnu1rRAdzX8cQGHvX4V43zulDCNd2nFf2RlMUBWZSwSO3Ifl-fWNlFfq3DJ3z3LlxTfTX6f4AkPMx8k1goLyRqDkXB4vWGEeQfo6OYDQt4SwXe7BMXVa_LX_x3i_mwZq0JZIrc55MvobI_3m-O4FH9dSYaaK09IQaxOPcirYl-TsGEVdmcgmsQeHeRL2myu9RIRIa2G_ulPvF1-Kd6d0";
     const api1_headers = {
       Accept: "application/json",
-      Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI3IiwianRpIjoiYmUwOWUyZjUwYTU1MjhhNWQ2ZGQwNmQwOGYzZTQ0YmI0MmYxZDdiNmQ2MGI2NGY3MTZhNTBhNWUwZDQ1YWM0OGQ1YmM0MmI4NWNjOGZlMTUiLCJpYXQiOjE3MjA2OTk3MzYuOTQ5MTA2LCJuYmYiOjE3MjA2OTk3MzYuOTQ5MTEsImV4cCI6MjAzNjIzMjUzNi45MTc4MDMsInN1YiI6IjE0NDA3MCIsInNjb3BlcyI6WyIqIiwid3JpdGUtYWxsIiwicmVhZC1hbGwiLCJidWNrZXRzIiwid3JpdGUtYnVja2V0cyIsInJlYWQtYnVja2V0cyIsImF1ZGlvcyIsIndyaXRlLWF1ZGlvcyIsInJlYWQtYXVkaW9zIiwiY2hhbm5lbHMiLCJ3cml0ZS1jaGFubmVscyIsInJlYWQtY2hhbm5lbHMiLCJiYXNlLXByb2plY3RzIiwid3JpdGUtYmFzZS1wcm9qZWN0cyIsInJlYWQtYmFzZS1wcm9qZWN0cyIsInVjZiIsIndyaXRlLXVjZiIsInJlYWQtdWNmIiwiZGVsZXRlLXVjZiIsImJtLXByb2plY3RzIiwiYm0tY3MtcHJvamVjdHMiLCJ3cml0ZS1ibS1jcy1wcm9qZWN0cyIsInJlYWQtYm0tY3MtcHJvamVjdHMiLCJibS1iZC1wcm9qZWN0cyIsIndyaXRlLWJtLWJkLXByb2plY3RzIiwicmVhZC1ibS1iZC1wcm9qZWN0cyIsImZpbGVzY2FubmluZyIsIndyaXRlLWZpbGVzY2FubmluZyIsInJlYWQtZmlsZXNjYW5uaW5nIiwibWV0YWRhdGEiLCJyZWFkLW1ldGFkYXRhIl19.X-c4bdwYLTxEbojlB3womUyV4z5QC8JS5ptG2XTriGfrZP0bcIi1oHPgIwJLtKdSFWcmF4CVdbQab3tLh9dZALfdq8zcD4vwXuQwrQNcE_xOZeLNI5UfkeRjse1wmPPsLUezMjGfNIqD6r36utNeLBDtH5hcNI_vEtbFI6axJ42ue9ybUZkFoq0iFtHTo2iOm5TB68ItHGHmm9RLF46wuVi-W4AO25DLuPHlO-ZtGE3Mihk0NAFQEGqcIMcnGk1NBA562IiQpUkhp5rREvNS8g4np2EnrH3Ts82w7cadf2C3RweiPHS2TmBNmB8PN9bP8P5SREYk-hhdUSwiA3W5e37_H1ouycuTr1Klzu-DSsOzQyQKGAYONvGVTI0aTT97WMgcqXzQZi39YF0KLakC3V_15Pa2b0yiRUUER97SrdAf_DGPc0g5Pd16m3q_fmOBTfeTN9ucagVnWQMeL_fpT-9voyllI5Ir7fI7XGGQPnLWZID6cO5O-AtYyxqrPyD_muc7VvAx1TRNeTu7X7i4yLK4LtgIUW5zKSeZVltC4dRxCUsUWDYRko6pZBFBDFmJliXAuq5ulOfwuTlAppoxBkoT4wgP_qal7snhNjbkM5qnj4y0K-JbnXg1i4CkrKYTGcgjcjudFjaNcdPqiG9xDYBbN6BkekxD7qDNf7gOvOE", // Replace with your actual Bearer token
+      Authorization: `Bearer ${authToken}`,
       "Content-Type": "multipart/form-data",
     };
 
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
       const uploadedFileId = uploadResponseData.data.id; // Save the uploaded file's ID
       console.log("File uploaded successfully. File ID:", uploadedFileId);
 
-      await sleep(15000);
+      await sleep(20000);
 
       // Step 4: Fetch the details of the uploaded file using the file ID
       const api2_url = `https://api-v2.acrcloud.com/api/fs-containers/14982/files/${uploadedFileId}`;
@@ -62,7 +64,7 @@ export async function POST(request: NextRequest) {
       console.log("Fetching details of the uploaded file.");
       const fileDetailResponse = await axios.get(api2_url, {
         headers: {
-          Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI3IiwianRpIjoiYmUwOWUyZjUwYTU1MjhhNWQ2ZGQwNmQwOGYzZTQ0YmI0MmYxZDdiNmQ2MGI2NGY3MTZhNTBhNWUwZDQ1YWM0OGQ1YmM0MmI4NWNjOGZlMTUiLCJpYXQiOjE3MjA2OTk3MzYuOTQ5MTA2LCJuYmYiOjE3MjA2OTk3MzYuOTQ5MTEsImV4cCI6MjAzNjIzMjUzNi45MTc4MDMsInN1YiI6IjE0NDA3MCIsInNjb3BlcyI6WyIqIiwid3JpdGUtYWxsIiwicmVhZC1hbGwiLCJidWNrZXRzIiwid3JpdGUtYnVja2V0cyIsInJlYWQtYnVja2V0cyIsImF1ZGlvcyIsIndyaXRlLWF1ZGlvcyIsInJlYWQtYXVkaW9zIiwiY2hhbm5lbHMiLCJ3cml0ZS1jaGFubmVscyIsInJlYWQtY2hhbm5lbHMiLCJiYXNlLXByb2plY3RzIiwid3JpdGUtYmFzZS1wcm9qZWN0cyIsInJlYWQtYmFzZS1wcm9qZWN0cyIsInVjZiIsIndyaXRlLXVjZiIsInJlYWQtdWNmIiwiZGVsZXRlLXVjZiIsImJtLXByb2plY3RzIiwiYm0tY3MtcHJvamVjdHMiLCJ3cml0ZS1ibS1jcy1wcm9qZWN0cyIsInJlYWQtYm0tY3MtcHJvamVjdHMiLCJibS1iZC1wcm9qZWN0cyIsIndyaXRlLWJtLWJkLXByb2plY3RzIiwicmVhZC1ibS1iZC1wcm9qZWN0cyIsImZpbGVzY2FubmluZyIsIndyaXRlLWZpbGVzY2FubmluZyIsInJlYWQtZmlsZXNjYW5uaW5nIiwibWV0YWRhdGEiLCJyZWFkLW1ldGFkYXRhIl19.X-c4bdwYLTxEbojlB3womUyV4z5QC8JS5ptG2XTriGfrZP0bcIi1oHPgIwJLtKdSFWcmF4CVdbQab3tLh9dZALfdq8zcD4vwXuQwrQNcE_xOZeLNI5UfkeRjse1wmPPsLUezMjGfNIqD6r36utNeLBDtH5hcNI_vEtbFI6axJ42ue9ybUZkFoq0iFtHTo2iOm5TB68ItHGHmm9RLF46wuVi-W4AO25DLuPHlO-ZtGE3Mihk0NAFQEGqcIMcnGk1NBA562IiQpUkhp5rREvNS8g4np2EnrH3Ts82w7cadf2C3RweiPHS2TmBNmB8PN9bP8P5SREYk-hhdUSwiA3W5e37_H1ouycuTr1Klzu-DSsOzQyQKGAYONvGVTI0aTT97WMgcqXzQZi39YF0KLakC3V_15Pa2b0yiRUUER97SrdAf_DGPc0g5Pd16m3q_fmOBTfeTN9ucagVnWQMeL_fpT-9voyllI5Ir7fI7XGGQPnLWZID6cO5O-AtYyxqrPyD_muc7VvAx1TRNeTu7X7i4yLK4LtgIUW5zKSeZVltC4dRxCUsUWDYRko6pZBFBDFmJliXAuq5ulOfwuTlAppoxBkoT4wgP_qal7snhNjbkM5qnj4y0K-JbnXg1i4CkrKYTGcgjcjudFjaNcdPqiG9xDYBbN6BkekxD7qDNf7gOvOE`, // Replace with your actual Bearer token
+          Authorization: `Bearer ${authToken}`,
           Accept: "application/json",
         },
       });
@@ -70,14 +72,30 @@ export async function POST(request: NextRequest) {
       const fileDetails = fileDetailResponse.data;
       console.log("File details fetched successfully:", fileDetails);
 
-      // Return success response with file details
-      return NextResponse.json({
-        message: "File uploaded and details fetched successfully",
-        fileId: uploadedFileId,
-        fileDetails: fileDetails,
-        success: true,
-        status: 201,
-      });
+      // Store the recognition results in the database
+      try {
+        const recognition = await Recognition.create({
+          trackId: trackId,
+          fileUrl: fileUrl,
+          acrCloudFileId: uploadedFileId,
+          recognitionDetails: fileDetails,
+          status: 'completed',
+          createdAt: new Date()
+        });
+
+        // Return success response with file details and database record
+        return NextResponse.json({
+          message: "File uploaded and details saved successfully",
+          fileId: uploadedFileId,
+          fileDetails: fileDetails,
+          recognitionId: recognition._id,
+          success: true,
+          status: 201,
+        });
+      } catch  {
+        console.error("Database error:");
+        
+      }
     } else {
       console.log("File upload failed. Response:", uploadResponseData);
       return NextResponse.json({
@@ -87,15 +105,7 @@ export async function POST(request: NextRequest) {
         status: 500,
       });
     }
-  } catch (error: any) {
-    console.log("Error:", error.message); // Log the error  
-    return NextResponse.json(
-      {
-        error: error.message || "An unknown error occurred",
-        success: false,
-        status: 500,
-      },
-      { status: 500 }
-    );
+  } catch  {
+    console.log("Error:", ); 
   }
 }

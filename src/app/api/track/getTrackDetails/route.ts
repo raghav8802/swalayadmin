@@ -60,7 +60,10 @@ export async function GET(req: NextRequest) {
       status: 200,
       data: trackDetails,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    // Log the error for debugging
+    console.error("Error fetching track details:", error);
+
     return NextResponse.json({
       message: "Internal server error",
       success: false,

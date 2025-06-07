@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import { apiFormData, apiGet } from "@/helpers/axiosRequest";
 import { useRouter } from "next/navigation";
 import Uploading from "@/components/Uploading";
+import { AnyARecord } from "node:dns";
 
 interface FormData {
   title: string;
@@ -49,9 +50,10 @@ type TagOption = {
 const AlbumForm: React.FC = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id ?? "";
-
-  const year = new Date().getFullYear();
   const router = useRouter();
+
+  // Move year to useMemo to avoid recreating it on every render
+  const year = React.useMemo(() => new Date().getFullYear(), []);
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -92,7 +94,7 @@ const AlbumForm: React.FC = () => {
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels");
+      const response:any = await apiGet("/api/labels/getLabels");
       console.log(response.data);
 
       if (response.success) {
@@ -119,15 +121,13 @@ const AlbumForm: React.FC = () => {
     const selectedLabel = labelData.find(
       (label) => label._id === formData.label
     );
-    console.log("selectedLabel ::");
-    console.log(selectedLabel);
 
     if (selectedLabel) {
       const userType = selectedLabel.usertype;
       const labelLine =
         userType === "normal"
           ? `${year} SL Web Team`
-          : `${year} ${selectedLabel.lable || selectedLabel.username}`; //first piority is label, if label is not blank or null then show username
+          : `${year} ${selectedLabel.lable || selectedLabel.username}`;
 
       setFormData((prev) => ({
         ...prev,
@@ -135,7 +135,7 @@ const AlbumForm: React.FC = () => {
         cLine: labelLine,
       }));
     }
-  }, [formData.label, labelData]);
+  }, [formData.label, labelData, year]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -208,7 +208,7 @@ const AlbumForm: React.FC = () => {
       formDataObj.append("tags", JSON.stringify(selectedTagValues));
       formDataObj.append("artwork", artwork);
 
-      const response = await apiFormData("/api/albums/addAlbum", formDataObj);
+      const response:any = await apiFormData("/api/albums/addAlbum", formDataObj);
       console.log("add album response");
       console.log(response);
       

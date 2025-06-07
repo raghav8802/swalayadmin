@@ -7,9 +7,15 @@ import { useRouter } from "next/navigation";
 import UserContext from "@/context/userContext";
 // import Image from "next/image";
 
+// Define the expected structure of the API response
+interface SearchResponse {
+  success: boolean;
+  data: Array<{ albumName?: string; trackName?: string; albumId?: string; type: string }>;
+}
+
 const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]); // Stores search results from API
+  const [searchResults, setSearchResults] = useState<SearchResponse['data']>([]); // Stores search results from API
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false); // To show loading state
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -19,7 +25,7 @@ const Navbar = () => {
   const router = useRouter();
   const context = useContext(UserContext);
   // const userType = context?.user?.usertype; // Get user type from context
-  const labelId = context?.user?._id;
+  // const labelId = context?.user?._id; // If not used, consider removing
 
   // Paths allowed for each user type
   const roleAllowedPaths = {
@@ -109,18 +115,11 @@ const Navbar = () => {
       return;
     }
 
-    if (query === "") {
-      setSearchResults([]);
-      setShowSuggestions(false);
-      return;
-    }
-
     setLoading(true);
     try {
-      const response = await apiGet(`/api/search?query=${query}`);
+      const response: SearchResponse | null = await apiGet(`/api/search?query=${query}`);
 
-
-      if (response.success) {
+      if (response && response.success) {
         setSearchResults(response.data); // Store search results
         setShowSuggestions(true); // Show suggestions dropdown
       } else {
@@ -128,6 +127,7 @@ const Navbar = () => {
         setShowSuggestions(false);
       }
     } catch (error) {
+      console.error("Error fetching search results:", error); // Log the error
       setSearchResults([]);
       setShowSuggestions(false);
     } finally {
@@ -161,10 +161,8 @@ const Navbar = () => {
   }, []);
 
   const onLogout = async () => {
-    
     try {
-      const res = await apiPost("/api/user/logout", {});
-    
+      await apiPost("/api/user/logout", {});
       context?.setUser(undefined);
       router.refresh();
     } catch (error) {
@@ -174,9 +172,9 @@ const Navbar = () => {
 
   return (
     <div>
-      <header className="header">
-        <div className="header__container">
-          <Link href="/" className="header__logo">
+      <header className="header dark">
+        <div className="header__container dark ">
+          <Link href="/" className="header__logo ">
             SwaLay
           </Link>
 
@@ -185,11 +183,11 @@ const Navbar = () => {
               <label htmlFor="search" className="sr-only">
                 Search
               </label>
-              <div className="relative">
+              <div className="relative dark">
                 <input
                   id="search"
                   name="search"
-                  className="header__input"
+                  className="header__input text-white"
                   placeholder="Search album or track"
                   type="search"
                   value={searchTerm}
@@ -211,17 +209,14 @@ const Navbar = () => {
                       key={index}
                       className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white"
                       onClick={() => {
-                        setSearchTerm(result.albumName || result.trackName);
+                        setSearchTerm(result.albumName || result.trackName || "");
                         setShowSuggestions(false);
                         // Redirect to the appropriate page
+                        const albumId = result.albumId || ""; // Default to an empty string if albumId is undefined
                         if (result.type === "album") {
-                          router.push(
-                            `/albums/viewalbum/${btoa(result.albumId)}`
-                          );
+                          router.push(`/albums/viewalbum/${btoa(albumId)}`);
                         } else if (result.type === "track") {
-                          router.push(
-                            `/albums/viewalbum/${btoa(result.albumId)}`
-                          );
+                          router.push(`/albums/viewalbum/${btoa(albumId)}`);
                         }
                       }}
                     >
@@ -237,7 +232,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="header__toggle">
+          <div className="header__toggle dark">
             <i
               className={`bi ${showMenu ? "bi-x" : "bi-list"}`}
               id="header-toggle"

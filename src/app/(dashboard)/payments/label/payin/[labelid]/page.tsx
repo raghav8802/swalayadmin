@@ -1,5 +1,5 @@
 "use client";
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,9 +33,9 @@ const Payments = ({ params }: { params: { labelid: string } }) => {
   const [availableBalance, setAvailableBalance] = useState(0);
   const [labelName, setLabelName] = useState("");
 
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
-      const response = await apiGet(
+      const response: any = await apiGet(
         `/api/payments/getPayments?labelId=${labelId}`
       );
       console.log("response.data earning");
@@ -50,14 +50,14 @@ const Payments = ({ params }: { params: { labelid: string } }) => {
     } catch (error) {
       console.log("error");
     }
-  };
+  }, [labelId]);
 
 
   useEffect(() => {
     if (labelId) {
       fetchPayments();
     }
-  }, [labelId]);
+  }, [labelId, fetchPayments]);
 
 
 

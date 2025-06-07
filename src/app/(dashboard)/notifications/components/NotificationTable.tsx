@@ -70,7 +70,7 @@ const columns: ColumnDef<Notification>[] = [
             const handleDelete = async () => {
                 toast.loading("Deleting...")
                 try {
-                    const response = await apiPost(`/api/notification/delete?notificationId=${notification._id}`, {});
+                    const response:any = await apiPost(`/api/notification/delete?notificationId=${notification._id}`, {});
                     if (response.success) {
                         toast.success("Notification is Deleted")
                         window.location.reload()
@@ -98,7 +98,7 @@ export function NotificationTable() {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const response = await apiGet("/api/notification/getAll");
+                const response:any = await apiGet("/api/notification/getAll");
                 console.log("get api notification :");
                 console.log(response);
                 

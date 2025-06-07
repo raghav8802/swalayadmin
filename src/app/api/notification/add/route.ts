@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+
 import { connect } from "@/dbConfig/dbConfig";
 import Notification from "@/models/notification";
 

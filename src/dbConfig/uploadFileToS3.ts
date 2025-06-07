@@ -42,8 +42,9 @@ export async function uploadFileToS3({
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
     return { status: true, fileName };
-  } catch (error: any) {
-    return { status: true, fileName };
+  } catch (error) {
+    console.error("Error uploading file to S3:", (error as Error).message);
+    return { status: false, fileName: "" };
   }
 }
 
@@ -86,8 +87,9 @@ export async function uploadTrackToS3({
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
     return { status: true, fileName };
-  } catch (error: any) {
-    return { status: true, fileName };
+  } catch (error) {
+    console.error("Error uploading track to S3:", (error as Error).message);
+    return { status: false, fileName: "" };
   }
 }
 
@@ -118,9 +120,10 @@ export async function uploadPayoutReportToS3({
 
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
-    let newFileName =  fileName.replace(/ /g, '+');
+    const newFileName = fileName.replace(/ /g, '+');
     return { status: true, fileName: newFileName };
-  } catch (error: any) {
+  } catch (error) {
+    console.error("Error uploading payout report to S3:", (error as Error).message);
     return { status: false, fileName: "" };
   }
 }
@@ -136,10 +139,7 @@ export async function uploadEmployeeNdaToS3({
   fileName,
 }: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
   try {
-
-    // let newFileName = fileName.replace(/ /g, '+');
-    let newFileName = fileName;
-  
+    const newFileName = fileName;
     const fileBuffer = file;
     const fileExtension = newFileName.split('.').pop()?.toLowerCase();
     let contentType: string;
@@ -168,7 +168,8 @@ export async function uploadEmployeeNdaToS3({
 
     return { status: true, fileName: newFileName };
 
-  } catch (error: any) {
+  } catch (error) {
+    console.error("Error uploading NDA to S3:", (error as Error).message);
     return { status: false, fileName: "" };
   }
 }
@@ -180,9 +181,7 @@ export async function uploadWorkPolicyToS3({
   fileName,
 }: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
   try {
-    // let newFileName = fileName.replace(/ /g, '+');
-    let newFileName = fileName;
-
+    const newFileName = fileName;
     const fileBuffer = file;
     const fileExtension = newFileName.split('.').pop()?.toLowerCase();
     console.log(" wrk plcy fileExtension :: ");
@@ -212,8 +211,8 @@ export async function uploadWorkPolicyToS3({
     await s3Client.send(command);
 
     return { status: true, fileName: newFileName };
-  } catch (error: any) {
-    console.error("Error uploading work policy to S3:", error.message);
+  } catch (error) {
+    console.error("Error uploading work policy to S3:", (error as Error).message);
     return { status: false, fileName: "" };
   }
 }

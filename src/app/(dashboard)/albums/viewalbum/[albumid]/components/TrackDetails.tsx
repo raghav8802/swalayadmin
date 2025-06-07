@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,11 +12,17 @@ import { onShare } from "@/helpers/urlShare";
 import { MouseEvent } from "react";
 import { AlbumDetailsTable } from "@/app/(dashboard)/marketing/details/components/AlbumDetailsTable";
 import UserContext from "@/context/userContext";
+import { Modal } from "@/components/Modal";
 
 interface TrackListProps {
   trackId: string;
   albumStatus: number;
   onFetchDetails: (songName: string, url: string) => void;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message?: string;
 }
 
 interface Props {
@@ -43,15 +49,21 @@ interface TrackDetail {
   duration: string | null;
   crbt: string | null;
   platformLinks: {
-    SpotifyLink: string | null;
-    AppleLink: string | null;
-    Instagram: string | null;
-    Facebook: string | null;
+    spotify: string | null;
+    appleMusic: string | null;
+    amazon: string | null;
+    amazonMusic: string | null;
+    youtube: string | null;
+    youtubeMusic: string | null;
+    shazam: string | null;
+    wynkMusic: string | null;
+    _id: string;
   } | null;
   category: string | null;
   version: string | null;
   trackType: string | null;
   trackOrderNumber: string | null;
+  deliveryStatus: 'pending' | 'delivered' | 'failed' | null;
 }
 
 interface AlbumDetail {
@@ -72,8 +84,8 @@ interface AlbumDetail {
 }
 
 enum AlbumProcessingStatus {
-  Draft = 0, // on information submit
-  Processing = 1, // on final submit
+  Draft = 0,
+  Processing = 1,
   Approved = 2,
   Rejected = 3,
   Live = 4,
@@ -88,15 +100,37 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const [albumDetails, setAlbumDetails] = useState<AlbumDetail | null>(null);
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const context = useContext(UserContext);
   const userType = context?.user?.usertype || "";
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUPCModalOpen, setIsUPCModalOpen] = useState(false);
+  const [editedUPC, setEditedUPC] = useState("");
+  const [isDelivering, setIsDelivering] = useState(false);
+  const [isISRCModalOpen, setIsISRCModalOpen] = useState(false);
+  const [editedISRC, setEditedISRC] = useState("");
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const fetchTrackDetails = async () => {
+  const fetchAlbumDetails = useCallback(async (albumId: string) => {
     try {
-      const response = await apiGet(
+      const albumResponse:any = await apiGet(
+        `/api/albums/getAlbumsDetails?albumId=${albumId}`
+      );
+
+      if (albumResponse.success) {
+        setAlbumDetails(albumResponse.data);
+      } else {
+        setError(albumResponse.message);
+      }
+    } catch (error) {
+      console.log("Error fetching album details:", error);
+      setError("Failed to fetch album details");
+    }
+  }, []);
+
+  const fetchTrackDetails = useCallback(async () => {
+    try {
+      const response:any = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
       );
 
@@ -114,28 +148,11 @@ const TrackDetails: React.FC<TrackListProps> = ({
     } catch (error) {
       setError("Internal server error");
     }
-  };
-
-  const fetchAlbumDetails = async (albumId: string) => {
-    try {
-      const albumResponse = await apiGet(
-        `/api/albums/getAlbumsDetails?albumId=${albumId}`
-      );
-
-      if (albumResponse.success) {
-        setAlbumDetails(albumResponse.data); // Set album details in state
-      } else {
-        setError(albumResponse.message);
-      }
-    } catch (error) {
-      console.log("Error fetching album details:", error);
-      setError("Failed to fetch album details");
-    }
-  };
+  }, [trackId, onFetchDetails, fetchAlbumDetails]);
 
   useEffect(() => {
     fetchTrackDetails();
-  }, [trackId]);
+  }, [fetchTrackDetails]);
 
   const downloadRef = useRef<HTMLAnchorElement>(null);
 
@@ -180,19 +197,51 @@ const TrackDetails: React.FC<TrackListProps> = ({
   };
 
   const uploadToComos = async (albumId: any) => {
+    if (isDelivering) {
+      return;
+    }
+
+    setIsDelivering(true);
     toast.loading("Uploading to cosmos");
     try {
-      const response = await apiPost("/api/cosmos/fetchdata", { albumId });
-      // console.log(response);
+      const response:any = await apiPost("/api/cosmos/fetchdata", { albumId });
       if (response.success) {
+        // Update the track's delivery status
+        await apiPost("/api/track/updateDeliveryStatus", {
+          trackId,
+          status: 'delivered'
+        });
+        setTrackDetails(prev => prev ? {
+          ...prev,
+          deliveryStatus: 'delivered'
+        } : null);
         toast.success("Success! Your album is uploaded to cosmos");
-        window.location.reload();
       } else {
+        // Update the track's delivery status to failed
+        await apiPost("/api/track/updateDeliveryStatus", {
+          trackId,
+          status: 'failed'
+        });
+        setTrackDetails(prev => prev ? {
+          ...prev,
+          deliveryStatus: 'failed'
+        } : null);
         toast.error(response.message);
       }
     } catch (error) {
+      // Update the track's delivery status to failed
+      await apiPost("/api/track/updateDeliveryStatus", {
+        trackId,
+        status: 'failed'
+      });
+      setTrackDetails(prev => prev ? {
+        ...prev,
+        deliveryStatus: 'failed'
+      } : null);
       console.log("error in api", error);
       toast.error("Internal server error");
+    } finally {
+      setIsDelivering(false);
     }
   };
 
@@ -214,7 +263,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
       !ytIsrc ||
       !ytstitle
     ) {
-      alert("Missing required track details.");
+      toast.error("Missing required track details.");
       return;
     }
 
@@ -238,15 +287,13 @@ const TrackDetails: React.FC<TrackListProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        alert("Track uploaded and published successfully.");
-        // console.log('Response:', data.result);
+        toast.success("Track uploaded and published successfully.");
       } else {
-        alert("Error: " + data.error);
-        // console.error('Error:', data.error);
+        toast.error(data.error || "Failed to upload track");
       }
     } catch (error) {
-      alert("Failed to upload and publish track.");
-      // console.error('Upload error:', error);
+      toast.error("Failed to upload and publish track.");
+      console.error("Upload error:", error);
     }
   };
 
@@ -255,7 +302,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
 
     try {
       // Call the recognition API and pass the audio file URL and trackId
-      const response = await apiPost("/api/recognition", {
+      const response:any = await apiPost("/api/recognition", {
         trackId,
         fileUrl: audioFileUrl,
       });
@@ -330,11 +377,35 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
+  const handleISRCUpdate = async () => {
+    if (!trackId || !trackDetails) return;
+
+    try {
+      const response = await apiPost<ApiResponse>("/api/tracks/updateISRC", {
+        id: trackId,
+        isrc: editedISRC
+      });
+
+      if (response?.success) {
+        setTrackDetails(prev => prev ? {
+          ...prev,
+          isrc: editedISRC
+        } : null);
+        setIsISRCModalOpen(false);
+        toast.success("ISRC updated successfully");
+      } else {
+        toast.error(response?.message || "Failed to update ISRC");
+      }
+    } catch (error) {
+      console.error("Error updating ISRC:", error);
+      toast.error("Failed to update ISRC");
+    }
+  };
+
   return (
     <div className={`p-1 ${Style.trackDetails}`}>
       <div className={Style.trackDetailsTop}>
-        <h5 className={`mt-3 ${Style.subheading}`}> Track Details</h5>
-
+        <h5 className={`mt-3 ${Style.subheading}`}>Track Details</h5>
         {userType !== "customerSupport" && (
           <div className={Style.trackDetailsIconGroup}>
             <button
@@ -347,26 +418,18 @@ const TrackDetails: React.FC<TrackListProps> = ({
             >
               Audio Check
             </button>
-
             <button
               className="ms-3 px-2 py-2 bg-green-500 text-white rounded ms-2 bi bi-link-45deg"
-              onClick={() =>
-                onlinkfetch(`${trackDetails && trackDetails.isrc}`)
-              }
+              onClick={() => onlinkfetch(`${trackDetails && trackDetails.isrc}`)}
             >
               Link
             </button>
-
             <Link href={`/albums/edittrack/${btoa(trackId)}`}>
               <i className="bi bi-pencil-square" title="Edit track"></i>
             </Link>
-
             {trackDetails?.audioFile && (
               <div onClick={handleDownload}>
-                {/* Download icon */}
                 <i className="bi bi-download"></i>
-
-                {/* Hidden anchor tag to handle download */}
                 <a
                   ref={downloadRef}
                   href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
@@ -375,8 +438,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 >
                   Download
                 </a>
-
-                {/* Hidden audio tag (if you still need to keep it) */}
                 <audio style={{ display: "none" }} controls>
                   <source
                     src={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${trackDetails.albumId}ba3/tracks/${trackDetails.audioFile}`}
@@ -385,15 +446,13 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 </audio>
               </div>
             )}
-
             <button onClick={onDelete}>
               <i className="bi bi-trash"></i>
             </button>
           </div>
         )}
       </div>
-      <div className={`mt-2 ${Style.currentTrackDetails} `}>
-        {/* <p className={`mb-3 ${Style.trackInfoTrackName}`}><span className={Style.trackNameLable}>Track Name: </span> Lost in Mountain</p> */}
+      <div className={`mt-2 ${Style.currentTrackDetails}`}>
         <p className={`mb-3 ${Style.trackInfoTrackName}`}>
           <i className={`bi bi-music-note-list ${Style.trackNameIcon}`}></i>
           {trackDetails && trackDetails?.songName}
@@ -404,9 +463,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
             {userType !== "customerSupport" && (
               <Link
                 className="px-3 py-2 bg-cyan-600 text-white rounded my-3"
-                href={`/albums/tracks/addLyrics/${btoa(
-                  trackId ?? ""
-                )}?trackname=${encodeURIComponent(
+                href={`/albums/tracks/addLyrics/${btoa(trackId ?? "")}?trackname=${encodeURIComponent(
                   trackDetails?.songName ?? ""
                 )}&trackurl=${encodeURIComponent(
                   trackDetails?.audioFile
@@ -422,15 +479,20 @@ const TrackDetails: React.FC<TrackListProps> = ({
               albumStatus === AlbumProcessingStatus.Live) && (
               <>
                 <button
-                  className="ms-3 px-3 py-2 bg-cyan-500 text-white rounded my-3"
+                  className={`ms-3 px-3 py-2 rounded my-3 ${
+                    isDelivering
+                      ? 'bg-gray-400 cursor-wait'
+                      : 'bg-cyan-500 hover:bg-cyan-600'
+                  } text-white`}
                   onClick={() => uploadToComos(trackDetails?.albumId)}
                 >
-                  DSP Delivery
+                  {isDelivering ? 'Uploading...' : 
+                   trackDetails?.deliveryStatus ? 'Re Delivery' : 'DSP Delivery'}
                 </button>
 
                 <button
                   className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
-                  onClick={handleUploadAndPublish} // The onClick function is now here
+                  onClick={handleUploadAndPublish}
                 >
                   <i className="bi bi-youtube me-2"></i> YT Delivery
                 </button>
@@ -444,15 +506,31 @@ const TrackDetails: React.FC<TrackListProps> = ({
             <TabsList>
               <TabsTrigger value="track">Track Info</TabsTrigger>
               <TabsTrigger value="publishiling">Publishing Info</TabsTrigger>
+              <TabsTrigger value="links">Track Links</TabsTrigger>
             </TabsList>
             <TabsContent value="track">
-              <div className={`mt-2  ${Style.trackInfoListContainer}`}>
+              <div className={`mt-2 ${Style.trackInfoListContainer}`}>
                 <ul className="p-3">
                   <li className={`mb-2 ${Style.albumInfoItem}`}>
-                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                      ISRC:
-                    </span>{" "}
-                    {trackDetails && trackDetails.isrc}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                        ISRC:
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {trackDetails?.isrc || "Not set"}
+                        {userType !== "customerSupport" && (
+                          <button
+                            onClick={() => {
+                              setIsISRCModalOpen(true);
+                              setEditedISRC(trackDetails?.isrc || "");
+                            }}
+                            className="btn btn-sm btn-outline-primary"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </li>
                   <li className={`mb-2 ${Style.albumInfoItem}`}>
                     <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -465,19 +543,6 @@ const TrackDetails: React.FC<TrackListProps> = ({
                       TrackType:
                     </span>{" "}
                     {trackDetails && trackDetails.trackType}
-                  </li>
-                  <li className={`mb-2 ${Style.albumInfoItem}`}>
-                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                      Version:
-                    </span>{" "}
-                    {trackDetails && trackDetails.version}
-                  </li>
-
-                  <li className={`mb-2 ${Style.albumInfoItem}`}>
-                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                      Crbt:
-                    </span>{" "}
-                    {trackDetails && trackDetails.crbt}
                   </li>
                 </ul>
               </div>
@@ -552,6 +617,124 @@ const TrackDetails: React.FC<TrackListProps> = ({
                 </ul>
               </div>
             </TabsContent>
+
+            <TabsContent value="links">
+              <div className={`mt-2 ${Style.trackInfoListContainer}`}>
+                <div className="p-3 grid grid-cols-4 gap-4">
+                  {trackDetails?.platformLinks?.spotify && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.spotify}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-spotify text-3xl mb-2" style={{ color: '#1DB954' }}></i>
+                        <p className="text-sm">Spotify</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.appleMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.appleMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-apple text-3xl mb-2" style={{ color: '#FB2D3F' }}></i>
+                        <p className="text-sm">Apple Music</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.amazon && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.amazon}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-amazon text-3xl mb-2" style={{ color: '#FF9900' }}></i>
+                        <p className="text-sm">Amazon</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.amazonMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.amazonMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-amazon text-3xl mb-2" style={{ color: '#FF9900' }}></i>
+                        <p className="text-sm">Amazon Music</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.youtube && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.youtube}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-youtube text-3xl mb-2" style={{ color: '#FF0000' }}></i>
+                        <p className="text-sm">YouTube</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.youtubeMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.youtubeMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-youtube text-3xl mb-2" style={{ color: '#FF0000' }}></i>
+                        <p className="text-sm">YouTube Music</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.shazam && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.shazam}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-music-note text-3xl mb-2" style={{ color: '#08F' }}></i>
+                        <p className="text-sm">Shazam</p>
+                      </a>
+                    </div>
+                  )}
+
+                  {trackDetails?.platformLinks?.wynkMusic && (
+                    <div className="flex flex-col items-center">
+                      <a 
+                        href={trackDetails.platformLinks.wynkMusic}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-center hover:opacity-80 transition-opacity"
+                      >
+                        <i className="bi bi-music-note text-3xl mb-2" style={{ color: '#FF0000' }}></i>
+                        <p className="text-sm">Wynk Music</p>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
 
@@ -564,6 +747,28 @@ const TrackDetails: React.FC<TrackListProps> = ({
           description="Once you delete this track, you will no longer be able to retrieve the tracks associated with it."
         />
       </div>
+
+      <Modal
+        isVisible={isISRCModalOpen}
+        triggerLabel="Save"
+        title="Update ISRC"
+        onSave={handleISRCUpdate}
+        onClose={() => setIsISRCModalOpen(false)}
+      >
+        <div>
+          <label className="form-label" htmlFor="isrc">
+            ISRC
+          </label>
+          <input
+            id="isrc"
+            type="text"
+            value={editedISRC}
+            onChange={(e) => setEditedISRC(e.target.value)}
+            className="form-control"
+            placeholder="Enter ISRC"
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

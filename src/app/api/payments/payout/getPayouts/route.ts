@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       data: payments,
     });
-  } catch (error: any) {
+  } catch  {
     return NextResponse.json({
       message: "Internal server error",
       success: false,

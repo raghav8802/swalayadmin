@@ -62,8 +62,12 @@ export async function middleware(request: NextRequest) {
       // If everything checks out, allow access
       return NextResponse.next();
 
-    } catch (error: any) {
-      console.error("Token verification failed:", error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Token verification failed:", error.message);
+      } else {
+        console.error("Token verification failed:", error);
+      }
       return NextResponse.redirect(new URL("/signin", request.url));
     }
   } else {

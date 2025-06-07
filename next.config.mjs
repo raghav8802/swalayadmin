@@ -1,18 +1,48 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      remotePatterns: [
-        {
-          protocol: 'https',
-          hostname: 'swalay-music-files.s3.ap-south-1.amazonaws.com',
-          pathname: '/**',
-        },
-      ],
-    },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "swalay-music-files.s3.ap-south-1.amazonaws.com",
+        pathname: "/**",
+      },
+
+      {
+        protocol: "https",
+        hostname: "swalay-test-files.s3.ap-south-1.amazonaws.com",
+        pathname: "/**",
+      },
+    ],
+  },
   //   eslint: {
   //     ignoreDuringBuilds: true,
   // },
-  };
-  
-  export default nextConfig;
-  
+
+    async headers() {
+    return [
+      {
+        source: '/api/albums/getAlbums',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
+      },
+      {
+        source: '/api/albums/getAlbumsDetails',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
+      },
+    ];
+  }
+
+
+
+
+};
+
+export default nextConfig;

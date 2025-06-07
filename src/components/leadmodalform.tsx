@@ -1,8 +1,7 @@
 import { Modal } from "@/components/Modal";
-import { apiGet, apiPost } from "@/helpers/axiosRequest";
-import React, { useContext, useEffect, useState } from "react";
+import { apiPost } from "@/helpers/axiosRequest";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
-
 
 const LeadModalForm = ({
   isVisible,
@@ -11,9 +10,7 @@ const LeadModalForm = ({
   isVisible: boolean;
   onClose: () => void;
 }) => {
-
   const [formData, setFormData] = useState({
-   
     labelName: "",
     name: "",
     email: "",
@@ -23,11 +20,13 @@ const LeadModalForm = ({
 
   const handleSave = async () => {
     try {
-      const response = await apiPost("/api/leads/create", formData);
+      const response = await apiPost<{ success: boolean; message?: string; data?: any}>("/api/leads/create", {
+        success: true,
+        ...formData,
+      });
       
-      if (response.success) {
+      if (response && response.success) {
         setFormData({
-         
           labelName: "",
           name: "",
           email: "",
@@ -41,6 +40,7 @@ const LeadModalForm = ({
         toast.error(response.message || "Failed to create lead");
       }
     } catch (error) {
+      console.error("Error creating lead:", error);
       toast.error("Something went wrong");
     }
   };
@@ -72,7 +72,7 @@ const LeadModalForm = ({
 
       <div className="overflow-y-auto">
         <label className="form-label" htmlFor="name">
-          owner name
+          Owner Name
         </label>
         <input
           type="text"
@@ -89,56 +89,54 @@ const LeadModalForm = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <label className="form-label" htmlFor="spotify">
+          <label className="form-label" htmlFor="email">
             Email ID 
           </label>
           <input
-            type="Text"
-            id="spotify"
-            name="spotify"
+            type="text"
+            id="email"
+            name="email"
             value={formData.email}
             onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              setFormData({ ...formData, email: e.target.value })
+            }
             className="form-control"
             placeholder="Enter The Email ID"
           />
         </div>
         <div>
-          <label className="form-label" htmlFor="instagram">
+          <label className="form-label" htmlFor="contactNo">
             Phone Number
           </label>
           <input
-            type="Text"
-            id="instagram"
-            name="instagram"
+            type="text"
+            id="contactNo"
+            name="contactNo"
             value={formData.contactNo}
             onChange={(e) =>
-                setFormData({ ...formData, contactNo: e.target.value })
-              }
+              setFormData({ ...formData, contactNo: e.target.value })
+            }
             className="form-control"
             placeholder="Enter the Contact number"
           />
         </div>
 
         <div>
-          <label className="form-label" htmlFor="instagram">
+          <label className="form-label" htmlFor="state">
             State
           </label>
           <input
-            type="Text"
-            id="instagram"
-            name="instagram"
+            type="text"
+            id="state"
+            name="state"
             value={formData.state}
             onChange={(e) =>
-                setFormData({ ...formData, state: e.target.value })
-              }
+              setFormData({ ...formData, state: e.target.value })
+            }
             className="form-control"
             placeholder="Select Your state"
           />
         </div>
-        
-
       </div>
     </Modal>
   );

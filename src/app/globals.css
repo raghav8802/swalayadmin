@@ -91,6 +91,43 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    /* Update navbar and body variables for dark theme */
+    --first-color: #8B5CF6;
+    --first-color-light: #1F2937;
+    --title-color: #F9FAFB;
+    --text-color: #E5E7EB;
+    --text-color-light: #9CA3AF;
+    --body-color: #111827;
+    --container-color: #1F2937;
+
+    /* =========== navbar and body variables ========= */
+    --header-height: 3.5rem;
+    --nav-width: 219px;
+
+    /*========== Colors ==========*/
+    --first-color: #8B5CF6;
+    --first-color-light: #1F2937;
+    --title-color: #F9FAFB;
+    --text-color: #E5E7EB;
+    --text-color-light: #9CA3AF;
+    --body-color: #111827;
+    --container-color: #1F2937;
+
+    /*========== Font and typography ==========*/
+    --body-font: 'Poppins', sans-serif;
+    --normal-font-size: .938rem;
+    --small-font-size: .75rem;
+    --smaller-font-size: .75rem;
+
+    /*========== Font weight ==========*/
+    --font-medium: 500;
+    --font-semi-bold: 600;
+
+    /*========== z index ==========*/
+    --z-fixed: 100;
+
+
   }
 }
 

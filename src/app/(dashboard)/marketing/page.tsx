@@ -32,7 +32,12 @@ interface Album {
   _id: string;
 }
 
-const page = () => {
+interface ApiResponse {
+  success: boolean;
+  data: Album[];
+}
+
+const Page = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id ?? "";
   const [marketingData, setMarketingData] = useState<Album[]>([]);
@@ -54,7 +59,7 @@ const page = () => {
   const fetchAlbumBymarketing = async () => {
     try {
       // const response = await apiGet(`/api/marketing/fetchAlbumBymarketing?labelId=${labelId}`);
-      const response = await apiGet(`/api/marketing/fetchAlbumBymarketing`);
+      const response:any  = await apiGet(`/api/marketing/fetchAlbumBymarketing`);
 
       if (response.success) {
         setMarketingData(response.data);
@@ -112,4 +117,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

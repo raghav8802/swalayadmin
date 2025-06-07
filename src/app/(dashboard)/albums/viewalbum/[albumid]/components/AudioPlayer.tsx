@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+"use client";
+
+import React, { useState, useRef, useEffect, useCallback } from "react";
 // import Style from './AudioPlayer.module.css';
 import Style from "../../../../../styles/ViewAlbums.module.css";
 
@@ -13,17 +15,20 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
   const [duration, setDuration] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    // Reset playback when trackName changes
+  const resetPlayer = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       setCurrentTime(0);
       setIsPlaying(false);
     }
-  }, [trackName]);
+  }, []);
 
-  const togglePlay = () => {
+  useEffect(() => {
+    resetPlayer();
+  }, [trackName, resetPlayer]);
+
+  const togglePlay = useCallback(() => {
     if (!audioRef.current) return;
 
     const prevValue = isPlaying;
@@ -33,38 +38,37 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
     } else {
       audioRef.current.pause();
     }
-  };
+  }, [isPlaying]);
 
-  const onLoadedMetadata = () => {
+  const onLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
     }
-  };
+  }, []);
 
-  const onTimeUpdate = () => {
+  const onTimeUpdate = useCallback(() => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
     }
-  };
+  }, []);
 
-  const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRangeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       audioRef.current.currentTime = Number(e.target.value);
       setCurrentTime(Number(e.target.value));
     }
-  };
+  }, []);
 
-  const formatTime = (time: number): string => {
+  const formatTime = useCallback((time: number): string => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
+  }, []);
 
-  const onEnded = () => {
+  const onEnded = useCallback(() => {
     setCurrentTime(0);
     setIsPlaying(false);
-  };
-
+  }, []);
 
   return (
     <div className={`border ${Style.MusicPlayerBox}`}>

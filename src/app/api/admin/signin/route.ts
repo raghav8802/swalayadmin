@@ -5,8 +5,9 @@ import Admin from "@/models/admin";
 import { Resend } from 'resend';
 import OTP from "@/models/OTP";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: NextRequest) {
     await connect();
 

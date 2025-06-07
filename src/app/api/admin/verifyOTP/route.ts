@@ -35,6 +35,14 @@ export async function POST(request: NextRequest) {
 
         // Get admin details for token
         const admin = await Admin.findOne({ email });
+        if (!admin) {
+            return NextResponse.json({
+                success: false,
+                status: 400,
+                error: "Admin not found"
+            });
+        }
+
         const tokenData = {
             id: admin?._id,
             username: admin?.username

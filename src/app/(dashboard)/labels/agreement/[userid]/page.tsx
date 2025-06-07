@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import toast from "react-hot-toast";
@@ -18,6 +18,12 @@ interface User {
   signature: string;
 }
 
+interface ApiResponse {
+  success: boolean;
+  data: User;
+  status?: number;
+}
+
 function Agreement({ params }: { params: { userid: string } }) {
   const [labelId, setLabelId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,36 +33,15 @@ function Agreement({ params }: { params: { userid: string } }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const labelIdParams = params.userid;
-
-  useEffect(() => {
-    const labelIdParams = params.userid;
-
-    try {
-      const decodedLabelId = atob(labelIdParams);
-      setLabelId(decodedLabelId);
-    } catch (e) {
-      setError("Invalid Url");
-      console.error("Decoding error:", e);
-    }
-  }, [labelIdParams]);
-
-  useEffect(() => {
-    if (labelId) {
-      fetchUserDetails();
-    }
-  }, [labelId]);
-
-  // Fetch user details (dummy data fetching function)
-  const fetchUserDetails = async () => {
-    if (!labelId) return; // Avoid making API calls if albumId is null
+  const fetchUserDetails = useCallback(async () => {
+    if (!labelId) return;
     setIsLoading(true);
     try {
-      const response = await apiGet(`/api/labels/details?labelId=${labelId}`);
+      const response = await apiGet(`/api/labels/details?labelId=${labelId}`) as ApiResponse;
       console.log("response ::::");
       console.log(response);
       
-      if (response.success) {
+      if (response?.success) {
         setUser(response.data);
       }
       setIsLoading(false);
@@ -65,11 +50,23 @@ function Agreement({ params }: { params: { userid: string } }) {
       toast.error("Internal server down");
       console.log(error);
     }
-  };
+  }, [labelId]);
 
-  React.useEffect(() => {
-    fetchUserDetails();
-  }, []);
+  useEffect(() => {
+    try {
+      const decodedLabelId = atob(params.userid);
+      setLabelId(decodedLabelId);
+    } catch (e) {
+      setError("Invalid Url");
+      console.error("Decoding error:", e);
+    }
+  }, [params.userid]);
+
+  useEffect(() => {
+    if (labelId) {
+      fetchUserDetails();
+    }
+  }, [labelId, fetchUserDetails]);
 
   // Convert the marked content to PDF
   const handleDownload = async () => {

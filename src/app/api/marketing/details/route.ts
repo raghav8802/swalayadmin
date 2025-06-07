@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       labelName = labelData?.lable || labelData?.username || ''; // Get label name or fallback to username if lable is null
     }
 
-let labelType = labelData?.usertype || ''; // Fallback to empty string if usertype is null
+    const labelType = labelData?.usertype || ''; // Fallback to empty string if usertype is null
     
 
 

@@ -21,7 +21,7 @@ function LeadsPage() {
   const fetchAllLeads = async (labelId: any) => {
     setIsLoading(true);
     try {
-      const response = await apiGet(`/api/leads/getLeads`);
+      const response:any = await apiGet(`/api/leads/getLeads`);
       if (response.success) {
         setLeads(response.data);
       }

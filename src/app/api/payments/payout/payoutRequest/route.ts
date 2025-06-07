@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
 import { connect } from "@/dbConfig/dbConfig";
-import PaymentRequest, { PaymentStatus } from "@/models/paymentRequest";
+import PaymentRequest from "@/models/paymentRequest";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,8 +30,8 @@ export async function POST(req: NextRequest) {
       status: 200,
       data: savedPaymentRequest,
     });
-  } catch (error: any) {
-    console.error("Error creating payment request:", error);
+  } catch  {
+    console.error("Error creating payment request:");
     
     return NextResponse.json({
       message: "Internal Server error",

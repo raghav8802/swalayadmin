@@ -169,6 +169,7 @@ export function AlbumDataTable({ data }: { data: Album[] }) {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const [globalFilter, setGlobalFilter] = React.useState("");
 
     const table = useReactTable({
         data,
@@ -186,6 +187,15 @@ export function AlbumDataTable({ data }: { data: Album[] }) {
             columnFilters,
             columnVisibility,
             rowSelection,
+            globalFilter,
+        },
+        onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: (row, columnId, filterValue) => {
+            const searchValue = filterValue.toLowerCase();
+            const title = row.getValue("title")?.toString().toLowerCase() || "";
+            const artist = row.getValue("artist")?.toString().toLowerCase() || "";
+            
+            return title.includes(searchValue) || artist.includes(searchValue);
         },
     });
 
@@ -193,39 +203,11 @@ export function AlbumDataTable({ data }: { data: Album[] }) {
         <div className="w-full">
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Filter album titles..."
-                    value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("title")?.setFilterValue(event.target.value)
-                    }
+                    placeholder="Filter by title or artist..."
+                    value={globalFilter ?? ""}
+                    onChange={(event) => setGlobalFilter(event.target.value)}
                     className="max-w-sm"
                 />
-
-                {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                );
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu> */}
-
             </div>
             <div className="rounded-md border">
                 <Table>

@@ -5,6 +5,8 @@ interface User {
   _id: string;
   username: string;
   usertype: string;
+  email: string;
+  role: string;
   // Add other user properties here
 }
 

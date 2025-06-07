@@ -7,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { apiGet } from "@/helpers/axiosRequest";
 
 import Link from "next/link";
@@ -15,37 +15,35 @@ import ErrorSection from "@/components/ErrorSection";
 import { PaymentPendingList } from "../components/pendingPaymentsList";
 // import DataTableUi from '../components/DataTable'
 
-const payments = ({ params }: { params: { filter: string } }) => {
+const Payments = ({ params }: { params: { filter: string } }) => {
   // const filter = params.filter;
   const filter = params.filter.charAt(0).toUpperCase() + params.filter.slice(1).toLowerCase();
   
-  const validFilters = ["All", "Pending", "Completed", "Rejected", "Failed", "Approved"]; 
-  if (!validFilters.includes(filter)) {
-    return <ErrorSection message="Invalid URL or Not Found" />;
-  }
-
   const [isLoading, setIsLoading] = useState(true);
-
   const [payoutRequestData, setPayoutRequestData] = useState([]);
 
-  const fetchRequestedData = async () => {
-    
+  const fetchRequestedData = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const response = await apiGet(
-        `/api/payments/payout/getAllPayouts?status=${filter}`
-      );
+      const response: any = await apiGet(`/api/payments/payout/getAllPayouts?status=${filter}`);
       if (response.success) {
         setPayoutRequestData(response.data);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchRequestedData();
-  }, []);
+  }, [fetchRequestedData]);
 
+  const validFilters = ["All", "Pending", "Completed", "Rejected", "Failed", "Approved"]; 
+  if (!validFilters.includes(filter)) {
+    return <ErrorSection message="Invalid URL or Not Found" />;
+  }
 
   return (
     <div className="w-full h-dvh p-6 bg-white rounded-sm">
@@ -70,7 +68,7 @@ const payments = ({ params }: { params: { filter: string } }) => {
             {filter} Payouts
           </h3>
 
-        {payoutRequestData ? (
+        {payoutRequestData.length > 0 ? (
           <PaymentPendingList data={payoutRequestData} />
         ) : (
           <h3 className="text-center mt-4">No Albums found</h3>
@@ -82,4 +80,4 @@ const payments = ({ params }: { params: { filter: string } }) => {
   );
 };
 
-export default payments;
+export default Payments;

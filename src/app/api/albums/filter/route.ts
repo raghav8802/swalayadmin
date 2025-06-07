@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
     
     // Build the query object
-    let query: any = {};
+    const  query: any = {};
 
     if (status && status !== "All") {
         // Convert status string to corresponding AlbumStatus enum value
