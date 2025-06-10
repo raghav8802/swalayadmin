@@ -37,6 +37,33 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
       },
+      {
+        source: '/api/track/getTracks',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
+      },
+      {
+        source: '/api/shemaroo/getalbums',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
+      },
+      {
+        source: '/api/shemaroo/updatealbumstatus',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' },
+          { key: 'Access-Control-Allow-Methods', value: 'POST,OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+        ],
+      },
+
+
+
     ];
   }
 

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Track from "@/models/track";
 import { connect } from "@/dbConfig/dbConfig";
+
+
 export async function GET() {
   await connect();
 

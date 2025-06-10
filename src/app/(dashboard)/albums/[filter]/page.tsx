@@ -100,7 +100,7 @@ const Albums = ({ params }: { params: { filter: string } }) => {
         </div>
 
         <div className={Style.musicList}>
-          {albumList.length > 0 ? (
+          {albumList && albumList.length > 0 ? (
             <AlbumDataTable data={albumList} />
           ) : (
             <h3 className="text-center mt-4">No Albums found</h3>
