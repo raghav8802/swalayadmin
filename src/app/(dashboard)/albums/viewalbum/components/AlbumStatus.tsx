@@ -6,12 +6,12 @@ interface AlbumStatusProps {
 }
 
 const AlbumStatus: React.FC<AlbumStatusProps> = ({ status = 0, comment='' }) => {
+
   let statusInfo = {
     text: "",
     colorClass: "",
   };
 
-  
 
   switch (status) {
     case 0:

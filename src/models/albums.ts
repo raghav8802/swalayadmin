@@ -8,6 +8,14 @@ export enum AlbumStatus {
   Live = 4,
 }
 
+
+export enum ShemarooStatus {
+  Draft = 0, // Shemaroo draft - album is in draft state
+  Approved = 1, // Shemaroo approved - send album to Shemaroo
+  Live = 2, // Shemaroo live - album is live on Shemaroo
+  Rejected = 3, // Shemaroo rejected - album is not live on Shemaroo
+}
+
 // Define the interface for the Album document
 interface IAlbum extends Document {
   labelId: mongoose.Schema.Types.ObjectId;
@@ -24,6 +32,7 @@ interface IAlbum extends Document {
   status: AlbumStatus; //update album status
   tags?: string[] | null;
   comment: string;
+  shemaroDeliveryStatus?: ShemarooStatus;
 }
 
 // Define the schema for the Album collection
@@ -87,6 +96,11 @@ const albumSchema: Schema = new Schema({
     type: String,
     default: null,
   },
+  shemaroDeliveryStatus: {
+    type: Number,
+    enum: ShemarooStatus,
+    default: ShemarooStatus.Draft,
+  },
   date: {
     type: Date,
     default: Date.now,
@@ -95,7 +109,6 @@ const albumSchema: Schema = new Schema({
 });
 
 // Create the model for the Album collection
-const Album =
-  mongoose.models.Album || mongoose.model<IAlbum>("Album", albumSchema);
+const Album = mongoose.models.Album || mongoose.model<IAlbum>("Album", albumSchema);
 
 export default Album;

@@ -60,7 +60,7 @@ const EmployeeSchema = new Schema<IEmployee>({
       required: true,
       validate: {
         validator: (phone: string) => /^[0-9]{10}$/.test(phone), // Ensure 10-digit phone number
-        message: 'Phone number must be a 10-digit number',
+        message: 'Phone number must be a 10-digit number a',
       },
     },
     address: { type: String, required: true },

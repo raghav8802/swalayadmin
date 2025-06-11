@@ -12,6 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import { EmployeeDataTable } from "./components/EmployeeDataTable";
 import Link from "next/link";
@@ -86,6 +87,7 @@ export default function UserManagement() {
     }
   };
 
+  
   return (
     <div
       className="w-full h-full p-6 bg-white rounded-sm"
@@ -121,8 +123,6 @@ export default function UserManagement() {
               </Button>
             </div>
           </div>
-
-
         </div>
 
         <div>

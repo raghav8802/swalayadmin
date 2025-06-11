@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
         }
 
         const tokenData = {
-            id: admin._id,
-            username: admin.username
+            id: admin?._id,
+            username: admin?.username
         };
 
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: '5d' });

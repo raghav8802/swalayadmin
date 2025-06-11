@@ -13,14 +13,22 @@ export async function POST(request: NextRequest) {
 
     try {
         const reqBody = await request.json();
+
+        console.log("reqBody :: ", reqBody);
+
         const { email, password } = reqBody;
 
         const user = await Admin.findOne({ email });
+
+        console.log("user :: ", user);
+        
+
         if (!user) {
+            console.log("User doesn't exist 1");
             return NextResponse.json({
                 status: 400,
                 success: false,
-                error: "User doesn't exist"
+                error: "User doesn't exist 1"
             });
         }
 

@@ -72,6 +72,7 @@ const Navbar = () => {
     { path: "/profile", name: "Profile", icon: "bi-person" },
     { path: "/employees", name: "Employees", icon: "bi-gear" },
     { path: "/support", name: "Support", icon: "bi-chat-left" },
+    { path: "/shemaroo", name: "Shemaroo", icon: "bi-music-note-beamed" },
   ];
 
   // Filter menu items based on the user type

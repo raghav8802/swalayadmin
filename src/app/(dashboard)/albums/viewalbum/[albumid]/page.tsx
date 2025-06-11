@@ -14,6 +14,7 @@ import DeleteButton from "./components/DeleteButton";
 import AlbumStatusUpdate from "./components/AlbumStatusUpdate";
 import UserContext from "@/context/userContext";
 import { Modal } from "@/components/Modal";
+import { ShemarooDeliveryButton } from "./components/ShemarooDeliveryButton";
 
 // import MusicPlayer from '../components/MusicPlayer'
 
@@ -29,6 +30,7 @@ interface AlbumDetails {
   pline: string;
   releasedate: string;
   status: number;
+  shemaroDeliveryStatus: number;
   tags: string[];
   thumbnail: string;
   title: string;
@@ -93,6 +95,8 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
+      console.log("Album details response in viewalbum:", response);
+
       if (response?.data) {
         setAlbumDetails(response.data);
         setIsLoading(false);
@@ -127,14 +131,21 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
     };
 
     try {
-      const response = await apiPost<UpdateStatusResponse, UpdateStatusPayload>("/api/albums/updateStatus", payload);
+      const response = await apiPost<UpdateStatusResponse, UpdateStatusPayload>(
+        "/api/albums/updateStatus",
+        payload
+      );
 
       if (response?.success) {
         toast.success("Thank you! Your album(s) are currently being processed");
-        setAlbumDetails(prev => prev ? {
-          ...prev,
-          status: AlbumProcessingStatus.Processing,
-        } : null);
+        setAlbumDetails((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: AlbumProcessingStatus.Processing,
+              }
+            : null
+        );
       } else {
         toast.error(response?.message || "Failed to update status");
       }
@@ -148,19 +159,23 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
     if (!albumId || !albumDetails) return;
 
     try {
-      const response = await apiPost<UpdateStatusResponse, { id: string; upc: string }>(
-        "/api/albums/updateUPC",
-        {
-          id: albumId,
-          upc: editedUPC
-        }
-      );
+      const response = await apiPost<
+        UpdateStatusResponse,
+        { id: string; upc: string }
+      >("/api/albums/updateUPC", {
+        id: albumId,
+        upc: editedUPC,
+      });
 
       if (response?.success) {
-        setAlbumDetails(prev => prev ? {
-          ...prev,
-          upc: editedUPC
-        } : null);
+        setAlbumDetails((prev) =>
+          prev
+            ? {
+                ...prev,
+                upc: editedUPC,
+              }
+            : null
+        );
         setIsUPCModalOpen(false);
         toast.success("UPC updated successfully");
       } else {
@@ -208,9 +223,40 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
               />
             </div>
           )}
-          <h2 className={Style.albumTitle}>
-            {albumDetails && albumDetails.title}
-          </h2>
+
+          <div className=" flex items-center justify-between w-full mb-3">
+            <h2 className={` w-[65%] text-wrap ${Style.albumTitle}`}>
+              {albumDetails && albumDetails.title}
+            </h2>
+
+            <div className=" w-[35%]">
+              {userType !== "customerSupport" && (
+                <div className="flex items-center justify-between w-full">
+                  {albumDetails &&
+                    albumDetails.status !== AlbumProcessingStatus.Live && (
+                      <Link
+                        href={`/albums/addtrack/${btoa(albumId as string)}`}
+                        className={`mt-4 mb-2 me-3 btn ${Style.albumAddTrack} p-3`}
+                      >
+                        <i className="me-2 bi bi-plus-circle"></i>
+                        Add
+                      </Link>
+                    )}
+
+                  <Link
+                    href={`/albums/edit/${btoa(albumId as string)}`}
+                    className={`mt-4 mb-2 ${Style.albumEditBtn} p-3`}
+                  >
+                    <i className="me-2 bi bi-pencil-square"></i>
+                    Edit
+                  </Link>
+
+                  {albumId && <DeleteButton albumId={albumId} />}
+                </div>
+              )}
+            </div>
+          </div>
+
           <p className={`${Style.albumArtist} mb-2`}>
             {albumDetails && albumDetails.artist}
           </p>
@@ -246,7 +292,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
                 </span>
                 <div className="flex items-center gap-2">
                   {albumDetails?.upc || "Not set"}
-                  {userType !== "customerSupport"  && (
+                  {userType !== "customerSupport" && (
                     <button
                       onClick={() => {
                         setIsUPCModalOpen(true);
@@ -301,25 +347,6 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
           {userType !== "customerSupport" && (
             <div className="flex">
               {albumDetails &&
-                albumDetails.status !== AlbumProcessingStatus.Live && (
-                  <Link
-                    href={`/albums/addtrack/${btoa(albumId as string)}`}
-                    className={`mt-4 mb-2 me-3 btn ${Style.albumAddTrack} p-3`}
-                  >
-                    <i className="me-2 bi bi-plus-circle"></i>
-                    Add track
-                  </Link>
-                )}
-
-              <Link
-                href={`/albums/edit/${btoa(albumId as string)}`}
-                className={`mt-4 mb-2 ${Style.albumEditBtn} p-3`}
-              >
-                <i className="me-2 bi bi-pencil-square"></i>
-                Edit Album
-              </Link>
-
-              {albumDetails &&
                 (albumDetails.status === AlbumProcessingStatus.Draft ||
                   albumDetails.status === AlbumProcessingStatus.Rejected) &&
                 albumDetails.totalTracks > 0 && (
@@ -332,11 +359,15 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
                   </button>
                 )}
 
-              {albumId && <DeleteButton albumId={albumId} />}
+              {albumDetails &&
+                <ShemarooDeliveryButton albumId={albumDetails._id} shemarooDeliveryStatus={albumDetails.shemaroDeliveryStatus} />
+              }
+
+
             </div>
           )}
 
-          { userType !== "customerSupport" &&  albumId && (
+          {userType !== "customerSupport" && albumId && (
             <AlbumStatusUpdate
               albumid={albumId}
               labelid={albumDetails?.labelId as string}

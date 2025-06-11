@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
           status: 400,
         });
       }
-      
     }
 
     const extingUserVerifiedByEmail = await Label.findOne({ email });
@@ -88,6 +87,7 @@ export async function POST(request: NextRequest) {
         }),
       }
     );
+    
 
     const razorpayData = (await razorpayResponse.json()) as RazorpayResponse;
 

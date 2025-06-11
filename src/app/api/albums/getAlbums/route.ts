@@ -9,18 +9,19 @@ export async function GET(req: NextRequest) {
 
 
     try {
-        const albums = await Album.find({ status: 1 });
+        // const albums = await Album.find({ status: 2 });
+        const albums = await Album.find({ status: 2 }).sort({ _id: -1 });
 
         if (!albums) {
             return NextResponse.json({
                 message: "Albums are found",
-                success: true,
+                success: false,
                 status: 404,
             })
         }
 
         return NextResponse.json({
-            message: "Albums are found",
+            message: "Albums are found admin",
             success: true,
             status: 200,
             data: albums

@@ -33,6 +33,8 @@ const SignIn = () => {
         otp
       });
 
+      console.log(response);
+
       if (response.success) {
         toast.success("Login successful");
         setTimeout(() => {

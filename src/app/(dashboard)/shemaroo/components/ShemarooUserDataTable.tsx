@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Style from '../../../styles/MusicListItem.module.css'
 
 import {
     ColumnDef,
