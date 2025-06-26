@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
   try {
     const { trackId, status } = await request.json();
 
+    console.log("Received data:", { trackId, status });
+
     if (!trackId || !status) {
       return NextResponse.json(
         { success: false, message: "Missing required fields" },
@@ -41,9 +43,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error updating delivery status:", error);
+
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }
     );
+    
   }
 } 

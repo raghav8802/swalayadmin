@@ -289,12 +289,14 @@ export async function POST(req: Request) {
 
     const responseData :any = await externalApiResponse.json();
 
+        // Add logging to see the actual response structure
+    console.log('Response Data:', responseData);
+
     if (!externalApiResponse.ok) {
       return NextResponse.json(responseData, { status: externalApiResponse.status });
     }
 
-    // Add logging to see the actual response structure
-    console.log('Response Data:', responseData);
+
 
     // Check if data and signed_albums exist and have content
     if (!responseData.data?.signed_albums?.length) {

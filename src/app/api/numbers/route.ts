@@ -20,7 +20,7 @@ export async function GET() {
 
     // Fetch the total labels
     const totalLabels = await Label.countDocuments();
-    console.log('Total Labels Count:', totalLabels);
+    
     
     // Count the albums with status 'Processing'
     const upcomingReleases = await Album.countDocuments({ status: AlbumStatus.Processing });
@@ -32,7 +32,6 @@ export async function GET() {
       upcomingReleases,
     };
 
-    console.log('API Response Data:', data);
 
     return NextResponse.json({
       message: "Numbers are fetched",

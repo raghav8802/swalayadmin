@@ -30,6 +30,7 @@ export default function MyTickets() {
     const fetchTickets = async () => {
       try {
         const response:any = await apiGet('/api/support/getAllTickets');
+        console.log(response);
         if (response.success) {
           setTickets(response.data);
         } else {

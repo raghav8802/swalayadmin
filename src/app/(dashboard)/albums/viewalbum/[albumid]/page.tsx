@@ -38,9 +38,14 @@ interface AlbumDetails {
   upc: string | null;
   _id: string;
 }
+interface LabelDetails {
+  username: string;
+  usertype: string;
+  lable: string;
+}
 
 interface ApiResponse {
-  data: AlbumDetails;
+  data: { album: AlbumDetails, label: LabelDetails } | null;
   success: boolean;
   message?: string;
 }
@@ -74,6 +79,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [albumDetails, setAlbumDetails] = useState<AlbumDetails | null>(null);
+  const [LabelDetails, setLabelDetails] = useState<LabelDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUPCModalOpen, setIsUPCModalOpen] = useState(false);
@@ -95,10 +101,10 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
-      console.log("Album details response in viewalbum:", response);
 
       if (response?.data) {
-        setAlbumDetails(response.data);
+        setAlbumDetails(response.data.album);
+        setLabelDetails(response.data.label);
         setIsLoading(false);
       } else {
         setError("Invalid Url");
@@ -312,7 +318,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
               </span>{" "}
               {albumDetails?.releasedate
                 ? new Date(albumDetails.releasedate).toLocaleDateString(
-                    "en-US",
+                    "en-IN",
                     { year: "numeric", month: "long", day: "numeric" }
                   )
                 : ""}
@@ -329,7 +335,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
                 Submission Date:{" "}
               </span>
               {albumDetails?.date
-                ? new Date(albumDetails.date).toLocaleDateString("en-US", {
+                ? new Date(albumDetails.date).toLocaleDateString("en-IN", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -342,6 +348,32 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
               </span>
               {albumDetails ? `℗ ${albumDetails.pline}` : ""}
             </li>
+            <li className={`mb-2 ${Style.albumInfoItem}`}>
+              <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                Uploaded By:{" "}
+              </span>
+              {LabelDetails ? (
+                <Link
+                  href={`/labels/${btoa(LabelDetails.username)}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  {LabelDetails.username} | {LabelDetails.lable}{" "}
+                  <span
+                  className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                    LabelDetails.usertype === "super"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-blue-100 text-blue-800"
+                  }`}
+                  >
+                  {LabelDetails.usertype === "super" ? "Label" : "Artist"}
+                  </span>
+                </Link>
+              ) : (
+                "Unknown"
+              )}
+            </li>
+
+
           </ul>
 
           {userType !== "customerSupport" && (
@@ -359,11 +391,12 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
                   </button>
                 )}
 
-              {albumDetails &&
-                <ShemarooDeliveryButton albumId={albumDetails._id} shemarooDeliveryStatus={albumDetails.shemaroDeliveryStatus} />
-              }
-
-
+              {albumDetails && (
+                <ShemarooDeliveryButton
+                  albumId={albumDetails._id}
+                  shemarooDeliveryStatus={albumDetails.shemaroDeliveryStatus}
+                />
+              )}
             </div>
           )}
 

@@ -108,6 +108,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const [isDelivering, setIsDelivering] = useState(false);
   const [isISRCModalOpen, setIsISRCModalOpen] = useState(false);
   const [editedISRC, setEditedISRC] = useState("");
+  const [cosmosDeliveryStatus, setCosmosDeliveryStatus] = useState("")
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -116,6 +117,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
       const albumResponse:any = await apiGet(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
+
+      
 
       if (albumResponse.success) {
         setAlbumDetails(albumResponse.data);
@@ -133,6 +136,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
       const response:any = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
       );
+
+      console.log("Response from getTrackDetails API:", response);
 
       if (response.success) {
         setTrackDetails(response.data);
@@ -196,6 +201,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
+
   const uploadToComos = async (albumId: any) => {
     if (isDelivering) {
       return;
@@ -205,12 +211,17 @@ const TrackDetails: React.FC<TrackListProps> = ({
     toast.loading("Uploading to cosmos");
     try {
       const response:any = await apiPost("/api/cosmos/fetchdata", { albumId });
+
+      console.log("Response from cosmos API:", response);
+
       if (response.success) {
         // Update the track's delivery status
         await apiPost("/api/track/updateDeliveryStatus", {
           trackId,
           status: 'delivered'
         });
+        console.log("Track delivery status updated to delivered 1");
+
         setTrackDetails(prev => prev ? {
           ...prev,
           deliveryStatus: 'delivered'
@@ -222,6 +233,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
           trackId,
           status: 'failed'
         });
+        console.log("Track delivery status updated to failed 2");
+
         setTrackDetails(prev => prev ? {
           ...prev,
           deliveryStatus: 'failed'
@@ -238,8 +251,9 @@ const TrackDetails: React.FC<TrackListProps> = ({
         ...prev,
         deliveryStatus: 'failed'
       } : null);
-      console.log("error in api", error);
+      console.log("error in api 3", error);
       toast.error("Internal server error");
+
     } finally {
       setIsDelivering(false);
     }
@@ -478,6 +492,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
             {(albumStatus === AlbumProcessingStatus.Approved ||
               albumStatus === AlbumProcessingStatus.Live) && (
               <>
+
                 <button
                   className={`ms-3 px-3 py-2 rounded my-3 ${
                     isDelivering
@@ -489,6 +504,12 @@ const TrackDetails: React.FC<TrackListProps> = ({
                   {isDelivering ? 'Uploading...' : 
                    trackDetails?.deliveryStatus ? 'Re Delivery' : 'DSP Delivery'}
                 </button>
+
+                {trackDetails?.deliveryStatus === 'delivered' && (
+                  <span className="text-green-500 ms-2">
+                    <i className="bi bi-check-circle-fill"></i> Delivered
+                  </span>
+                )}
 
                 <button
                   className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
