@@ -43,6 +43,9 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
       const response:any = await apiGet(
         `/api/track/getTracks?albumId=${albumId}`
       );
+
+      console.log("get tracksresponse", response);
+
       if (response.data) {
         const reversedTracks = response.data.reverse();
         setTracks(reversedTracks);

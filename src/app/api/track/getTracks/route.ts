@@ -18,9 +18,11 @@ export async function GET(req: NextRequest) {
 
   const albumId = req.nextUrl.searchParams.get("albumId");
 
+  // console.log("albumId :->", albumId);
+
   if (!albumId || !mongoose.Types.ObjectId.isValid(albumId)) {
     return NextResponse.json({
-      message: "Invalid albumId",
+      message: "Invalid albumId 1",
       success: false,
       status: 400,
     });
@@ -31,9 +33,11 @@ export async function GET(req: NextRequest) {
     
     const tracks = await Track.find({ albumId: albumId }).sort({ _id: -1 }).exec();
 
+    // console.log("tracks :->", tracks);
+
     if (!tracks || tracks.length === 0) {
       return NextResponse.json({
-        message: "No tracks found for this album",
+        message: "No tracks found for this album 2",
         success: false,
         status: 400,
       });
@@ -91,17 +95,14 @@ export async function GET(req: NextRequest) {
       data: tracksWithArtistNames,
     });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      return NextResponse.json({
-        message: "Internal server error",
-        success: false,
-        status: 500,
-      });
-    }
+
+    console.log("error :->", error);
+    
     return NextResponse.json({
-      message: "Internal server error",
+      message: "Internal server error 4",
       success: false,
       status: 500,
     });
+
   }
 }

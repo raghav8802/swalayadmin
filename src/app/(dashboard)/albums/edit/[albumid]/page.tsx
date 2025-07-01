@@ -72,6 +72,14 @@ interface UpdateAlbumResponse {
   message?: string;
 }
 
+interface LabelData {
+  _id: string;
+  lable: string | null;
+  username: string;
+  usertype: string;
+  email: string;
+}
+
 const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
   // const { id } = useParams(); // Use the album ID from URL
 
@@ -145,6 +153,8 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
   );
   const [selectedPLine, setSelectedPLine] = useState<OptionType | null>(null);
   const [selectedCLine, setSelectedCLine] = useState<OptionType | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<LabelData | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const fetchAlbumData = useCallback(async () => {
     try {
@@ -152,8 +162,12 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
+      console.log("response");
+      console.log(response);
+
       if (response?.success && response?.data) {
-        const album = response.data;
+        const dataAny = response.data as any;
+        const album = dataAny.album ? dataAny.album : dataAny;
         setFormData({
           title: album.title ?? "",
           releaseDate: album.releasedate
@@ -161,7 +175,9 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
             : "",
           artist: album.artist ?? "",
           genre: album.genre ?? "",
-          label: album.label ?? "SwaLay Digital",
+          label: typeof album.label === 'string'
+            ? album.label
+            : ((album.label as any)?.lable || (album.label as any)?.username || (album.label as any)?._id || ""),
           language: album.language ?? "",
           artwork: null,
           pLine: album.pline ?? labelLine,
@@ -468,23 +484,14 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
                 )}
               </div>
 
-              {/* <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Label
                 </label>
-              
-                {errors.label && (
-                  <p className="text-red-500 text-sm mt-1">{errors.label[0]}</p>
-                )}
-              </div> */}
-              <input
-                type="hidden"
-                name="label"
-                value={formData.label}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Label Name"
-              />
+                <div className="mt-1 p-2 border border-gray-300 rounded bg-gray-100 text-gray-700">
+                  {formData.label}
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -492,20 +499,13 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
                 <label className="block text-sm font-medium text-gray-700">
                   P-Line
                 </label>
-                <select
+                <input
+                  type="text"
                   name="pLine"
                   value={formData.pLine}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Select P-Line</option>
-                  {pLineOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
+                  readOnly
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
                 {errors.pLine && (
                   <p className="text-red-500 text-sm mt-1">{errors.pLine[0]}</p>
                 )}
@@ -515,20 +515,13 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
                 <label className="block text-sm font-medium text-gray-700">
                   C-Line
                 </label>
-                <select
+                <input
+                  type="text"
                   name="cLine"
                   value={formData.cLine}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Select C-Line</option>
-                  {cLineOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
+                  readOnly
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
                 {errors.cLine && (
                   <p className="text-red-500 text-sm mt-1">{errors.cLine[0]}</p>
                 )}

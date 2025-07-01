@@ -52,6 +52,7 @@
     "react-hot-toast": "^2.4.1",
     "react-multi-select-component": "^4.3.4",
     "react-quill": "^2.0.0",
+    "react-select": "^5.10.1",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.6",
     "recharts": "^2.12.7",

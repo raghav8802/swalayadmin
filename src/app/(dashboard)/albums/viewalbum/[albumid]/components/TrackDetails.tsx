@@ -565,6 +565,40 @@ const TrackDetails: React.FC<TrackListProps> = ({
                     </span>{" "}
                     {trackDetails && trackDetails.trackType}
                   </li>
+
+                  <li className={`mb-2 ${Style.albumInfoItem}`}>
+                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      CRBT:
+                    </span>{" "}
+                    {trackDetails && trackDetails.crbt}
+                  </li>
+                  <li className={`mb-2 ${Style.albumInfoItem}`}>
+                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      Duration:
+                    </span>{" "}
+                    {trackDetails && trackDetails.duration
+                      ? (() => {
+                          const durationNum = Number(trackDetails.duration);
+                          if (!isNaN(durationNum)) {
+                            const minutes = Math.floor(durationNum / 60);
+                            const seconds = Math.floor(durationNum % 60);
+                            // Format seconds as two digits, but use dot instead of colon
+                            return `${minutes}.${seconds.toString().padStart(2, "0")}`;
+                          }
+                          return trackDetails.duration;
+                        })()
+                      : "Not set"}
+
+                  </li>
+                  <li className={`mb-2 ${Style.albumInfoItem}`}>
+                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      COSMOS Delivery Status:
+                    </span>{" "}
+                    {trackDetails && trackDetails.deliveryStatus}
+                  </li>
+
+
+
                 </ul>
               </div>
             </TabsContent>

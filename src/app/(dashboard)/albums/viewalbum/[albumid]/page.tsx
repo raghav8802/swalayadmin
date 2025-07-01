@@ -235,13 +235,13 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
               {albumDetails && albumDetails.title}
             </h2>
 
-            <div className=" w-[35%]">
+            <div className=" w-[35%] ">
               {userType !== "customerSupport" && (
                 <div className="flex items-center justify-between w-full">
                   {albumDetails &&
                     albumDetails.status !== AlbumProcessingStatus.Live && (
                       <Link
-                        href={`/albums/addtrack/${btoa(albumId as string)}`}
+                        href={`/albums/addtrack/${btoa(albumId as string)}?label=${btoa(albumDetails?.labelId as string)}`}
                         className={`mt-4 mb-2 me-3 btn ${Style.albumAddTrack} p-3`}
                       >
                         <i className="me-2 bi bi-plus-circle"></i>
@@ -409,6 +409,8 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
             />
           )}
         </div>
+        
+
       </div>
 
       {/* list of tracks  */}

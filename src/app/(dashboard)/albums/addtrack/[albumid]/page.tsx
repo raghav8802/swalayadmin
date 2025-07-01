@@ -11,9 +11,8 @@ import {
 import ErrorSection from "@/components/ErrorSection";
 import toast from "react-hot-toast";
 import { apiFormData, apiGet } from "@/helpers/axiosRequest";
-import UserContext from "@/context/userContext";
 import { MultiSelect } from "react-multi-select-component";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Uploading from "@/components/Uploading";
 
 interface Person {
@@ -35,8 +34,9 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const context = useContext(UserContext);
-  const labelId = context?.user?._id;
+  // Get labelId from URL query string
+  const searchParams = useSearchParams();
+  const labelId = searchParams.get("label") ? atob(searchParams.get("label")!) : null;
 
   const router = useRouter();
 
@@ -80,25 +80,21 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
 
   const handleSelectChange =
     (type: string) => (selectedItems: ArtistTypeOption[]) => {
-      if (selectedItems.length > 3) {
-        toast.error("You can select a maximum of 3 items.");
-      } else {
-        switch (type) {
-          case "singer":
-            setSelectedSingers(selectedItems);
-            break;
-          case "lyricist":
-            setSelectedLyricists(selectedItems);
-            break;
-          case "composer":
-            setSelectedComposers(selectedItems);
-            break;
-          case "producer":
-            setSelectedProducers(selectedItems);
-            break;
-          default:
-            break;
-        }
+      switch (type) {
+        case "singer":
+          setSelectedSingers(selectedItems);
+          break;
+        case "lyricist":
+          setSelectedLyricists(selectedItems);
+          break;
+        case "composer":
+          setSelectedComposers(selectedItems);
+          break;
+        case "producer":
+          setSelectedProducers(selectedItems);
+          break;
+        default:
+          break;
       }
     };
 
@@ -152,39 +148,56 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
 
     const audio = new Audio(URL.createObjectURL(audioFile));
 
-    audio.onloadedmetadata = () => {
-      const audioDuration = audio.duration;
-      formData.append("duration", audioDuration.toString());
+    const loadAudioMetadata = new Promise<void>((resolve, reject) => {
+      audio.onloadedmetadata = () => {
+        const audioDuration = audio.duration;
+        formData.append("duration", audioDuration.toString());
 
-      const callerTuneDuration = convertToSeconds(callerTuneTime);
-      if (callerTuneDuration > audioDuration) {
-        toast.error(
-          "Caller Tune Time can't be greater than audio file duration."
-        );
-        return;
-      }
-    };
-
-    formData.append(
-      "singers",
-      JSON.stringify(selectedSingers.map((s) => s.value))
-    );
-    formData.append(
-      "composers",
-      JSON.stringify(selectedComposers.map((c) => c.value))
-    );
-    formData.append(
-      "lyricists",
-      JSON.stringify(selectedLyricists.map((l) => l.value))
-    );
-    formData.append(
-      "producers",
-      JSON.stringify(selectedProducers.map((p) => p.value))
-    );
+        const callerTuneDuration = convertToSeconds(callerTuneTime);
+        if (callerTuneDuration > audioDuration) {
+          toast.error(
+            "Caller Tune Time can't be greater than audio file duration."
+          );
+          reject(
+            new Error(
+              "Caller Tune Time can't be greater than audio file duration."
+            )
+          );
+        } else {
+          resolve();
+        }
+      };
+      audio.onerror = () => reject(new Error("Failed to load audio metadata"));
+    });
 
     try {
+      await loadAudioMetadata; // Wait for metadata to be loaded
+
+      formData.append(
+        "singers",
+        JSON.stringify(selectedSingers.map((s) => s.value))
+      );
+      formData.append(
+        "composers",
+        JSON.stringify(selectedComposers.map((c) => c.value))
+      );
+      formData.append(
+        "lyricists",
+        JSON.stringify(selectedLyricists.map((l) => l.value))
+      );
+      formData.append(
+        "producers",
+        JSON.stringify(selectedProducers.map((p) => p.value))
+      );
+
+      // Add this to ensure primarySinger is included
+      const primarySingerValue = formData.get("primarySinger") as string;
+      formData.set("primarySinger", primarySingerValue || "");
+
       setIsUploading(true);
       const response = await apiFormData("/api/track/addtrack", formData) as { success: boolean; message?: string };
+
+      console.log("response : response", response);
 
       if (response.success) {
         toast.success("Song uploaded successfully!");
@@ -195,7 +208,7 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
       }
     } catch (error) {
       setIsUploading(false);
-      toast.error("Something went wrong while uploading the song.");
+      toast.error((error as Error).message || "Something went wrong while uploading the song.");
       console.error("Error:", error);
     }
   }, [albumId, callerTuneTime, selectedSingers, selectedComposers, selectedLyricists, selectedProducers, router]);
@@ -295,24 +308,12 @@ export default function NewTrack({ params }: { params: { albumid: string } }) {
                   <label className="block text-sm font-medium mb-2 text-gray-700">
                     Primary Singer
                   </label>
-
-                  <select
+                  <input
                     name="primarySinger"
+                    type="text"
+                    placeholder="Enter Primary Singer Name"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Primary Singer</option>
-                    {artistData &&
-                      artistData.singer.map((singer: any) => (
-                        <option
-                          className="py-2 border"
-                          key={singer.value}
-                          value={singer.value}
-                        >
-                          {singer.label}
-                        </option>
-                      ))}
-                  </select>
-
+                  />
                   {errors.title && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.title._errors[0]}
