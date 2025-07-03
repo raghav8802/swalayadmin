@@ -24,7 +24,7 @@ const nextConfig = {
       {
         source: '/api/albums/getAlbums',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' }, //here will the origin domain of your frontend app
+          { key: 'Access-Control-Allow-Origin', value: 'http://shemaroo.swalayplus.in' }, //here will the origin domain of your frontend app
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
@@ -32,7 +32,7 @@ const nextConfig = {
       {
         source: '/api/albums/getAlbumsDetails',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' }, //here will the origin domain of your frontend app
+          { key: 'Access-Control-Allow-Origin', value: 'http://shemaroo.swalayplus.in' }, //here will the origin domain of your frontend app
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
@@ -40,7 +40,7 @@ const nextConfig = {
       {
         source: '/api/track/getTracks',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' }, //here will the origin domain of your frontend app
+          { key: 'Access-Control-Allow-Origin', value: 'http://shemaroo.swalayplus.in' }, //here will the origin domain of your frontend app
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
@@ -48,7 +48,7 @@ const nextConfig = {
       {
         source: '/api/shemaroo/getalbums',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' }, //here will the origin domain of your frontend app
+          { key: 'Access-Control-Allow-Origin', value: 'http://shemaroo.swalayplus.in' }, //here will the origin domain of your frontend app
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
@@ -56,7 +56,7 @@ const nextConfig = {
       {
         source: '/api/shemaroo/updatealbumstatus',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' }, //here will the origin domain of your frontend app
+          { key: 'Access-Control-Allow-Origin', value: 'http://shemaroo.swalayplus.in' }, //here will the origin domain of your frontend app
           { key: 'Access-Control-Allow-Methods', value: 'POST,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
@@ -64,7 +64,7 @@ const nextConfig = {
       {
         source: '/api/shemaroo/login',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:8080' }, //here will the origin domain of your frontend app
+          { key: 'Access-Control-Allow-Origin', value: 'http://shemaroo.swalayplus.in' }, //here will the origin domain of your frontend app
           { key: 'Access-Control-Allow-Methods', value: 'POST,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
         ],
