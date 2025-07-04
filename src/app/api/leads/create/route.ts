@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Lead from "@/models/leadModel";
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import sendMail from "@/helpers/sendMail";
+import EmailLayout from "@/components/email/EmailLayout";
+import LeadApprovalEmailTemplate from "@/components/email/lead-approval";
+import React from "react";
 
 export async function POST(req: Request) {
   try {
@@ -23,26 +24,16 @@ export async function POST(req: Request) {
     // Create new lead
     const lead = await Lead.create(body);
 
-    // Send email using Resend
-    await resend.emails.send({
-      from: "SwaLay <swalay.care@talantoncore.in>", 
+    // Send email using sendMail
+    const emailTemplate = React.createElement(
+      EmailLayout as React.ElementType,
+      null,
+      React.createElement(LeadApprovalEmailTemplate as React.ElementType, { name: body.name })
+    );
+    await sendMail({
       to: body.email,
       subject: 'Label Application Approved',
-      html: `
-        <h1>Dear ${body.name}!</h1>
-        <p>We are pleased to inform you that your application for the SwaLay Plus Label program has been approved! You are now part of India's leading tech content distribution platform.</p>
-        <p>To proceed, we’ve attached a payment link for Rs. 699 + 18% GST, covering 2 years of unlimited content distribution across all major music streaming platforms. Please complete the payment and share the confirmation with us, so we can activate your SwaLay Plus Label account immediately and get you started on your music distribution journey. </p>
-        <br/>
-        <p><a href="https://app.swalayplus.in/xg6jtv54ghv">Click here to Register</a></p>
-        <br/>
-        <p> For any assistance, feel free to reach out to us at swalay.care@talantoncore.in or via our WhatsApp Support at 01169268163. </p>
-        <p>We look forward to supporting you as you embark on this exciting journey with SwaLay.</p>
-        <br/>
-        <p>Best Regards,</p>
-        <p>Team SwaLay</p>
-
-        
-      `
+      emailTemplate,
     });
 
     return NextResponse.json(

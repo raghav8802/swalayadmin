@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import bcryptjs from 'bcryptjs';
 import Admin from "@/models/admin";
-import { Resend } from 'resend';
+import sendMail from "@/helpers/sendMail";
+import EmailLayout from "@/components/email/EmailLayout";
+import OtpEmailTemplate from "@/components/email/otp";
 import OTP from "@/models/OTP";
+import React from "react";
 
-
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: NextRequest) {
     await connect();
 
@@ -52,12 +52,15 @@ export async function POST(request: NextRequest) {
         });
 
         // Send OTP via email
-        await resend.emails.send({
-            from: "SwaLay <swalay.care@talantoncore.in>",
-            to: email,
-            subject: 'Login OTP for SwaLay-Plus EMP.',
-            html: `<p>Your OTP for login is: <strong>${otp}</strong></p>
-                   <p>This OTP will expire in 10 minutes.</p>`
+        const emailTemplate = React.createElement(
+          EmailLayout as React.ElementType,
+          null,
+          React.createElement(OtpEmailTemplate as React.ElementType, { otp })
+        );
+        await sendMail({
+          to: email,
+          subject: 'Login OTP for SwaLay-Plus EMP.',
+          emailTemplate,
         });
 
         return NextResponse.json({

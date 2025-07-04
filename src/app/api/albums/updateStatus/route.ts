@@ -6,6 +6,8 @@ import Notification from "@/models/notification";
 import AlbumStatusEmailTemplate from "@/components/email/album-status";
 import sendMail from "@/helpers/sendMail";
 import Label from "@/models/Label";
+import EmailLayout from "@/components/email/EmailLayout";
+import React from "react";
 
 export async function POST(req: NextRequest) {
   await connect();
@@ -62,7 +64,6 @@ export async function POST(req: NextRequest) {
         message = `Album <b>${albumName}</b> is Rejected due to ${comment}`;
         MessageforEmail = `Album ${albumName} is Rejected`;
         statusLabel = `rejected`;
-
         break;
       case 4: // Live
         message = `Album <b>${albumName}</b> is Live Now`;
@@ -84,15 +85,24 @@ export async function POST(req: NextRequest) {
     // fetch user email and name
     const user = await Label.findById(labelid, "username email");
 
-    const username = user?.username;
     const userEmail = user?.email;
 
-    const emailTemplate = AlbumStatusEmailTemplate({
-      labelName: username || "",
+    const albumStatusTemplate = AlbumStatusEmailTemplate({
+      labelName: user?.username || "",
       albumName,
       status: statusLabel as "approved" | "rejected" | "live",
       message,
     });
+    const emailTemplate = (
+      <EmailLayout>
+        <AlbumStatusEmailTemplate
+          labelName={user?.username || ""}
+          albumName={albumName}
+          status={statusLabel as "approved" | "rejected" | "live"}
+          message={message}
+        />
+      </EmailLayout>
+    );
 
     await sendMail({
       to: userEmail as string, // Key 'to' must be specified

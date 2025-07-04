@@ -51,6 +51,7 @@
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.52.1",
     "react-hot-toast": "^2.4.1",
+    "react-modal": "^3.16.3",
     "react-multi-select-component": "^4.3.4",
     "react-quill": "^2.0.0",
     "react-select": "^5.10.1",
