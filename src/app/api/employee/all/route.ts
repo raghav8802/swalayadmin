@@ -8,7 +8,7 @@ export async function GET() {
 
   try {
     const EmployeeData = await Employee.find().select(
-      "_id fullName officialEmail phoneNumber role department status"
+      "_id fullName officialEmail phoneNumber role department status salary"
     );
 
     if (!EmployeeData) {

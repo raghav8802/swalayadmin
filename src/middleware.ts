@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
     path === "/register" ||
     path === "/signin" ||
     path === "/verifyemail" ||
+    path === "/employee-onboarding" ||
     path === "/forgotpassword";
 
   const roleAllowedPaths = {
