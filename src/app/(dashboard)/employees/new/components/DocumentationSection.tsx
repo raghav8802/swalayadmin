@@ -149,13 +149,14 @@ const DocumentationSection: React.FC<DocumentationSectionProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const uploadDocument = async (documentType: "nda" | "workPolicy") => {
+  const uploadDocument = async (documentType: "workPolicy" | "nda") => {
     if (!employeeId) {
       toast.error("Please complete Basic Info section first");
       return;
     }
 
-    const file = formData[documentType].document;
+    const docKey = documentType === "nda" ? "ndaSignature" : "workPolicy";
+    const file = formData[docKey].document;
     if (!file) {
       toast.error("Please select a file to upload");
       return;
@@ -191,8 +192,8 @@ const DocumentationSection: React.FC<DocumentationSectionProps> = ({
         // Clear the selected file
         setFormData(prev => ({
           ...prev,
-          [documentType]: {
-            ...prev[documentType],
+          [docKey]: {
+            ...prev[docKey],
             document: null,
           },
         }));

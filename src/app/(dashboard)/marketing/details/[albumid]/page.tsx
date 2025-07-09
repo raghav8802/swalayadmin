@@ -18,6 +18,8 @@ import { Modal } from "@/components/Modal";
 // Loading
 import toast from "react-hot-toast";
 import Loading from "@/app/(dashboard)/loading";
+import { formatDuration } from "@/lib/utils";
+
 
 interface Track {
   composer: string[];
@@ -356,7 +358,7 @@ const Page = ({ params }: { params: { albumid: string } }) => {
                     <TableCell>{track.producer.join(", ")}</TableCell>
                     <TableCell>{track.lyricist.join(", ")}</TableCell>
                     <TableCell>{track.composer.join(", ")}</TableCell>
-                    <TableCell>{track.duration}</TableCell>
+                    <TableCell>{formatDuration(parseFloat(track.duration))}</TableCell>
                     <TableCell>{track.isrc}</TableCell>
                   </TableRow>
                 ))}

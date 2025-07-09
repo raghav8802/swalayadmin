@@ -93,16 +93,14 @@ export async function POST(req: NextRequest) {
       status: statusLabel as "approved" | "rejected" | "live",
       message,
     });
-    const emailTemplate = (
-      <EmailLayout>
-        <AlbumStatusEmailTemplate
-          labelName={user?.username || ""}
-          albumName={albumName}
-          status={statusLabel as "approved" | "rejected" | "live"}
-          message={message}
-        />
-      </EmailLayout>
-    );
+    const emailTemplate = React.createElement(EmailLayout, {
+      children: React.createElement(AlbumStatusEmailTemplate, {
+        labelName: user?.username || "",
+        albumName,
+        status: statusLabel as "approved" | "rejected" | "live",
+        message
+      })
+    });
 
     await sendMail({
       to: userEmail as string, // Key 'to' must be specified
