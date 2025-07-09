@@ -9,6 +9,7 @@ import AudioPlayer from "./AudioPlayer";
 import { toast } from "react-hot-toast";
 import { apiGet } from "@/helpers/axiosRequest";
 
+
 interface TrackSectionProps {
   albumId: string;
   albumStatus: number;
@@ -44,7 +45,7 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
         `/api/track/getTracks?albumId=${albumId}`
       );
 
-      console.log("get tracksresponse", response);
+      console.log("get tracksresponse from view album", response);
 
       if (response.data) {
         const reversedTracks = response.data.reverse();
@@ -73,12 +74,7 @@ const TrackSection: React.FC<TrackSectionProps> = ({ albumId, albumStatus }) => 
           {/* <h5 className={Style.subheading}><i className="bi bi-music-note"></i> Tracks</h5> */}
           <div className={`mt-3 ${Style.trackDetailsTop}`}>
             <h5 className={Style.subheading}>Tracks</h5>
-            <Link
-              href={`/albums/addtrack/${btoa(albumId as string)}`}
-              className={buttonVariants({ variant: "default" })}
-            >
-              <i className="bi bi-plus-circle mr-2"></i> Add Track
-            </Link>
+            
           </div>
 
           {albumId && (

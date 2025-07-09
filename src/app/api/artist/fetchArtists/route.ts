@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     try {
         const labelId = request.nextUrl.searchParams.get("labelId");
 
+        console.log("labelId from fetchArtists", labelId);
+
         if (!labelId) {
             return NextResponse.json({ status: 400, message: "Label ID is missing", success: false });
         }

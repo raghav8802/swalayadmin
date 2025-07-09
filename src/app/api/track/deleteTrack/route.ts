@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Track from "@/models/track";
-
+import Album from "@/models/albums";
 
 export async function POST(request: NextRequest) {
   try {
     await connect(); // Connect to the database
 
     const body = await request.json();
-    const id = body.trackId
-    console.log(id);
-    
+    const id = body.trackId;
+
 
     if (!id) {
       return NextResponse.json({
@@ -22,6 +21,14 @@ export async function POST(request: NextRequest) {
 
     // Find and delete the Track by ID
     const deletedAlbum = await Track.findByIdAndDelete(id);
+
+    // Get the albumId from the deleted track
+    const albumId = deletedAlbum?.albumId;
+
+    if (albumId) {
+      const trackCount = await Track.countDocuments({ albumId });
+      await Album.findByIdAndUpdate(albumId, { totalTracks: trackCount });
+    }
 
     if (!deletedAlbum) {
       return NextResponse.json({

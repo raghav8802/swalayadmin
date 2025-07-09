@@ -9,6 +9,11 @@ export async function POST(req: NextRequest) {
   try {
     await connect();
     const formData = await req.formData();
+    console.log("formData from addtrack route: ---------------------------------");
+    formData.forEach((value, key) => {
+      console.log("key : key", key);
+      console.log("value : value", value);
+    });
 
     const albumId = formData.get("albumId")?.toString();
 
@@ -66,7 +71,9 @@ export async function POST(req: NextRequest) {
     };
 
 
+
     const audioFile = formData.get("audioFile") as File;
+  
     
 
     if (!audioFile) {
@@ -80,9 +87,9 @@ export async function POST(req: NextRequest) {
     const songName = (formData.get("songName") as string).trim();
     const songNameNoSpace = songName.replace(/ /g, "-");
     
-
     const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
     const audioFileExtension = audioFile.name.split(".").pop();
+    
     const audioFileName = `${songNameNoSpace}-${Date.now()}.${audioFileExtension}`;
 
     const uploadResult = await uploadTrackToS3({
@@ -91,8 +98,10 @@ export async function POST(req: NextRequest) {
       folderName: albumId,
     });
 
+  
 
     if (!uploadResult.status) {
+
       return NextResponse.json({
         message: "Failed to upload audio file",
         success: false,
@@ -102,7 +111,7 @@ export async function POST(req: NextRequest) {
 
     const newTrack = new Track({
       ...data,
-      audioFile: uploadResult.fileName
+      audioFile: audioFileName
     });
     
     await newTrack.save();

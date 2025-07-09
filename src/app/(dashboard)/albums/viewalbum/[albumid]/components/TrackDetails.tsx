@@ -109,16 +109,21 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const [isISRCModalOpen, setIsISRCModalOpen] = useState(false);
   const [editedISRC, setEditedISRC] = useState("");
   const [cosmosDeliveryStatus, setCosmosDeliveryStatus] = useState("")
+  const [labelId, setLabelId] = useState("");
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const fetchAlbumDetails = useCallback(async (albumId: string) => {
     try {
+
       const albumResponse:any = await apiGet(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
+      console.log("Response from getAlbumsDetails API :::::->>>:", albumResponse);
       
+      console.log(albumResponse.data.label._id);
+      setLabelId(albumResponse.data.label._id);
 
       if (albumResponse.success) {
         setAlbumDetails(albumResponse.data);
@@ -438,9 +443,12 @@ const TrackDetails: React.FC<TrackListProps> = ({
             >
               Link
             </button>
-            <Link href={`/albums/edittrack/${btoa(trackId)}`}>
-              <i className="bi bi-pencil-square" title="Edit track"></i>
-            </Link>
+              {trackId && labelId && (
+                 <Link href={`/albums/edittrack/${btoa(trackId)}?labelId=${btoa(labelId)}`}>
+                 <i className="bi bi-pencil-square" title="Edit track"></i>
+               </Link>
+            ) }
+           
             {trackDetails?.audioFile && (
               <div onClick={handleDownload}>
                 <i className="bi bi-download"></i>

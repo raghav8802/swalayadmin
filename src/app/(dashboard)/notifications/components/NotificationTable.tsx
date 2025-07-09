@@ -2,19 +2,9 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-
-import {
-    ColumnDef,
-    SortingState,
-    getCoreRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-    flexRender,
-} from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DataTable } from "@/components/ui/data-table";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
 
@@ -64,26 +54,26 @@ const columns: ColumnDef<Notification>[] = [
     },
     {
         id: "actions",
+        header: "Actions",
         cell: ({ row }) => {
             const notification = row.original;
             
             const handleDelete = async () => {
-                toast.loading("Deleting...")
+                toast.loading("Deleting...");
                 try {
                     const response:any = await apiPost(`/api/notification/delete?notificationId=${notification._id}`, {});
                     if (response.success) {
-                        toast.success("Notification is Deleted")
-                        window.location.reload()
+                        toast.success("Notification is Deleted");
+                        window.location.reload();
                     }
-                    // Refresh data or remove item from table state
-                    console.log("notification delete");
                 } catch (error) {
                     console.error("Error deleting notification:", error);
+                    toast.error("Failed to delete notification");
                 }
             };
 
             return (
-                <Button variant="ghost" className="bg-red-500 text-white" onClick={handleDelete}>
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
                     Delete
                 </Button>
             );
@@ -93,81 +83,29 @@ const columns: ColumnDef<Notification>[] = [
 
 export function NotificationTable() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [sorting, setSorting] = React.useState<SortingState>([]);
 
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
                 const response:any = await apiGet("/api/notification/getAll");
-                console.log("get api notification :");
-                console.log(response);
-                
-                setNotifications(response.data);
+                if (response.success) {
+                    setNotifications(response.data);
+                } else {
+                    toast.error("Failed to fetch notifications");
+                }
             } catch (error) {
                 console.error("Error fetching notifications:", error);
+                toast.error("Error loading notifications");
             }
         };
 
         fetchNotifications();
     }, []);
 
-    const table = useReactTable({
-        data: notifications,
-        columns,
-        onSortingChange: setSorting,
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        state: { sorting },
-    });
-
     return (
-        <div className="w-full">
-            <div className="flex items-center py-4">
-                {/* Add any filtering or sorting controls here */}
-            </div>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                ))}
-                            </TableRow>
-                        ))}
-                    </TableHeader>
-                    <TableBody>
-                        {table.getRowModel().rows.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow key={row.id}>
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="text-center">
-                                    No notifications available.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+        <div className="w-full space-y-4">
+            <h2 className="text-2xl font-bold tracking-tight">Notifications</h2>
+            <DataTable columns={columns} data={notifications} />
         </div>
     );
 }

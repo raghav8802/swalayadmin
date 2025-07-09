@@ -4,6 +4,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface ITrack extends Document {
   albumId: mongoose.Schema.Types.ObjectId;
   songName: string | null;
+  featuredArtist: string | null;
   primarySinger: string | null;
   singers: string[] | null; // it will store array of string like this ['singerid', 'singerid', 'singerid']
   composers: string[] | null; // it will store array of string like this ['singerid', 'singerid', 'singerid']
@@ -43,6 +44,10 @@ const trackSchema: Schema<ITrack> = new Schema({
     default: null,
   },
   primarySinger: {
+    type: String,
+    default: null,
+  },
+  featuredArtist: {
     type: String,
     default: null,
   },

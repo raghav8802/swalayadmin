@@ -16,7 +16,16 @@ import { MultiSelect } from "react-multi-select-component";
 import { NotificationTable } from "./components/NotificationTable";
 
 // Dynamically import react-quill with no SSR (server-side rendering)
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+    return RQ;
+  },
+  {
+    ssr: false,
+    loading: () => <p>Loading editor...</p>,
+  }
+);
 
 interface LabelData {
   _id: string;

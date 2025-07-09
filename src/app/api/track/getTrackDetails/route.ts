@@ -36,9 +36,6 @@ export async function GET(req: NextRequest) {
     };
 
     // Fetch details for all roles
-    const primarySingerDetails = track.primarySinger
-      ? await Artist.findById(track.primarySinger).select("_id artistName")
-      : null;
     const singersDetails = await fetchArtists(track.singers);
     const composersDetails = await fetchArtists(track.composers);
     const lyricistsDetails = await fetchArtists(track.lyricists);
@@ -47,7 +44,7 @@ export async function GET(req: NextRequest) {
     // Modify the track data to include both ID and name for each role
     const trackDetails = {
       ...track.toObject(),
-      primarySinger: primarySingerDetails,
+      primarySinger: track.primarySinger,
       singers: singersDetails,
       composers: composersDetails,
       lyricists: lyricistsDetails,

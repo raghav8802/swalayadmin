@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     // Collect all unique artist IDs
     const artistIds = new Set<string>();
     tracks.forEach((track) => {
-      if (track.primarySinger) artistIds.add(track.primarySinger);
+      // Remove primarySinger from artistIds since it's a direct name, not an ID
       if (track.singers)
         track.singers.forEach((id: string) => artistIds.add(id));
       if (track.composers)
@@ -62,18 +62,16 @@ export async function GET(req: NextRequest) {
 
     // Create a map of artist IDs to artist names
     const artistNameMap: ArtistNameMap = artists.reduce((map, artist) => {
-      const artistId = artist._id as unknown as mongoose.Types.ObjectId; // Use unknown first
+      const artistId = artist._id as unknown as mongoose.Types.ObjectId;
       map[artistId.toString()] = artist.artistName;
-
       return map;
     }, {} as ArtistNameMap);
 
     // Replace artist IDs with names in tracks
     const tracksWithArtistNames = tracks.map((track) => ({
       ...track.toObject(),
-      primarySinger: track.primarySinger
-        ? artistNameMap[track.primarySinger]
-        : null,
+      // Keep primarySinger as is since it's already a name
+      primarySinger: track.primarySinger,
       singers: track.singers
         ? track.singers.map((id: string) => artistNameMap[id] || null)
         : null,
