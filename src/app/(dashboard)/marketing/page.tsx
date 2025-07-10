@@ -42,23 +42,11 @@ const Page = () => {
   const labelId = context?.user?._id ?? "";
   const [marketingData, setMarketingData] = useState<Album[]>([]);
 
-  // const fetchMarketingDetails = async () => {
-  //   try {
-  //     const response = await apiGet(`/api/marketing/get?labelId=${labelId}`);
-  //     // console.log("response : ");
-  //     // console.log(response);
-  //     if (response.success) {
-  //         setMarketingData(response.data)
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   // const fetchAlbumBymarketing = async () => {
   const fetchAlbumBymarketing = async () => {
     try {
-      // const response = await apiGet(`/api/marketing/fetchAlbumBymarketing?labelId=${labelId}`);
+
       const response:any  = await apiGet(`/api/marketing/fetchAlbumBymarketing`);
 
       if (response.success) {
@@ -94,11 +82,7 @@ const Page = () => {
         All marketings
       </h1>
 
-      {/* <MarketingList data={marketingData} /> */}
-
-      {/* <div className="w-full flex items-center justify-start">
-
-  </div> */}
+      
 
       <div className="w-full flex items-center justify-start flex-wrap" >
         {marketingData &&

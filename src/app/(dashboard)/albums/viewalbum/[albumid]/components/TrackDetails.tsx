@@ -217,7 +217,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     try {
       const response:any = await apiPost("/api/cosmos/fetchdata", { albumId });
 
-      console.log("Response from cosmos API:", response);
+      console.log("Response from cosmos API: STEP 1 DONE", response);
 
       if (response.success) {
         // Update the track's delivery status

@@ -26,6 +26,10 @@ const MarketingCard: React.FC<NewReleaseItemProps> = ({
   switch (status) {
     case "Pitched":
       label = "Pitched";
+      color = "yellow";
+      break;
+    case "Selected":
+      label = "Selected";
       color = "green";
       break;
     case "Not Pitched":

@@ -9,9 +9,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 interface Label {
   _id: string;
@@ -22,7 +43,6 @@ interface Label {
   subscriptionPlan: string;
   subscriptionpaymentId: string;
   subscriptionprice: string;
-  
 }
 
 export default function SubscriptionPage() {
@@ -30,6 +50,81 @@ export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<Label | null>(null);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const getStatusColor = (status: string | undefined | null) => {
+    const statusLower = (status || '').toLowerCase();
+    switch (statusLower) {
+      case 'active':
+        return 'bg-green-500';
+      case 'expired':
+        return 'bg-red-500';
+      case 'pending':
+        return 'bg-yellow-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const columns: ColumnDef<Label>[] = [
+    {
+      id: "serialNumber",
+      header: "Sr. No.",
+      cell: ({ row }) => {
+        return <div>{row.index + 1}</div>;
+      },
+    },
+    {
+      accessorKey: "lable",
+      header: "Label Name",
+      cell: ({ row }) => (
+        <div
+          className="font-medium cursor-pointer text-blue-600 underline"
+          onClick={() => {
+            setSelectedLabel(row.original);
+            setShowModal(true);
+          }}
+        >
+          {row.getValue("lable")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "subscriptionPlan",
+      header: "Subscription Plan",
+    },
+    {
+      accessorKey: "subscriptionStatus",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("subscriptionStatus") as string;
+        return (
+          <Badge className={getStatusColor(status)}>
+            {status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "subscriptionStartDate",
+      header: "Start Date",
+      cell: ({ row }) => {
+        const date = row.getValue("subscriptionStartDate") as string;
+        return date ? format(new Date(date), 'dd/MM/yyyy') : 'N/A';
+      },
+    },
+    {
+      accessorKey: "subscriptionEndDate",
+      header: "End Date",
+      cell: ({ row }) => {
+        const date = row.getValue("subscriptionEndDate") as string;
+        return date ? format(new Date(date), 'dd/MM/yyyy') : 'N/A';
+      },
+    },
+  ];
 
   useEffect(() => {
     fetchLabels();
@@ -52,84 +147,139 @@ export default function SubscriptionPage() {
     }
   };
 
-  const getStatusColor = (status: string | undefined | null) => {
-    const statusLower = (status || '').toLowerCase();
-    switch (statusLower) {
-      case 'active':
-        return 'bg-green-500';
-      case 'expired':
-        return 'bg-red-500';
-      case 'pending':
-        return 'bg-yellow-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
-
-  const handleLabelClick = (label: Label) => {
-    setSelectedLabel(label);
-    setShowModal(true);
-  };
-
   const closeModal = () => {
     setShowModal(false);
     setSelectedLabel(null);
   };
 
+  const table = useReactTable({
+    data: labels,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 50,
+      },
+    },
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
+
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>Label Subscriptions</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div
+    className="w-full h-full p-6 bg-white rounded-sm"
+    style={{ minHeight: "90vh" }}
+  >
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink>Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink>Subscription</BreadcrumbLink>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+
+    <div className="flex justify-between items-center mt-3">
+      <h3 className="text-3xl font-bold mb-2">All Subscriptions</h3>
+    </div>
+     
+     
+
           {loading ? (
             <div className="flex justify-center items-center h-40">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Label Name</TableHead>
-                  <TableHead>Subscription Plan</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {labels.map((label) => (
-                  <TableRow key={label._id}>
-                    <TableCell
-                      className="font-medium cursor-pointer text-blue-600 underline"
-                      onClick={() => handleLabelClick(label)}
-                    >
-                      {label.lable}
-                    </TableCell>
-                    <TableCell>{label.subscriptionPlan}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(label.subscriptionStatus)}>
-                        {label.subscriptionStatus}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {label.subscriptionStartDate ? 
-                        format(new Date(label.subscriptionStartDate), 'dd/MM/yyyy') : 
-                        'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      {label.subscriptionEndDate ? 
-                        format(new Date(label.subscriptionEndDate), 'dd/MM/yyyy') : 
-                        'N/A'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div>
+              <div className="flex items-center py-4">
+                <Input
+                  placeholder="Filter by label name..."
+                  value={(table.getColumn("lable")?.getFilterValue() as string) ?? ""}
+                  onChange={(event) =>
+                    table.getColumn("lable")?.setFilterValue(event.target.value)
+                  }
+                  className="max-w-sm"
+                />
+              </div>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <TableHead key={header.id}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          data-state={row.getIsSelected() && "selected"}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                          No results.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex items-center justify-end space-x-2 py-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        
+        
+
       {showModal && selectedLabel && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative border border-gray-200">
@@ -174,7 +324,8 @@ export default function SubscriptionPage() {
               <div>
                 <span className="text-gray-700 text-xm">Price</span>
                 <div className="font-semibold text-lg">{selectedLabel.subscriptionprice}</div>
-              </div><div>
+              </div>
+              <div>
                 <span className="text-gray-700 text-xm">Payment ID</span>
                 <div className="font-semibold text-xm">{selectedLabel.subscriptionpaymentId}</div>
               </div>
@@ -185,6 +336,7 @@ export default function SubscriptionPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 } 

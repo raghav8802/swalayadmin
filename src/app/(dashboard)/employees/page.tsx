@@ -121,6 +121,12 @@ export default function UserManagement() {
             </div>
 
             <div>
+            <Button className="me-3">
+                <Link href={"/employees/assignusers"}>
+                 Assign Users <i className="bi bi-person-add"></i>
+                </Link>
+              </Button>
+
               <Button className="me-3" onClick={() => setIsModalVisible(true)}>
                 Assign Role
               </Button>

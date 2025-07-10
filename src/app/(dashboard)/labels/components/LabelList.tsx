@@ -133,6 +133,11 @@ export function LabelList({ data }: { data: Label[] }) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 50,
+      },
+    },
     state: {
       sorting,
       columnFilters,

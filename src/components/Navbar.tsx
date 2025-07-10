@@ -29,9 +29,9 @@ const Navbar = () => {
 
   // Paths allowed for each user type
   const roleAllowedPaths = {
-    customerSupport: ["/", "/albums", "/copyrights", "/labels", "/support"],
-    contentDeployment: ["/", "/albums", "/copyrights", "/artists", "/support"],
-    ANR: ["/", "/albums", "/marketing", "/artists", "/notifications"],
+    customerSupport: ["/", "/albums", "/albums/new-release", "/albums/all", "/albums/approved", "/albums/processing", "/albums/live", "/albums/rejected", "/copyrights", "/labels", "/support"],
+    contentDeployment: ["/", "/albums", "/albums/new-release", "/albums/all", "/albums/approved", "/albums/processing", "/albums/live", "/albums/rejected", "/copyrights", "/artists", "/support"],
+    ANR: ["/", "/albums", "/albums/new-release", "/albums/all", "/albums/approved", "/albums/processing", "/albums/live", "/albums/rejected", "/marketing", "/artists", "/notifications", "/payments", "/payments/royalty", "/payments/all", "/payments/pending", "/payments/approved"],
   };
 
   // Define all navigation items and their dropdowns
@@ -87,19 +87,18 @@ const Navbar = () => {
     // Admin has access to all menus and dropdowns
     if (userType === "admin") return true;
 
-    // Check for dropdown items
-    if (item.dropdown) {
-      // Check if any dropdown item is allowed
-      const hasAllowedDropdown = item.dropdown.some((subItem) =>
-        allowedPaths.includes(subItem.path)
-      );
-
-      // Include parent menu if at least one dropdown or parent path is allowed
-      return hasAllowedDropdown || allowedPaths.includes(item.path);
+    // For non-dropdown items, check if the path is allowed
+    if (!item.dropdown) {
+      return allowedPaths.includes(item.path);
     }
 
-    // For non-dropdown items, check if the path is allowed
-    return allowedPaths.includes(item.path);
+    // For items with dropdowns, if the parent path is allowed, show the entire dropdown
+    if (allowedPaths.includes(item.path)) {
+      return true;
+    }
+
+    // If parent path is not explicitly allowed, check if any dropdown items are allowed
+    return item.dropdown.some((subItem) => allowedPaths.includes(subItem.path));
   });
 
   const toggleMenu = () => {
@@ -167,9 +166,10 @@ const Navbar = () => {
     try {
       await apiPost("/api/user/logout", {});
       context?.setUser(undefined);
-      router.refresh();
+      router.push("/signin");
     } catch (error) {
       console.log("Error during logout:", error);
+      // toast.error("Logout failed"); // Assuming toast is available, otherwise remove this line
     }
   };
 
