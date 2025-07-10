@@ -11,6 +11,7 @@ interface ISupport extends Document {
   priority: 'low' | 'medium' | 'high';
   category: string;
 }
+//support schema
 
 const SupportSchema: Schema = new Schema({
   name: { type: String, required: true },
