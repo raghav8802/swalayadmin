@@ -47,4 +47,4 @@ SupportSchema.index({ isClosed: 1, priority: 1 });
 
 const Support = mongoose.models.Support || mongoose.model<ISupport>('Support', SupportSchema);
 
-export default support;
+export default Support;
