@@ -11,6 +11,8 @@ export async function GET() {
       "_id fullName officialEmail phoneNumber role department status salary"
     );
 
+    
+
     if (!EmployeeData) {
       return NextResponse.json({
         status: 404,

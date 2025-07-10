@@ -40,8 +40,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log("usertype");
-    console.log(usertype);
+ 
 
     if (usertype !== "normal") {
       const existingLabelByLabelName = await Label.findOne({ lable: lable });
@@ -103,6 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     const razorpayContactId = razorpayData.id;
+  
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 

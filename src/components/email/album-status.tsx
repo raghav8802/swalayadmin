@@ -46,25 +46,7 @@ export default function AlbumStatusEmailTemplate({
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <header
-          style={{
-            backgroundColor: "#4e37e0",
-            color: "#ffffff",
-            padding: "30px",
-            textAlign: "center",
-          }}
-        >
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "28px",
-              fontWeight: 600,
-              letterSpacing: "1px",
-            }}
-          >
-            SwaLay Plus
-          </h1>
-        </header>
+      
 
         <div style={{ padding: "40px" }}>
           <p style={{ fontSize: "18px", marginBottom: "20px" }}>
@@ -175,19 +157,8 @@ export default function AlbumStatusEmailTemplate({
           </p>
         </div>
 
-        <footer
-          style={{
-            backgroundColor: "#4e37e0",
-            color: "#ffffff",
-            padding: "30px",
-            textAlign: "center",
-            fontSize: "14px",
-          }}
-        >
-          <p style={{ margin: 0, marginBottom: "10px", fontWeight: 600 }}>
-            SwaLay India
-          </p>
-        </footer>
+        
+
       </div>
     </div>
   );

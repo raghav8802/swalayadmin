@@ -57,7 +57,7 @@ export const artistColumns: ColumnDef<Label>[] = [
     enableColumnFilter: true,
     cell: ({ row }) => {
       const label = row.original;
-      return <div className="ms-2 text-blue-600">{label.lable || "N/A"}</div>;
+      return <div className="ms-2 text-blue-600">{label.lable || "SwaLay Digital"}</div>;
     },
   },
   {

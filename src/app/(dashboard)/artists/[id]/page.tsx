@@ -65,6 +65,7 @@ const ArtistPage = ({ params }: { params: { id: string } }) => {
         `/api/artist/getArtistDetails?artistId=${decodedArtistId}`
       );
 
+      
       if (response.success) {
         setArtist(response.data.artistData);
         setAlbumData(response.data.albums);

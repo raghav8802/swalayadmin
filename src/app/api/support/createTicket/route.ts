@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Label from "@/models/Label"
+import Support from "@/models/Support"
+
 
 export async function POST(req: Request) {
   try {

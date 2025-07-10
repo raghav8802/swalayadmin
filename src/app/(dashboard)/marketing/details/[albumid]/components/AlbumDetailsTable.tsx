@@ -59,7 +59,7 @@ export const albumColumns: ColumnDef<AlbumDType>[] = [
     header: "Album",
     cell: ({ row }) => {
       const album = row.original;
-      return <div className="ms-2 text-blue-600">{album.title || "N/A"}</div>;
+      return <div className="ms-2 text-blue-600">{album.title || "SwaLay Digital"}</div>;
     },
   },
   // Add other columns as needed
