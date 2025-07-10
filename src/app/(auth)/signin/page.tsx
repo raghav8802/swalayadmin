@@ -16,6 +16,7 @@ const SignIn = () => {
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,10 +28,11 @@ const SignIn = () => {
   };
 
   const verifyOTP = async () => {
+    setLoading(true);
     try {
       const response: any = await apiPost("/api/admin/verifyOTP", {
         email: user.email,
-        otp
+        otp,
       });
 
       console.log(response);
@@ -46,6 +48,8 @@ const SignIn = () => {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,6 +64,7 @@ const SignIn = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const response: any = await apiPost("/api/admin/signin", user);
 
@@ -72,6 +77,8 @@ const SignIn = () => {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,7 +109,7 @@ const SignIn = () => {
                   onChange={(e) => setUser({ ...user, email: e.target.value })}
                 />
               </div>
-              <div className={Styles.formGroup}>
+              <div className={Styles.formGroup} style={{ position: "relative" }}>
                 <input
                   className={Styles.inputField}
                   type={isPasswordVisible ? "text" : "password"}
@@ -115,6 +122,20 @@ const SignIn = () => {
                     setUser({ ...user, password: e.target.value })
                   }
                 />
+                <i
+                  className={`bi ${
+                    isPasswordVisible ? "bi-eye-slash-fill" : "bi-eye-fill"
+                  }`}
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    color: "grey",
+                  }}
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                ></i>
               </div>
 
               {showOtpInput && (
@@ -132,11 +153,16 @@ const SignIn = () => {
               )}
 
               <div className={`${Styles.formGroup} ${Styles.formbutton}`}>
-                <button 
-                  className={Styles.submitButton} 
+                <button
+                  className={Styles.submitButton}
                   onClick={showOtpInput ? verifyOTP : onSignIn}
+                  disabled={loading}
                 >
-                  {showOtpInput ? "Verify OTP" : "Sign In"}
+                  {loading
+                    ? "Loading..."
+                    : showOtpInput
+                    ? "Verify OTP"
+                    : "Sign In"}
                 </button>
               </div>
             </div>

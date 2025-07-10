@@ -29,11 +29,15 @@ userId: mongoose.Schema.Types.ObjectId;
   ndaSignature: {
     status: 'Completed' | 'Pending';
     document?: string;
+    fileName?: string;
   };
   workPolicy: {
     status: 'Completed' | 'Pending';
     document?: string;
+    fileName?: string;
   };
+  type: 'Full Time' | 'Intern';
+  salary: number;
 }
 
 // Define the schema for the Employee model
@@ -44,27 +48,18 @@ const EmployeeSchema = new Schema<IEmployee>({
         // required: true
     },
     photo: { type: String, required: false },
+    // Personal Details (Basic Info) - Required
     fullName: { type: String, required: true },
-    officialEmail: {
-      type: String,
-      required: true,
-      validate: {
-        validator: (email: string) =>
-          /^.+@talantoncore\.in$/.test(email), // Enforce domain validation
-        message: 'Official email must end with @talantoncore.in',
-      },
-    },
     personalEmail: { type: String, required: true },
     phoneNumber: {
       type: String,
       required: true,
       validate: {
         validator: (phone: string) => /^[0-9]{10}$/.test(phone), // Ensure 10-digit phone number
-        message: 'Phone number must be a 10-digit number a',
+        message: 'Phone number must be a 10-digit number',
       },
     },
     address: { type: String, required: true },
-    dateOfBirth: { type: Date, required: false },
     aadharCardNumber: {
       type: String,
       required: true,
@@ -73,22 +68,35 @@ const EmployeeSchema = new Schema<IEmployee>({
         message: 'Aadhar Card Number must be a 12-digit number',
       },
     },
-    panCardNumber: {
+    dateOfBirth: { type: Date, required: false },
+    panCardNumber: { type: String, required: false },
+    
+    // Bank Details - Optional
+    bankAccountNumber: { type: String, required: false },
+    ifscCode: { type: String, required: false },
+    bank: { type: String, required: false },
+    branch: { type: String, required: false },
+    
+    // Official Details - Optional
+    officialEmail: {
       type: String,
-      
+      required: false,
+      validate: {
+        validator: (email: string) =>
+          /^.+@talantoncore\.in$/.test(email), // Enforce domain validation
+        message: 'Official email must end with @talantoncore.in',
+      },
     },
-    bankAccountNumber: { type: String, required: true },
-    ifscCode: { type: String, required: true },
-    bank: { type: String, required: true },
-    branch: { type: String, required: true },
-    joiningDate: { type: Date, required: true },
-    role: { type: String, required: true },
-    department: { type: String, required: true },
+    joiningDate: { type: Date, required: false },
+    role: { type: String, required: false },
+    department: { type: String, required: false },
+    type: { type: String, required: false, enum: ['Full Time', 'Intern'] },
+    salary: { type: Number, required: false },
     manager: {
-      name: { type: String, required: true },
+      name: { type: String, required: false },
       contact: {
         type: String,
-        required: true,
+        required: false,
         validate: {
           validator: (phone: string) => /^[0-9]{10}$/.test(phone),
           message: 'Manager contact must be a 10-digit number',
@@ -97,11 +105,13 @@ const EmployeeSchema = new Schema<IEmployee>({
     },
     status: {
       type: String,
-      required: true,
+      required: false,
       enum: ['Active', 'Not Active'],
+      default: 'Active',
     },
     terminationDate: {
       type: Date,
+      required: false,
       validate: {
         validator: function (date: Date) {
           return this.status === 'Not Active' ? !!date : true;
@@ -109,6 +119,8 @@ const EmployeeSchema = new Schema<IEmployee>({
         message: 'Termination date is required if the employee is Not Active',
       },
     },
+    
+    // Documentation - Optional
     employeeVerification: {
       type: String,
       required: false,
@@ -124,9 +136,11 @@ const EmployeeSchema = new Schema<IEmployee>({
       },
       document: {
         type: String,
-        required: function () {
-          return this.ndaSignature.status === 'Completed';
-        },
+        required: false,
+      },
+      fileName: {
+        type: String,
+        required: false,
       },
     },
     workPolicy: {
@@ -138,9 +152,11 @@ const EmployeeSchema = new Schema<IEmployee>({
       },
       document: {
         type: String,
-        required: function () {
-          return this.workPolicy.status === 'Completed';
-        },
+        required: false,
+      },
+      fileName: {
+        type: String,
+        required: false,
       },
     },
   },
@@ -149,7 +165,7 @@ const EmployeeSchema = new Schema<IEmployee>({
 
 // Export the model
 const Employee =
-  models.Employee || model<IEmployee>('Employee', EmployeeSchema);
+  models.EmployeeData || model<IEmployee>('EmployeeData', EmployeeSchema);
 
 export default Employee;
 

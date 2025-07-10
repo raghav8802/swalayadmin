@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
     path === "/register" ||
     path === "/signin" ||
     path === "/verifyemail" ||
+    path === "/employee-onboarding" ||
     path === "/forgotpassword";
 
   const roleAllowedPaths = {
@@ -36,7 +37,13 @@ export async function middleware(request: NextRequest) {
       const secret = new TextEncoder().encode(process.env.TOKEN_SECRET!);
       const { payload } = await jwtVerify(token, secret);
 
-      const { usertype } = payload as { usertype: string };
+      const { usertype, exp } = payload as { usertype: string; exp: number };
+
+      // Check if token is expired
+      if (exp && Date.now() >= exp * 1000) {
+        console.log("Token expired");
+        return NextResponse.redirect(new URL("/signin", request.url));
+      }
 
       // Admin has unrestricted access
       if (usertype === "admin") {

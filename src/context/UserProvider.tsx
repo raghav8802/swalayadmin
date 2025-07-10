@@ -3,6 +3,7 @@ import React, { useEffect, useState, ReactNode } from 'react';
 import { apiGet } from '@/helpers/axiosRequest';
 import toast from 'react-hot-toast';
 import UserContext from './userContext';
+import { useRouter } from 'next/navigation';
 
 interface User {
   _id: string;
@@ -19,23 +20,25 @@ interface UserProviderProps {
 
 const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
+  const router = useRouter();
 
   const fetchUserDetails = async () => {
     try {
       const response:any = await apiGet('/api/admin/userdetails');
-      // console.log("invaild user why");
-      // console.log(response);
       if (response.success) {
         const userInfo: User = response.data;
         setUser({ ...userInfo });
       } else {
-        toast.error('Invalid user');
+        console.log('User details fetch failed:', response.message);
         setUser(undefined);
+        if (response.status === 401) {
+          router.push('/signin');
+        }
       }
     } catch (error) {
-      console.log(error);
-      toast.error('Error in loading current user');
+      console.error('Error fetching user details:', error);
       setUser(undefined);
+      router.push('/signin');
     }
   };
 

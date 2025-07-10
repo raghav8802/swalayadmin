@@ -34,7 +34,8 @@ await connect()
 
         const tokenData = {
             id: user._id,
-            username: user.username
+            username: user.username,
+            usertype: user.usertype
         }
 
         

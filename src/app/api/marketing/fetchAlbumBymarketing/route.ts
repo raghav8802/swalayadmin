@@ -29,6 +29,9 @@ export async function GET() {
         if (marketing.isExtraFileRequested) {
           marketingStatus = "Requested";
         }
+        if (marketing.isSelectedForPromotion) {
+          marketingStatus = "Selected";
+        }
 
         if (album) {
           return {

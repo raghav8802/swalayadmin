@@ -36,76 +36,120 @@ export type Employee = {
   department: string;
   status: string;
   assignedTo: string;
+  joinDate: string; // YYYY-MM-DD
+  salary: number; // in dollars
 };
 
 export const employeeColumns: ColumnDef<Employee>[] = [
   {
-    id: "serialNumber",
-    header: "#",
-    cell: ({ row }) => row.index + 1,
+    id: "employee",
+    header: "Employee",
+    cell: ({ row }) => {
+      const name = row.original.fullName;
+      const initials = name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
+      return (
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
+            {initials}
+          </div>
+          <div>
+            <div className="font-semibold">{name}</div>
+            <div className="text-xs text-gray-500">ID: {row.original._id?.slice(-4).padStart(4, '0')}</div>
+          </div>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "fullName",
-    header: "Full Name",
-    cell: ({ row }) => <div className="ms-2">{row.original.fullName}</div>,
-  },
-  {
-    accessorKey: "officialEmail",
-    header: "Official Email",
-    cell: ({ row }) => <div className="ms-2">{row.original.officialEmail}</div>,
-  },
-  {
-    accessorKey: "phoneNumber",
-    header: "Phone Number",
-    cell: ({ row }) => <div className="ms-2">{row.original.phoneNumber}</div>,
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <div className="ms-2">{row.original.role}</div>,
-  },
-  {
-    accessorKey: "department",
-    header: "Department",
-    cell: ({ row }) => <div className="ms-2">{row.original.department}</div>,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
+    id: "contact",
+    header: "Contact",
     cell: ({ row }) => (
-      <div className="ms-2">
-        {row.original.status === "active" ? (
-          <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-            Active
+      <div>
+        <div className="flex items-center gap-1 text-sm">
+          <span className="material-icons text-base align-middle">
+          <i className="bi bi-envelope"></i>
           </span>
-        ) : (
-          <span className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
-            Inactive
+          {row.original.officialEmail}
+        </div>
+        <div className="flex items-center gap-1 text-sm">
+          <span className="material-icons text-base align-middle">
+          <i className="bi bi-telephone"></i>
           </span>
-        )}
+          {row.original.phoneNumber}
+        </div>
       </div>
     ),
   },
   {
-    accessorKey: "assignedTo",
-    header: "Assigned To",
-    cell: ({ row }) => <div className="ms-2">{row.original.assignedTo}</div>,
+    accessorKey: "department",
+    header: "Department",
+    cell: ({ row }) => (
+      <span className={`text-xs font-medium px-2.5 py-0.5 rounded ${
+        row.original.department === 'customerSupport' ? 'bg-blue-100 text-blue-800' :
+        row.original.department === 'contentDeployment' ? 'bg-purple-100 text-purple-800' :
+        row.original.department === 'ANR' ? 'bg-green-100 text-green-800' :
+        row.original.department === 'HR' ? 'bg-pink-100 text-pink-800' :
+        row.original.department === 'Marketing' ? 'bg-orange-100 text-orange-800' :
+        row.original.department === 'IT' ? 'bg-indigo-100 text-indigo-800' :
+        'bg-gray-100 text-gray-800'
+      }`}>
+        {row.original.department}
+      </span>
+    ),
   },
   {
-    accessorKey: "profile",
-    header: "Profile",
+    accessorKey: "role",
+    header: "Position",
+    cell: ({ row }) => <span className="font-medium">{row.original.role}</span>,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
     cell: ({ row }) => {
-      const employee = row.original;
+      let color = "";
+      let label = row.original.status;
+      if (label.toLowerCase() === "active") color = "bg-green-100 text-green-800";
+      else if (label.toLowerCase() === "on leave") color = "bg-yellow-100 text-yellow-800";
+      else color = "bg-red-100 text-red-800";
       return (
-        <Link
-          className="ms-2 bg-blue-600 text-white px-3 py-2 rounded"
-          href={`/employees/profile?employeeid=${btoa(employee._id)}`}
-        >
-          View
-        </Link>
+        <span className={`${color} text-xs font-medium px-2.5 py-0.5 rounded`}>
+          {label.charAt(0).toUpperCase() + label.slice(1)}
+        </span>
       );
     },
   },
+  
+  {
+    accessorKey: "salary",
+    header: "Salary",
+    cell: ({ row }) => (
+      <span className="font-semibold text-black">₹{row.original.salary?.toLocaleString()}</span>
+    ),
+  },
+  {
+    id: "viewDetails",
+    header: "View Details",
+    cell: ({ row }) => (
+      <Link href={`/employees/profile?employeeid=${btoa(row.original._id)}`}>
+        <span className="inline-flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md h-8 px-4 cursor-pointer">View</span>
+      </Link>
+    ),
+  },
+  {
+    id: "edit",
+    header: "Edit",
+    cell: ({ row }) => (
+      <Link href={`/employees/new?id=${btoa(row.original._id)}`}>
+        <span className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 text-blue-600 hover:text-blue-700">Edit</span>
+      </Link>
+    ),
+  },
+
+
 ];
 
 export function EmployeeDataTable({ data }: { data: Employee[] }) {

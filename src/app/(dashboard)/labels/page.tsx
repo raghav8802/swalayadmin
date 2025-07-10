@@ -8,6 +8,7 @@ import { apiGet } from "@/helpers/axiosRequest"
 import { LabelList } from "./components/LabelList"
 import { useQuery } from "@tanstack/react-query"
 
+
 const Labels = () => {
   const { data: labelData, isLoading, error, refetch } = useQuery({
     queryKey: ['labels'],

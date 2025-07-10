@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/Modal";
 import Loading from "../../loading";
 import toast from "react-hot-toast";
+import { cn, formatDuration } from "@/lib/utils";
 
 interface Track {
   composer: string[];
@@ -323,7 +324,7 @@ export default function AlbumPage() {
                     <TableCell>{track.producer.join(", ")}</TableCell>
                     <TableCell>{track.lyricist.join(", ")}</TableCell>
                     <TableCell>{track.composer.join(", ")}</TableCell>
-                    <TableCell>{track.duration}</TableCell>
+                    <TableCell>{formatDuration(parseFloat(track.duration))}</TableCell>
                     <TableCell>{track.isrc}</TableCell>
                   </TableRow>
                 ))}

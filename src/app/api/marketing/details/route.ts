@@ -39,6 +39,8 @@ export async function GET(req: NextRequest) {
       });
     }
 
+  
+
     // Fetch album details by albumId
     const album = await Album.findById(albumId);
 

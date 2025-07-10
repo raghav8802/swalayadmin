@@ -12,8 +12,6 @@ export async function GET() {
       .select("-password -verifyCode -verifyCodeExpiry -razor_contact")
       .sort({ _id: -1 });
 
-    console.log('Found Labels:', labels.length);
-    console.log('Labels:', labels.map(l => ({ id: l._id, username: l.username, usertype: l.usertype })));
 
     // If no labels found, return a message
     if (!labels.length) {

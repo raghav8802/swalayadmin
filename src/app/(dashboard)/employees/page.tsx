@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,8 @@ type Employee = {
   department: string;
   status: string;
   assignedTo: string;
+  joinDate: string;
+  salary: number;
 };
 
 export default function UserManagement() {
@@ -37,14 +39,16 @@ export default function UserManagement() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // to close the modal 
+  // to close the modal
   const handleClose = () => {
     setIsModalVisible(false);
   };
 
   const fetchUsers = async () => {
     try {
-      const result = await apiGet("/api/employee/all") as { data: Employee[] };
+      const result = (await apiGet("/api/employee/all")) as {
+        data: Employee[];
+      };
       console.log("fetch employee result");
       console.log(result.data);
       setEmployees(result.data);
@@ -66,7 +70,7 @@ export default function UserManagement() {
         return;
       }
 
-      const result:any = await apiPost("/api/employee/add", {
+      const result: any = await apiPost("/api/employee/add", {
         name,
         email,
         role,
@@ -87,7 +91,6 @@ export default function UserManagement() {
     }
   };
 
-  
   return (
     <div
       className="w-full h-full p-6 bg-white rounded-sm"
@@ -112,26 +115,33 @@ export default function UserManagement() {
       <div className="mx-auto py-5 space-y-10">
         <div>
           <div className="flex justify-between items-center mt-3">
-            <h3 className="text-2xl font-bold mb-3">Employees List</h3>
+            <div>
+              <h3 className="text-2xl font-bold mb-3">Employees List</h3>
+              <p>Manage your team members and their information</p>
+            </div>
 
             <div>
+            <Button className="me-3">
+                <Link href={"/employees/assignusers"}>
+                 Assign Users <i className="bi bi-person-add"></i>
+                </Link>
+              </Button>
+
               <Button className="me-3" onClick={() => setIsModalVisible(true)}>
                 Assign Role
               </Button>
               <Button>
-                <Link href={"/employees/profile"}>New Employee <i className="bi bi-person-add"></i></Link>
+                <Link href={"/employees/new"}>
+                  New Employee <i className="bi bi-person-add"></i>
+                </Link>
               </Button>
             </div>
           </div>
         </div>
 
-        <div>
-          {employees && <EmployeeDataTable data={employees} />}
-        </div>
+        <div>{employees && <EmployeeDataTable data={employees} />}</div>
 
         <AssignRoleModal isVisible={isModalVisible} onClose={handleClose} />
-
-
       </div>
     </div>
   );

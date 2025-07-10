@@ -5,6 +5,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import Label from "@/models/Label";
 import AccountActivationEmailTemplate from "@/components/email/account-activation";
 import sendMail from "@/helpers/sendMail";
+import EmailLayout from "@/components/email/EmailLayout";
 
 
 interface RazorpayResponse {
@@ -119,7 +120,9 @@ export async function POST(request: NextRequest) {
     await newUser.save();
 
     const emailTemplate = (
-      <AccountActivationEmailTemplate clientName={username} />
+      <EmailLayout>
+        <AccountActivationEmailTemplate clientName={username} />
+      </EmailLayout>
     );
      await sendMail({
       to: email, // Key 'to' must be specified

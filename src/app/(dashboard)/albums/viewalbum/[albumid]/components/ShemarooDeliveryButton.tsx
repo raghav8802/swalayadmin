@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+
 import toast from "react-hot-toast";
 import { apiPost } from "@/helpers/axiosRequest";
-import Style from "../../../../../styles/Shemaroo.module.css";
 
 interface ShemarooDeliveryButtonProps {
   albumId: string;
@@ -70,16 +69,12 @@ export function ShemarooDeliveryButton({
 
   return (
     <button
-      className={`${Style.colorfulButton} `}
+      className={`w-[49%] text-md bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold py-2 px-4 rounded hover:from-blue-600 hover:to-purple-600 transition-colors duration-200 text-center`}
       onClick={handleApprove}
       disabled={currentStatus !== ShemarooStatus.Draft || isLoading}
     >
-      <div className={Style.content}>
-        {isLoading ? "Sending..." : getButtonText()}
-      </div>
-      <div className={Style.decorativeCircle1}></div>
-      <div className={Style.decorativeCircle2}></div>
-      <div className={Style.decorativeCircle3}></div>
+        {isLoading ? "Sending..." : getButtonText()} <i className="me-2 bi bi-send-fill"></i>
+    
     </button>
   );
 }

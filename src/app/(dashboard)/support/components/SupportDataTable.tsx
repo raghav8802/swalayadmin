@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
     Table,
     TableBody,
@@ -23,6 +24,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type supportData = {
     name: string;
@@ -32,6 +34,13 @@ export type supportData = {
     labelId?: string; 
     _id: string;
     __v: number;
+    status: string;
+    priority: 'low' | 'medium' | 'high';
+    isClosed: boolean;
+    replies?: any[];
+    replyCount?: number;
+    unreadReplies?: number;
+    createdAt: string;
 };
 
 export const supportColumns: ColumnDef<supportData>[] = [
@@ -45,7 +54,22 @@ export const supportColumns: ColumnDef<supportData>[] = [
         header: "Name",
         cell: ({ row }) => {
             const data = row.original;
-            return <div className="ms-2">{data.name}</div>;
+            return (
+                <div className="ms-2">
+                    {data.labelId ? (
+                        <a 
+                            href={`/labels/${btoa(data.labelId)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline text-blue-600"
+                        >
+                            {data.name}
+                        </a>
+                    ) : (
+                        data.name
+                    )}
+                </div>
+            );
         },
     },
     {
@@ -65,11 +89,74 @@ export const supportColumns: ColumnDef<supportData>[] = [
         },
     },
     {
-        accessorKey: "message",
-        header: "Message",
+        accessorKey: "priority",
+        header: "Priority",
         cell: ({ row }) => {
             const data = row.original;
-            return <div className="ms-2">{data.message}</div>;
+            const priorityColors = {
+                low: "bg-green-100 text-green-800",
+                medium: "bg-yellow-100 text-yellow-800",
+                high: "bg-red-100 text-red-800"
+            };
+            return (
+                <Badge className={priorityColors[data.priority]}>
+                    {data.priority}
+                </Badge>
+            );
+        },
+    },
+    {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+            const data = row.original;
+            const statusColors: Record<string, string> = {
+                pending: "bg-yellow-100 text-yellow-800",
+                "in-progress": "bg-blue-100 text-blue-800",
+                resolved: "bg-green-100 text-green-800"
+            };
+            return (
+                <Badge className={statusColors[data.status] || "bg-gray-100 text-gray-800"}>
+                    {data.status}
+                </Badge>
+            );
+        },
+    },
+    {
+        accessorKey: "replyCount",
+        header: "Replies",
+        cell: ({ row }) => {
+            const data = row.original;
+            return (
+                <div className="ms-2 flex items-center gap-2">
+                    <span>{data.replyCount || 0}</span>
+                    {data.unreadReplies && data.unreadReplies > 0 && (
+                        <Badge className="bg-red-500 text-white text-xs">
+                            {data.unreadReplies > 9 ? '9+' : data.unreadReplies}
+                        </Badge>
+                    )}
+                </div>
+            );
+        },
+    },
+    {
+        accessorKey: "isClosed",
+        header: "Status",
+        cell: ({ row }) => {
+            const data = row.original;
+            return (
+                <Badge className={data.isClosed ? "bg-gray-100 text-gray-800" : "bg-green-100 text-green-800"}>
+                    {data.isClosed ? "Closed" : "Open"}
+                </Badge>
+            );
+        },
+    },
+    {
+        accessorKey: "createdAt",
+        header: "Created",
+        cell: ({ row }) => {
+            const data = row.original;
+            return <div className="ms-2">{new Date(data.createdAt).toLocaleDateString()}</div>;
         },
     },
 ];

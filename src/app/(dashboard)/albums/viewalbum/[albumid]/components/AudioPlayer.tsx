@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-// import Style from './AudioPlayer.module.css';
 import Style from "../../../../../styles/ViewAlbums.module.css";
+import toast from "react-hot-toast";
 
 interface AudioPlayerProps {
   trackName: string;
@@ -13,6 +13,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const resetPlayer = useCallback(() => {
@@ -21,29 +23,49 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
       audioRef.current.currentTime = 0;
       setCurrentTime(0);
       setIsPlaying(false);
+      setError(null);
     }
   }, []);
 
   useEffect(() => {
     resetPlayer();
-  }, [trackName, resetPlayer]);
+    setIsLoading(true);
+    setError(null);
+  }, [trackName, audioSrc, resetPlayer]);
 
   const togglePlay = useCallback(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || error) return;
 
     const prevValue = isPlaying;
     setIsPlaying(!prevValue);
     if (!prevValue) {
-      audioRef.current.play();
+      audioRef.current.play().catch((err) => {
+        setError("Failed to play audio");
+        setIsPlaying(false);
+        toast.error("Failed to play audio");
+        console.error("Play error:", err);
+      });
     } else {
       audioRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, error]);
 
   const onLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
+      setIsLoading(false);
     }
+  }, []);
+
+  const onLoadedData = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  const onError = useCallback((e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    setIsLoading(false);
+    setError("Failed to load audio");
+    toast.error("Failed to load audio");
+    console.error("Audio error:", e);
   }, []);
 
   const onTimeUpdate = useCallback(() => {
@@ -70,20 +92,31 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
     setIsPlaying(false);
   }, []);
 
+  if (error) {
+    return (
+      <div className={`border ${Style.MusicPlayerBox}`}>
+        <div className={Style.MusicPlayercontainer}>
+          <p className="text-red-500">Error: {error}</p>
+          <p className={`m-0 ${Style.playingTrack}`}>{trackName}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`border ${Style.MusicPlayerBox}`}>
       <div className={Style.MusicPlayercontainer}>
         <div className={Style.trackControllerButtonGroup}>
-          {/* <i className="bi bi-rewind-fill ms-2"></i> */}
           <div
-            className={`mx-5 ${Style.trackControllerMusicPlayRound}`}
-            onClick={togglePlay}
+            className={`mx-5 ${Style.trackControllerMusicPlayRound} ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            onClick={!isLoading ? togglePlay : undefined}
           >
-            <i
-              className={`bi ${isPlaying ? "bi-pause-fill" : "bi-play-fill"}`}
-            ></i>
+            {isLoading ? (
+              <i className="bi bi-arrow-repeat animate-spin"></i>
+            ) : (
+              <i className={`bi ${isPlaying ? "bi-pause-fill" : "bi-play-fill"}`}></i>
+            )}
           </div>
-          {/* <i className="me-2 bi bi-fast-forward-fill"></i> */}
         </div>
 
         <div className={Style.rangeContainer}>
@@ -96,7 +129,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
             step="1"
             value={currentTime}
             onChange={handleRangeChange}
-            className={Style.progress}
+            className={`${Style.progress} ${isLoading ? 'opacity-50' : ''}`}
+            disabled={isLoading}
             id="myRange"
           />
           <span className="ms-3">{formatTime(duration)}</span>
@@ -112,8 +146,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ trackName, audioSrc }) => {
           ref={audioRef}
           src={audioSrc}
           onLoadedMetadata={onLoadedMetadata}
+          onLoadedData={onLoadedData}
           onTimeUpdate={onTimeUpdate}
           onEnded={onEnded}
+          onError={onError}
+          preload="metadata"
         />
       </div>
     </div>

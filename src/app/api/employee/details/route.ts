@@ -4,8 +4,9 @@ import Employee from "@/models/Employee";
 
 export async function GET(req: NextRequest) {
   await connect();
+  
 
-  const employeeId = req.nextUrl.searchParams.get("employeeid");
+  const employeeId = req.nextUrl.searchParams.get("employeeId");
 
   console.log("employeeId : ", employeeId);
 

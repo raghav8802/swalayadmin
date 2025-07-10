@@ -21,7 +21,8 @@ import toast from "react-hot-toast";
 import { apiFormData, apiGet } from "@/helpers/axiosRequest";
 import { useRouter } from "next/navigation";
 import Uploading from "@/components/Uploading";
-import { AnyARecord } from "node:dns";
+import AsyncSelect from 'react-select/async';
+
 
 interface FormData {
   title: string;
@@ -40,6 +41,7 @@ interface LabelData {
   lable: string | null;
   username: string;
   usertype: string;
+  email: string;
 }
 
 type TagOption = {
@@ -48,8 +50,7 @@ type TagOption = {
 };
 
 const AlbumForm: React.FC = () => {
-  const context = useContext(UserContext);
-  const labelId = context?.user?._id ?? "";
+  
   const router = useRouter();
 
   // Move year to useMemo to avoid recreating it on every render
@@ -90,24 +91,8 @@ const AlbumForm: React.FC = () => {
   ];
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [labelData, setLabelData] = useState<LabelData[]>([]);
-
-  const fetchLabels = async () => {
-    try {
-      const response:any = await apiGet("/api/labels/getLabels");
-      console.log(response.data);
-
-      if (response.success) {
-        setLabelData(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchLabels();
-  }, []);
+  const [selectedLabel, setSelectedLabel] = useState<LabelData | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const handleSelectChange = (selectedItems: TagOption[]) => {
     if (selectedItems.length > 3) {
@@ -117,31 +102,60 @@ const AlbumForm: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const selectedLabel = labelData.find(
-      (label) => label._id === formData.label
-    );
-
-    if (selectedLabel) {
-      const userType = selectedLabel.usertype;
-      const labelLine =
-        userType === "normal"
-          ? `${year} SL Web Team`
-          : `${year} ${selectedLabel.lable || selectedLabel.username}`;
-
-      setFormData((prev) => ({
-        ...prev,
-        pLine: labelLine,
-        cLine: labelLine,
-      }));
-    }
-  }, [formData.label, labelData, year]);
-
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  // Async label search function for react-select
+  const loadLabelOptions = async (inputValue: string) => {
+    if (!inputValue) return [];
+    try {
+      const response: any = await apiGet(`/api/labels/search?q=${encodeURIComponent(inputValue)}`);
+      if (response.success) {
+        return response.data.map((item: LabelData) => ({
+          value: item._id,
+          label: item.lable
+            ? `${item.username} (${item.lable}) [${item.usertype}] - ${item.email}`
+            : `${item.username} [${item.usertype}] - ${item.email}`,
+          data: item,
+        }));
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
+  const handleLabelChange = (option: any) => {
+    if (option) {
+      setSelectedLabel(option.data);
+      // Update pLine/cLine based on usertype
+      const userType = option.data.usertype;
+      let labelLine;
+      if (userType === "super") {
+        // Use label name if present, else username
+        labelLine = `${year} ${option.data.lable || option.data.username}`;
+      } else {
+        labelLine = `${year} SL Web Team`;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        label: option.value,
+        pLine: labelLine,
+        cLine: labelLine,
+      }));
+    } else {
+      setSelectedLabel(null);
+      setFormData((prev) => ({
+        ...prev,
+        label: "",
+        pLine: `${year} SL Web Team`,
+        cLine: `${year} SL Web Team`,
+      }));
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -196,7 +210,7 @@ const AlbumForm: React.FC = () => {
       const selectedTagValues = selectedTags.map((tag) => tag.value);
 
       const formDataObj = new FormData();
-      formDataObj.append("labelId", labelId);
+      formDataObj.append("labelId", selectedLabel?._id || "");
       formDataObj.append("title", formData.title);
       formDataObj.append("releaseDate", formData.releaseDate);
       formDataObj.append("artist", formData.artist);
@@ -291,32 +305,27 @@ const AlbumForm: React.FC = () => {
                   )}
                 </div>
 
-                  <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
                     Label
                   </label>
-                <select
-                  name="label"
-                  value={formData.label}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Select Label</option>
-                  {labelData.map((item) => {
-                    let displayText;
-                    if (item.lable) {
-                      displayText = item.lable;
-                    } else {
-                      displayText = item.username;
-                    }
-
-                    return (
-                      <option key={item._id} value={item._id}>
-                        {displayText} ({item.usertype})
-                      </option>
-                    );
-                  })}
-                </select>
+                  <AsyncSelect
+                    cacheOptions
+                    loadOptions={loadLabelOptions}
+                    defaultOptions={false}
+                    value={selectedLabel ? {
+                      value: selectedLabel._id,
+                      label: selectedLabel.lable
+                        ? `${selectedLabel.username} (${selectedLabel.lable}) [${selectedLabel.usertype}] - ${selectedLabel.email}`
+                        : `${selectedLabel.username} [${selectedLabel.usertype}] - ${selectedLabel.email}`,
+                      data: selectedLabel,
+                    } : null}
+                    onChange={handleLabelChange}
+                    isClearable
+                    placeholder="Search by username, label name, or email..."
+                    className="mt-1"
+                    styles={{ menu: (provided) => ({ ...provided, zIndex: 9999 }) }}
+                  />
                 </div>
                 
                 
@@ -471,15 +480,27 @@ const AlbumForm: React.FC = () => {
                       type="file"
                       name="artwork"
                       accept="image/jpeg, image/png"
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
                         setFormData({
                           ...formData,
-                          artwork: e.target.files?.[0] || null,
-                        })
-                      }
+                          artwork: file,
+                        });
+                        if (file) {
+                          setCoverPreview(URL.createObjectURL(file));
+                        } else {
+                          setCoverPreview(null);
+                        }
+                      }}
                       className="form-control"
                     />
                   </div>
+
+                  {coverPreview && (
+                    <div className="mt-2">
+                      <img src={coverPreview} alt="Cover Preview" className="w-40 h-40 object-cover border rounded" />
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">

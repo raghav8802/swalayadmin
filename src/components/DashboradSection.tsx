@@ -372,6 +372,18 @@ export default function DashboradSection() {
                             Support
                           </span>
                         </Link>
+
+                        <Link
+                          href={"/labels/custom-email"}
+                          className="flex flex-col items-center gap-2 group"
+                        >
+                          <div className="bg-[#F59E42] rounded-full QuickAccessItem group-hover:bg-[#F59E42]/80 transition-colors">
+                            <i className="bi bi-envelope-paper-fill QuickAccessItemIcon text-white"></i>
+                          </div>
+                          <span className="text-sm text-[#F59E42] group-hover:text-[#F59E42]/80 transition-colors">
+                            Send Custom Email
+                          </span>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

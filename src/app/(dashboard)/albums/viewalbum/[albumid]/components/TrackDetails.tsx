@@ -108,14 +108,22 @@ const TrackDetails: React.FC<TrackListProps> = ({
   const [isDelivering, setIsDelivering] = useState(false);
   const [isISRCModalOpen, setIsISRCModalOpen] = useState(false);
   const [editedISRC, setEditedISRC] = useState("");
+  const [cosmosDeliveryStatus, setCosmosDeliveryStatus] = useState("")
+  const [labelId, setLabelId] = useState("");
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const fetchAlbumDetails = useCallback(async (albumId: string) => {
     try {
+
       const albumResponse:any = await apiGet(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
+
+      console.log("Response from getAlbumsDetails API :::::->>>:", albumResponse);
+      
+      console.log(albumResponse.data.label._id);
+      setLabelId(albumResponse.data.label._id);
 
       if (albumResponse.success) {
         setAlbumDetails(albumResponse.data);
@@ -133,6 +141,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
       const response:any = await apiGet(
         `/api/track/getTrackDetails?trackId=${trackId}`
       );
+
+      console.log("Response from getTrackDetails API:", response);
 
       if (response.success) {
         setTrackDetails(response.data);
@@ -196,6 +206,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
     }
   };
 
+
   const uploadToComos = async (albumId: any) => {
     if (isDelivering) {
       return;
@@ -205,12 +216,17 @@ const TrackDetails: React.FC<TrackListProps> = ({
     toast.loading("Uploading to cosmos");
     try {
       const response:any = await apiPost("/api/cosmos/fetchdata", { albumId });
+
+      console.log("Response from cosmos API: STEP 1 DONE", response);
+
       if (response.success) {
         // Update the track's delivery status
         await apiPost("/api/track/updateDeliveryStatus", {
           trackId,
           status: 'delivered'
         });
+        console.log("Track delivery status updated to delivered 1");
+
         setTrackDetails(prev => prev ? {
           ...prev,
           deliveryStatus: 'delivered'
@@ -222,6 +238,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
           trackId,
           status: 'failed'
         });
+        console.log("Track delivery status updated to failed 2");
+
         setTrackDetails(prev => prev ? {
           ...prev,
           deliveryStatus: 'failed'
@@ -238,8 +256,9 @@ const TrackDetails: React.FC<TrackListProps> = ({
         ...prev,
         deliveryStatus: 'failed'
       } : null);
-      console.log("error in api", error);
+      console.log("error in api 3", error);
       toast.error("Internal server error");
+
     } finally {
       setIsDelivering(false);
     }
@@ -424,9 +443,12 @@ const TrackDetails: React.FC<TrackListProps> = ({
             >
               Link
             </button>
-            <Link href={`/albums/edittrack/${btoa(trackId)}`}>
-              <i className="bi bi-pencil-square" title="Edit track"></i>
-            </Link>
+              {trackId && labelId && (
+                 <Link href={`/albums/edittrack/${btoa(trackId)}?labelId=${btoa(labelId)}`}>
+                 <i className="bi bi-pencil-square" title="Edit track"></i>
+               </Link>
+            ) }
+           
             {trackDetails?.audioFile && (
               <div onClick={handleDownload}>
                 <i className="bi bi-download"></i>
@@ -478,6 +500,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
             {(albumStatus === AlbumProcessingStatus.Approved ||
               albumStatus === AlbumProcessingStatus.Live) && (
               <>
+
                 <button
                   className={`ms-3 px-3 py-2 rounded my-3 ${
                     isDelivering
@@ -489,6 +512,12 @@ const TrackDetails: React.FC<TrackListProps> = ({
                   {isDelivering ? 'Uploading...' : 
                    trackDetails?.deliveryStatus ? 'Re Delivery' : 'DSP Delivery'}
                 </button>
+
+                {trackDetails?.deliveryStatus === 'delivered' && (
+                  <span className="text-green-500 ms-2">
+                    <i className="bi bi-check-circle-fill"></i> Delivered
+                  </span>
+                )}
 
                 <button
                   className="ms-3 px-3 py-2 youtube-bg text-white rounded my-3"
@@ -544,6 +573,40 @@ const TrackDetails: React.FC<TrackListProps> = ({
                     </span>{" "}
                     {trackDetails && trackDetails.trackType}
                   </li>
+
+                  <li className={`mb-2 ${Style.albumInfoItem}`}>
+                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      CRBT:
+                    </span>{" "}
+                    {trackDetails && trackDetails.crbt}
+                  </li>
+                  <li className={`mb-2 ${Style.albumInfoItem}`}>
+                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      Duration:
+                    </span>{" "}
+                    {trackDetails && trackDetails.duration
+                      ? (() => {
+                          const durationNum = Number(trackDetails.duration);
+                          if (!isNaN(durationNum)) {
+                            const minutes = Math.floor(durationNum / 60);
+                            const seconds = Math.floor(durationNum % 60);
+                            // Format seconds as two digits, but use dot instead of colon
+                            return `${minutes}.${seconds.toString().padStart(2, "0")}`;
+                          }
+                          return trackDetails.duration;
+                        })()
+                      : "Not set"}
+
+                  </li>
+                  <li className={`mb-2 ${Style.albumInfoItem}`}>
+                    <span className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                      COSMOS Delivery Status:
+                    </span>{" "}
+                    {trackDetails && trackDetails.deliveryStatus}
+                  </li>
+
+
+
                 </ul>
               </div>
             </TabsContent>

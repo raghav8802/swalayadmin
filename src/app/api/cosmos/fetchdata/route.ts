@@ -104,6 +104,9 @@ export async function POST(req: Request) {
 
     const album = await Album.findById(albumObjectId).select('_id labelId title artist thumbnail language genre releasedate status totalTracks cline pline tags comment');
 
+      console.log('Album details:', album);
+      console.log('-----------');
+
     if (!album) {
       return ApiResponse(404, null, false, 'Album not found').nextResponse;
       
@@ -161,6 +164,7 @@ export async function POST(req: Request) {
         console.log(`Track file URL: ${audioFileUrl}`);
         const { checksum: audioFileChecksum, size: audioFileSize } = await fetchImageAndGenerateChecksum(audioFileUrl);
 
+        console.log("album.language", album.language);
         return {
           isrc: track.isrc || "",  
           data : {
@@ -289,12 +293,14 @@ export async function POST(req: Request) {
 
     const responseData :any = await externalApiResponse.json();
 
+        // Add logging to see the actual response structure
+    console.log('Response Data:', responseData);
+
     if (!externalApiResponse.ok) {
       return NextResponse.json(responseData, { status: externalApiResponse.status });
     }
 
-    // Add logging to see the actual response structure
-    console.log('Response Data:', responseData);
+
 
     // Check if data and signed_albums exist and have content
     if (!responseData.data?.signed_albums?.length) {

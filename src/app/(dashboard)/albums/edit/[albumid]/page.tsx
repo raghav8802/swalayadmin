@@ -46,22 +46,32 @@ type OptionType = {
   label: string;
 };
 
+interface LabelData {
+  _id: string;
+  label: string | null;
+  username: string;
+  usertype: string;
+  email: string;
+}
+
 interface AlbumResponse {
   success: boolean;
   data: {
-    title: string;
-    releasedate: string;
-    artist: string;
-    genre: string;
-    label: string;
-    language: string;
-    artwork: string;
-    pline: string;
-    cline: string;
-    tags: string[];
-    _id: string;
+    album?: {
+      title: string;
+      releasedate: string;
+      artist: string;
+      genre: string;
+      label: string | LabelData;
+      language: string;
+      artwork: string;
+      pline: string;
+      cline: string;
+      tags: string[];
+      _id: string;
+    };
+    message?: string;
   };
-  message?: string;
 }
 
 interface UpdateAlbumResponse {
@@ -73,34 +83,19 @@ interface UpdateAlbumResponse {
 }
 
 const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
-  // const { id } = useParams(); // Use the album ID from URL
-
   const albumIdParams = params.albumid;
   const [albumId, setAlbumId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    try {
-      const decodedAlbumId = atob(albumIdParams);
-      setAlbumId(decodedAlbumId);
-    } catch (e) {
-      setError("Invalid Url");
-      console.error("Decoding error:", e);
-    }
-  }, [albumIdParams, params.albumid]);
-
-  // Memoize the options arrays
+  // Move options before their usage
   const pLineOptions = React.useMemo<OptionType[]>(() => [
-    { value: "2024 SL Web Team", label: "2024 SL Web Team" },
-    // Add more p-line options here
-  ], []); // Empty dependency array since these options are static
+    { value: "2025 SL Web Team", label: "2025 SL Web Team" },
+  ], []);
 
   const cLineOptions = React.useMemo<OptionType[]>(() => [
-    { value: "2024 SL Web Team", label: "2024 SL Web Team" },
-    // Add more c-line options here
-  ], []); // Empty dependency array since these options are static
+    { value: "2025 SL Web Team", label: "2025 SL Web Team" },
+  ], []);
 
-  // Move year to useMemo as well for consistency
   const year = React.useMemo(() => new Date().getFullYear(), []);
   const labelLine = React.useMemo(() => `${year} SL Web Team`, [year]);
 
@@ -138,51 +133,80 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
     { label: "Mellow", value: "Mellow" },
     { label: "Calm", value: "Calm" },
   ];
+
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [selectedGenre, setSelectedGenre] = useState<OptionType | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<OptionType | null>(
     null
   );
+
   const [selectedPLine, setSelectedPLine] = useState<OptionType | null>(null);
   const [selectedCLine, setSelectedCLine] = useState<OptionType | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<LabelData | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+
+  useEffect(() => {
+    try {
+      const decodedAlbumId = atob(albumIdParams);
+      setAlbumId(decodedAlbumId);
+    } catch (e) {
+      setError("Invalid Album URL");
+      toast.error("Invalid Album URL");
+      console.error("Decoding error:", e);
+    }
+  }, [albumIdParams]);
 
   const fetchAlbumData = useCallback(async () => {
+    if (!albumId) return;
+
     try {
       const response = await apiGet<AlbumResponse>(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
-      if (response?.success && response?.data) {
-        const album = response.data;
-        setFormData({
-          title: album.title ?? "",
-          releaseDate: album.releasedate
-            ? new Date(album.releasedate).toISOString().split("T")[0]
-            : "",
-          artist: album.artist ?? "",
-          genre: album.genre ?? "",
-          label: album.label ?? "SwaLay Digital",
-          language: album.language ?? "",
-          artwork: null,
-          pLine: album.pline ?? labelLine,
-          cLine: album.cline ?? labelLine,
-        });
-
-        setSelectedTags(
-          album.tags.map((tag: string) => ({ label: tag, value: tag }))
-        );
-
-        setSelectedPLine(
-          pLineOptions.find((option) => option.value === album.pline) || null
-        );
-        setSelectedCLine(
-          cLineOptions.find((option) => option.value === album.cline) || null
-        );
-      } else {
-        toast.error("Failed to fetch album data");
+      if (!response?.success || !response?.data) {
+        throw new Error("Failed to fetch album data");
       }
+
+      const albumData = response.data.album || response.data;
+      if (!('title' in albumData)) {
+        throw new Error("Invalid album data structure");
+      }
+
+      setFormData({
+        title: albumData.title || "",
+        releaseDate: albumData.releasedate
+          ? new Date(albumData.releasedate).toISOString().split("T")[0]
+          : "",
+        artist: albumData.artist || "",
+        genre: albumData.genre || "",
+        label: typeof albumData.label === 'string'
+          ? albumData.label
+          : ((albumData.label as LabelData)?.label || (albumData.label as LabelData)?.username || (albumData.label as LabelData)?._id || ""),
+        language: albumData.language || "",
+        artwork: null,
+        pLine: albumData.pline || labelLine,
+        cLine: albumData.cline || labelLine,
+      });
+
+      if (Array.isArray(albumData.tags)) {
+        setSelectedTags(
+          albumData.tags.map((tag: string) => ({ label: tag, value: tag }))
+        );
+      }
+
+      setSelectedPLine(
+        pLineOptions.find((option) => option.value === albumData.pline) || null
+      );
+      setSelectedCLine(
+        cLineOptions.find((option) => option.value === albumData.cline) || null
+      );
     } catch (error) {
-      toast.error("Error fetching album data");
+      const errorMessage = error instanceof Error ? error.message : "Error fetching album data";
+      toast.error(errorMessage);
+      setError(errorMessage);
     }
   }, [albumId, labelLine, pLineOptions, cLineOptions]);
 
@@ -195,18 +219,33 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
   const handleSelectChange = (selectedItems: TagOption[]) => {
     if (selectedItems.length > 3) {
       toast.error("You can select a maximum of 3 Tags.");
-    } else {
-      setSelectedTags(selectedItems);
+      return;
     }
+    setSelectedTags(selectedItems);
   };
-
-  // useState hook to manage form validation errors
-  const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
 
   // Handling file drop for artwork
-  const onDrop = (acceptedFiles: File[]) => {
-    setFormData({ ...formData, artwork: acceptedFiles[0] });
-  };
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      toast.error("Invalid file type. Only JPEG and PNG are allowed.");
+      return;
+    }
+
+    // Validate image dimensions
+    const image = new window.Image();
+    image.src = URL.createObjectURL(file);
+    image.onload = () => {
+      if (image.width !== 3000 || image.height !== 3000) {
+        toast.error("Invalid image dimensions. Image must be 3000x3000 pixels.");
+        return;
+      }
+      setFormData(prev => ({ ...prev, artwork: file }));
+    };
+  }, []);
 
   // useDropzone hook for handling file uploads
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -222,75 +261,99 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   // Handling form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const loadingToastId = toast.loading("Updating...");
+    
+    // Reset errors
+    setErrors({});
+    
+    // Basic validation
+    if (!formData.title.trim()) {
+      setErrors(prev => ({ ...prev, title: ["Title is required"] }));
+      return;
+    }
+
+    if (!formData.artist.trim()) {
+      setErrors(prev => ({ ...prev, artist: ["Artist is required"] }));
+      return;
+    }
+
+    if (!formData.genre) {
+      setErrors(prev => ({ ...prev, genre: ["Genre is required"] }));
+      return;
+    }
+
+    if (!formData.language) {
+      setErrors(prev => ({ ...prev, language: ["Language is required"] }));
+      return;
+    }
+
+    const loadingToastId = toast.loading("Updating album...");
+    
     try {
-      const artwork = formData.artwork;
-
-      if (artwork && !["image/jpeg", "image/png"].includes(artwork.type)) {
-        toast.error("Invalid file type. Only JPEG and PNG are allowed.");
-        return;
-      }
-
-      if (artwork) {
-        const image = new window.Image();
-        image.src = URL.createObjectURL(artwork);
-        image.onload = () => {
-          if (image.width !== 3000 || image.height !== 3000) {
-            toast.error(
-              "Invalid image dimensions. Image must be 3000x3000 pixels."
-            );
-            return;
-          }
-        };
-      }
-
       const selectedTagValues = selectedTags.map((tag) => tag.value);
-     
       const formDataObj = new FormData();
-      if (albumId) {
-        formDataObj.append("albumId", albumId);
+
+      if (!albumId) {
+        throw new Error("Album ID is missing");
       }
 
-      formDataObj.append("title", formData.title);
+      formDataObj.append("albumId", albumId);
+      formDataObj.append("title", formData.title.trim());
       formDataObj.append("releaseDate", formData.releaseDate);
-      formDataObj.append("artist", formData.artist);
+      formDataObj.append("artist", formData.artist.trim());
       formDataObj.append("genre", formData.genre);
       formDataObj.append("label", formData.label);
       formDataObj.append("language", formData.language);
       formDataObj.append("pLine", formData.pLine);
       formDataObj.append("cLine", formData.cLine);
       formDataObj.append("tags", JSON.stringify(selectedTagValues));
-      if (artwork) formDataObj.append("artwork", artwork);
-
-      const response = await apiFormData<UpdateAlbumResponse>("/api/albums/updateAlbum", formDataObj);
-
-      toast.dismiss(loadingToastId);
-      if (response?.success && response?.data) {
-        toast.success("😉 Success! Album updated");
-        router.push(`/albums/viewalbum/${btoa(response.data._id)}`);
-      } else {
-        toast.error("🤔 Error updating album", {
-          id: loadingToastId,
-        });
+      
+      if (formData.artwork) {
+        formDataObj.append("artwork", formData.artwork);
       }
+
+      const response = await apiFormData<UpdateAlbumResponse>(
+        "/api/albums/updateAlbum",
+        formDataObj
+      );
+
+      if (!response?.success || !response?.data) {
+        throw new Error(response?.message || "Failed to update album");
+      }
+
+      toast.success("Album updated successfully");
+      router.push(`/albums/viewalbum/${btoa(response.data._id)}`);
     } catch (error: any) {
-      if (error.name === "ValidationError") {
+      const errorMessage = error?.message || "Error updating album";
+      toast.error(errorMessage);
+      
+      if (error.name === "ValidationError" && error.formErrors?.fieldErrors) {
         const fieldErrors: { [key: string]: string[] } = {};
-        for (const field in error.formErrors.fieldErrors) {
-          fieldErrors[field] = error.formErrors.fieldErrors[field].map(
-            (err: any) => err.message
-          );
-        }
+        (Object.entries(error.formErrors.fieldErrors) as [string, Array<{ message: string }>][]).forEach(([field, errors]) => {
+          fieldErrors[field] = errors.map(err => err.message);
+        });
         setErrors(fieldErrors);
       }
+    } finally {
+      toast.dismiss(loadingToastId);
     }
   };
+
+  if (error) {
+    return (
+      <div className="w-full min-h-screen p-6 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen p-6 bg-white rounded-sm border">
@@ -468,23 +531,10 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
                 )}
               </div>
 
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Label
-                </label>
               
-                {errors.label && (
-                  <p className="text-red-500 text-sm mt-1">{errors.label[0]}</p>
-                )}
-              </div> */}
-              <input
-                type="hidden"
-                name="label"
-                value={formData.label}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Label Name"
-              />
+
+
+
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -492,20 +542,13 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
                 <label className="block text-sm font-medium text-gray-700">
                   P-Line
                 </label>
-                <select
+                <input
+                  type="text"
                   name="pLine"
                   value={formData.pLine}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Select P-Line</option>
-                  {pLineOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
+                  readOnly
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
                 {errors.pLine && (
                   <p className="text-red-500 text-sm mt-1">{errors.pLine[0]}</p>
                 )}
@@ -515,20 +558,13 @@ const EditAlbumForm = ({ params }: { params: { albumid: string } }) => {
                 <label className="block text-sm font-medium text-gray-700">
                   C-Line
                 </label>
-                <select
+                <input
+                  type="text"
                   name="cLine"
                   value={formData.cLine}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Select C-Line</option>
-                  {cLineOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
+                  readOnly
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
                 {errors.cLine && (
                   <p className="text-red-500 text-sm mt-1">{errors.cLine[0]}</p>
                 )}

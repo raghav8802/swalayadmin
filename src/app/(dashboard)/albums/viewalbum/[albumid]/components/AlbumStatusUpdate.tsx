@@ -56,34 +56,37 @@ const AlbumStatusUpdate: React.FC<AlbumStatusProps> = ({
   }, [status, message, albumid, labelid, albumName, onUpdate]);
 
   return (
-    <div className="w-full">
-      <select
-        className="form-control mt-2 mb-3"
-        onChange={(e) => setStatus(e.target.value)}
-        value={status}
-        required
-      >
-        <option value="">Select Status</option>
-        <option value="2">Approved</option>
-        <option value="4">Live</option>
-        <option value="3">Reject</option>
-      </select>
+    <div className="w-full flex items-start justify-between">
+      <div className="w-[84%] flex flex-col items-start justify-start">
+        <select
+          className="form-control mt-2 mb-3"
+          onChange={(e) => setStatus(e.target.value)}
+          value={status}
+          required
+        >
+          <option value="">Select Status</option>
+          <option value="2">Approved</option>
+          <option value="4">Live</option>
+          <option value="3">Reject</option>
+        </select>
 
-      {status === "3" && (
-        <textarea
-          className="form-control mb-3"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write reason for rejection"
-        />
-      )}
+        {status === "3" && (
+          <textarea
+            className="form-control mb-3"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Write reason for rejection"
+          />
+        )}
+      </div>
 
       <button
-        className="px-3 py-2 rounded text-white bg-cyan-600"
+        className="px-3 py-2 mt-2 rounded text-white bg-cyan-600 w-[15%]"
         onClick={onStatusUpdate}
       >
         Update Status
       </button>
+
     </div>
   );
 };

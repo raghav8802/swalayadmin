@@ -8,62 +8,27 @@ export async function GET(request: NextRequest) {
     await connect();
 
     try {
-        const artistId = request.nextUrl.searchParams.get("artistId");
+        const artistIds = request.nextUrl.searchParams.get("artistIds");
 
-        if (!artistId) {
-            return NextResponse.json({ status: 400, message: "Artist ID is missing", success: false });
+        if (!artistIds) {
+            return NextResponse.json({ status: 400, message: "Artist IDs are missing", success: false });
         }
 
-        // Find artist data
-        const artistData = await Artist.findOne({ _id: artistId });
-        if (!artistData) {
-            return NextResponse.json({ status: 404, message: "Artist not found", success: false });
-        }
+        const artistIdArray = artistIds.split(',');
 
-        // Find tracks where the artist is involved in any role (primarySinger, singers, composers, lyricists, producers)
-        const tracks = await Track.find({
-            $or: [
-                { primarySinger: artistId },
-                { singers: artistId },
-                { composers: artistId },
-                { lyricists: artistId },
-                { producers: artistId }
-            ]
-        }).select('albumId songName primarySinger singers composers lyricists producers');
+        // Find artists data
+        const artists = await Artist.find({ _id: { $in: artistIdArray } })
+            .select('_id name'); // Only select the fields we need
 
-        // Collect album data for each track
-        const albums = [];
-        for (const track of tracks) {
-            const roles = [];
-
-            if (track.primarySinger === artistId) roles.push('Primary Singer');
-            if (track.singers?.includes(artistId)) roles.push('Singer');
-            if (track.composers?.includes(artistId)) roles.push('Composer');
-            if (track.lyricists?.includes(artistId)) roles.push('Lyricist');
-            if (track.producers?.includes(artistId)) roles.push('Producer');
-
-            // Find album data using albumId
-            const album = await Album.findById(track.albumId).select('title thumbnail');
-            
-            if (album) {
-                albums.push({
-                    albumId: album._id,
-                    albumName: album.title,
-                    thumbnail: album.thumbnail,
-                    trackName: track.songName,
-                    workAs: roles
-                });
-            }
+        if (!artists.length) {
+            return NextResponse.json({ status: 404, message: "No artists found", success: false });
         }
 
         return NextResponse.json({
-            message: "Artist found",
+            message: "Artists found",
             success: true,
             status: 200,
-            data: {
-                artistData,
-                albums // The albums the artist worked on
-            }
+            data: artists
         });
 
     } catch (error: any) {

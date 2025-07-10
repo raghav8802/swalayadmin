@@ -18,6 +18,7 @@ import { Modal } from "@/components/Modal";
 // Loading
 import toast from "react-hot-toast";
 import Loading from "@/app/(dashboard)/loading";
+import { formatDuration } from "@/lib/utils";
 
 interface Track {
   composer: string[];
@@ -63,6 +64,7 @@ type MarketingData = {
   artistInstagramUrl: string;
   extraFile: string;
   isExtraFileRequested: boolean;
+  isSelectedForPromotion: boolean; // Add this field
   labelId: string;
   mood: string;
   promotionLinks: string;
@@ -112,7 +114,7 @@ const Page = ({ params }: { params: { albumid: string } }) => {
       const response: any = await apiGet(`/api/marketing/details?albumId=${albumId}`);
       
       if (response.success) {
-        console.log(response.data);
+
         
         setMarketingDetails(response.data);
         setAlbumDetails(response.data.albumDetails);
@@ -180,6 +182,30 @@ const Page = ({ params }: { params: { albumid: string } }) => {
     }
   };
 
+  const handleTogglePromotion = async () => {
+    if (!MarketingData?._id) return;
+    
+    toast.loading("Updating promotion status...");
+    try {
+      const response: any = await apiPost("/api/marketing/togglePromotion", {
+        marketingId: MarketingData._id,
+      });
+
+      toast.dismiss();
+      if (response.success) {
+        toast.success(response.message);
+        // Update local state
+        setMarketingData(response.data);
+      } else {
+        toast.error(response.message || "Failed to update promotion status");
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to update promotion status");
+      console.error("Error toggling promotion:", error);
+    }
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -189,6 +215,19 @@ const Page = ({ params }: { params: { albumid: string } }) => {
       className="w-full h-full p-2 bg-white rounded-sm"
       style={{ minHeight: "90vh" }}
     >
+      {MarketingData?.isSelectedForPromotion && (
+        <div className="mb-4 p-4 border rounded-lg bg-green-50 border-green-200">
+          <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <p className="text-green-700 font-medium">
+              This album has been selected for promotion
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         {albumDetails && albumDetails.thumbnail && (
           <div className="flex-shrink-0">
@@ -356,7 +395,7 @@ const Page = ({ params }: { params: { albumid: string } }) => {
                     <TableCell>{track.producer.join(", ")}</TableCell>
                     <TableCell>{track.lyricist.join(", ")}</TableCell>
                     <TableCell>{track.composer.join(", ")}</TableCell>
-                    <TableCell>{track.duration}</TableCell>
+                    <TableCell>{formatDuration(parseFloat(track.duration))}</TableCell>
                     <TableCell>{track.isrc}</TableCell>
                   </TableRow>
                 ))}
@@ -370,9 +409,17 @@ const Page = ({ params }: { params: { albumid: string } }) => {
           <h2 className="text-2xl font-semibold mb-4 mt-6">
             Marketing Details
           </h2>
-          <Button onClick={() => setIsModalVisible(true)}>
-            Request Extra File{" "}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant={MarketingData?.isSelectedForPromotion ? "destructive" : "default"}
+              onClick={handleTogglePromotion}
+            >
+              {MarketingData?.isSelectedForPromotion ? "Remove from Promotion" : "Select for Promotion"}
+            </Button>
+            <Button onClick={() => setIsModalVisible(true)}>
+              Request Extra File{" "}
+            </Button>
+          </div>
         </div>
 
         {MarketingData && (
@@ -405,6 +452,19 @@ const Page = ({ params }: { params: { albumid: string } }) => {
                   >
                     {MarketingData.artistInstagramUrl}
                   </a>
+                </TableCell>
+              </TableRow>
+
+              <TableRow>
+                <TableCell className="font-medium">Promotion Status</TableCell>
+                <TableCell>
+                  <span className={`px-2 py-1 rounded-full text-sm ${
+                    MarketingData.isSelectedForPromotion 
+                      ? "bg-green-100 text-green-800" 
+                      : "bg-gray-100 text-gray-800"
+                  }`}>
+                    {MarketingData.isSelectedForPromotion ? "Selected for Promotion" : "Not Selected"}
+                  </span>
                 </TableCell>
               </TableRow>
 

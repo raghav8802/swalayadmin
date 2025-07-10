@@ -139,7 +139,7 @@ export async function uploadEmployeeNdaToS3({
   fileName,
 }: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
   try {
-    const newFileName = fileName;
+    const newFileName = fileName.replace(/ /g, '+'); // Replace spaces with + for URL safety
     const fileBuffer = file;
     const fileExtension = newFileName.split('.').pop()?.toLowerCase();
     let contentType: string;
@@ -181,11 +181,9 @@ export async function uploadWorkPolicyToS3({
   fileName,
 }: UploadEmployeeDocumentS3Params): Promise<{ status: boolean; fileName: string }> {
   try {
-    const newFileName = fileName;
+    const newFileName = fileName.replace(/ /g, '+'); // Replace spaces with + for URL safety
     const fileBuffer = file;
     const fileExtension = newFileName.split('.').pop()?.toLowerCase();
-    console.log(" wrk plcy fileExtension :: ");
-    console.log(fileExtension);
     
     let contentType: string;
 
@@ -204,7 +202,7 @@ export async function uploadWorkPolicyToS3({
       Bucket: process.env.AWS_S3_BUCKET_NAME,
       Key: uploadFilePath,
       Body: fileBuffer,
-      ContentType: contentType, // Dynamically set based on file type
+      ContentType: contentType,
     };
 
     const command = new PutObjectCommand(params);

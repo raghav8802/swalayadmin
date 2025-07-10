@@ -4,7 +4,6 @@ import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import "react-quill/dist/quill.snow.css";
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +15,16 @@ import { MultiSelect } from "react-multi-select-component";
 import { NotificationTable } from "./components/NotificationTable";
 
 // Dynamically import react-quill with no SSR (server-side rendering)
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import("react-quill");
+    return RQ;
+  },
+  {
+    ssr: false,
+    loading: () => <p>Loading editor...</p>,
+  }
+);
 
 interface LabelData {
   _id: string;
