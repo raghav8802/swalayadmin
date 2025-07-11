@@ -1,6 +1,4 @@
 import * as React from "react";
-import Head from 'next/head';
-import Image from 'next/image';
 
 type EmailTemplateProps = {
   clientName: string;
@@ -12,14 +10,6 @@ export default function AccountActivationEmailTemplate({
 : React.ReactElement
  {
   return (
-    <html lang="en">
-    <Head>
-      <title>Welcome to SwaLay!</title>
-      <meta charSet="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      
-    </Head>
-    <body style={{ margin: '0', backgroundColor: '#fffefe', padding: '0' }}>
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <h1 style={{ fontSize: '32px', textAlign: 'center', color: '#000000', marginBottom: '24px' }}>
         Thanks For Joining!
@@ -53,11 +43,12 @@ export default function AccountActivationEmailTemplate({
         </ol>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: "center",  margin: '32px 0' }}>       
-          <Image 
+          <img 
             src="https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/SwaLay+-2.png" 
             alt="Welcome Character"
-            width={180}
-            height={150}
+            width="180"
+            height="150"
+            style={{ maxWidth: '100%', height: 'auto' }}
           />
 
           <p style={{ 
@@ -82,58 +73,8 @@ export default function AccountActivationEmailTemplate({
           We&apos;re excited to have you embark on this musical journey with SwaLay!
         </p>
 
-        <p style={{ 
-          fontStyle: 'italic', 
-          textAlign: 'center',
-          borderTop: '1px dashed #cccccc',
-          paddingTop: '20px',
-          marginTop: '32px'
-        }}>
-          Keep the Beat, Team SwaLay
-        </p>
 
-        <div style={{ 
-          backgroundColor: '#000000',
-          padding: '20px',
-          marginTop: '32px',
-          textAlign: 'center'
-        }}>
-          <div style={{ marginBottom: '20px' }}>
-            <a href="https://www.facebook.com/swalaydigital" style={{ margin: '0 10px' }}>
-              <Image
-                src="https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/facebook2x.png" 
-                alt="Facebook"
-                width={24}
-                height={24}
-              />
-            </a>
-            <a href="https://www.linkedin.com/company/swalay" style={{ margin: '0 10px' }}>
-              <Image
-                src="https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/linkedin2x.png" 
-                alt="LinkedIn"
-                width={24}
-                height={24}
-              />
-            </a>
-            <a href="https://www.instagram.com/swalaydigital" style={{ margin: '0 10px' }}>
-              <Image
-                src="https://swalay-music-files.s3.ap-south-1.amazonaws.com/assets/instagram2x.png" 
-                alt="Instagram"
-                width={24}
-                height={24}
-              />
-            </a>
-          </div>
-          <div style={{ color: '#ffffff', fontSize: '14px' }}>
-            © Copyright 2024 By SwaLay Digital
-          </div>
-          <div style={{ color: '#ffffff', fontSize: '12px', marginTop: '8px' }}>
-            Powered By TalantonCore
-          </div>
-        </div>
       </div>
     </div>
-    </body>
-  </html>
   );
 }

@@ -66,7 +66,7 @@ export const albumColumns: ColumnDef<AlbumDType>[] = [
 ];
 
 export function AlbumDetailsTable({ data }: { data: AlbumDType[] }) {
-  console.log("Data in AlbumDetailsTable:", data);
+
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
