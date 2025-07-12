@@ -1,28 +1,31 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
 import Artist from '@/models/Artists';
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     await connect();
 
-    // Get the artist ID from query parameters
-    const { searchParams } = new URL(request.url);
-    const artistId = searchParams.get('id');
+    const reqBody = await request.json();
+    const { _id, ...updateData } = reqBody;
 
-    if (!artistId) {
+    // Validate required fields
+    if (!updateData.artistName) {
       return NextResponse.json({
-        message: "Artist ID is required",
+        message: "Artist name is required",
         success: false,
         status: 400
       });
     }
 
-    // Find the artist by ID
-    const artist = await Artist.findById(artistId);
+    // Update the artist
+    const updatedArtist = await Artist.findByIdAndUpdate(
+      _id,
+      updateData,
+      { new: true } // Return the updated document
+    );
 
-    if (!artist) {
+    if (!updatedArtist) {
       return NextResponse.json({
         message: "Artist not found",
         success: false,
@@ -31,18 +34,18 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: "Artist fetched successfully",
+      message: "Artist updated successfully",
+      data: updatedArtist,
       success: true,
-      data: artist,
       status: 200
     });
 
   } catch (error: any) {
-    console.error('Error fetching artist:', error);
+    console.error('Error updating artist:', error);
     return NextResponse.json({
       error: error.message || 'An unknown error occurred',
       success: false,
       status: 500
     }, { status: 500 });
   }
-}
+} 

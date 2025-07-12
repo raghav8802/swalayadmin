@@ -128,6 +128,9 @@ export const artistColumns: ColumnDef<Artist>[] = [
                         <DropdownMenuItem>
                             <Link href={`/artists/${btoa(artist._id)}`} >View artist details</Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Link href={`/artists/edit/${btoa(artist._id)}`} >Edit artist</Link>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

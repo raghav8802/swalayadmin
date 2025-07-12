@@ -282,7 +282,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
       !ytIsrc ||
       !ytstitle
     ) {
-      toast.error("Missing required track details.");
+      toast.error("Missing required track details");
       return;
     }
 

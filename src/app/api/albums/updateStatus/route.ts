@@ -57,17 +57,17 @@ export async function POST(req: NextRequest) {
     switch (status) {
       case 2: //Approved
         message = `Album <b>${albumName}</b> is approved`;
-        MessageforEmail = `Album ${albumName} is approved`;
+        MessageforEmail = `${albumName} Is Now Approved – Let’s Go Live!`;
         statusLabel = `approved`;
         break;
       case 3: // Rejected
         message = `Album <b>${albumName}</b> is Rejected due to ${comment}`;
-        MessageforEmail = `Album ${albumName} is Rejected`;
+        MessageforEmail = `${albumName} is Rejected`;
         statusLabel = `rejected`;
         break;
       case 4: // Live
         message = `Album <b>${albumName}</b> is Live Now`;
-        MessageforEmail = `Album ${albumName} is Live Now`;
+        MessageforEmail = `🎉 Your Album ${albumName} Is Now Live!`;
         statusLabel = `live`;
         break;
     }

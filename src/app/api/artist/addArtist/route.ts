@@ -2,18 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
 import Artist from '@/models/Artists';
 
-
-
 export async function POST(request: NextRequest) {
-
   try {
     await connect();  // Connect to the database
 
-    console.log("in artist ");
-
-    const reqBody = await request.json()
-    // console.log(reqBody)
-
+    const reqBody = await request.json();
 
     // Validate required fields
     if (!reqBody.artistName) {
@@ -21,23 +14,19 @@ export async function POST(request: NextRequest) {
         message: "Artist name required",
         success: false,
         status: 400
-      })
+      });
     }
 
-
     // Create and save the new artist
-    const newartist = new Artist(reqBody);
-    // const savedartist = await newartist.save();
-    console.log("saved artist data : ")
-    console.log(newartist)
+    const newArtist = new Artist(reqBody);
+    const savedArtist = await newArtist.save();
 
     return NextResponse.json({
-      message: "Artist add success",
-      data: newartist,
+      message: "Artist added successfully",
+      data: savedArtist,
       success: true,
       status: 201
-    })
-
+    });
 
   } catch (error: any) {
     console.error('Error creating artist:', error);
@@ -47,6 +36,4 @@ export async function POST(request: NextRequest) {
       status: 500
     }, { status: 500 });
   }
-
-
 }

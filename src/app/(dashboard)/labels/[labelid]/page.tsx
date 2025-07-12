@@ -44,6 +44,7 @@ interface ApiResponse<T> {
   status?: number;
 }
 
+
 const LabelPage = ({ params }: { params: { labelid: string } }) => {
   const labelParams = params.labelid;
   // const [decodedArtistId, setDecodedArtistId] = useState('');

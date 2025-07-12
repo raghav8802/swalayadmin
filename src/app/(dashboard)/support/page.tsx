@@ -14,6 +14,7 @@ import Link from "next/link";
 
 interface SupportTicket {
   _id: string;
+  ticketId: string;
   name: string;
   email: string;
   subject: string;
@@ -116,7 +117,7 @@ export default function MyTickets() {
       
       if (response.success) {
         setTickets(tickets.map(ticket => 
-          ticket._id === ticketId 
+          ticket.ticketId === ticketId 
             ? { ...ticket, status: newStatus }
             : ticket
         ));
@@ -140,7 +141,7 @@ export default function MyTickets() {
       
       if (response.success) {
         setTickets(tickets.map(ticket => 
-          ticket._id === ticketId 
+          ticket.ticketId === ticketId 
             ? { ...ticket, priority: newPriority as 'low' | 'medium' | 'high' }
             : ticket
         ));
@@ -165,7 +166,7 @@ export default function MyTickets() {
       
       if (response.success) {
         setTickets(tickets.map(ticket => 
-          ticket._id === ticketId 
+          ticket.ticketId === ticketId 
             ? { ...ticket, isClosed: true, status: 'resolved' }
             : ticket
         ));
@@ -321,7 +322,7 @@ export default function MyTickets() {
       ) : (
         <div className="space-y-4">
           {filteredTickets.map((ticket) => (
-            <Card key={ticket._id}>
+            <Card key={ticket.ticketId}>
               <CardHeader>
                 <CardTitle className="flex justify-between items-center">
                   <div className="flex items-center gap-4">
@@ -331,12 +332,15 @@ export default function MyTickets() {
                     }>
                       {ticket.isClosed ? "Closed" : "Open"}
                     </Badge>
+                    <Badge variant="outline" className="bg-gray-50">
+                      #{ticket.ticketId || 'No ID'}
+                    </Badge>
                   </div>
                   <div className="flex items-center gap-4">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSelectedTicket(ticket._id)}
+                      onClick={() => setSelectedTicket(ticket.ticketId)}
                       className="relative"
                     >
                       <MessageCircle className="h-4 w-4 mr-2" />
@@ -377,8 +381,8 @@ export default function MyTickets() {
                         <span className="text-sm">Status:</span>
                         <Select
                           value={ticket.status}
-                          onValueChange={(value) => handleStatusChange(ticket._id, value)}
-                          disabled={updating[ticket._id] || ticket.isClosed}
+                          onValueChange={(value) => handleStatusChange(ticket.ticketId, value)}
+                          disabled={updating[ticket.ticketId] || ticket.isClosed}
                         >
                           <SelectTrigger className="w-[140px]">
                             <SelectValue />
@@ -394,8 +398,8 @@ export default function MyTickets() {
                         <span className="text-sm">Priority:</span>
                         <Select
                           value={ticket.priority}
-                          onValueChange={(value) => handlePriorityChange(ticket._id, value)}
-                          disabled={updating[ticket._id] || ticket.isClosed}
+                          onValueChange={(value) => handlePriorityChange(ticket.ticketId, value)}
+                          disabled={updating[ticket.ticketId] || ticket.isClosed}
                         >
                           <SelectTrigger className="w-[120px]">
                             <SelectValue />
@@ -411,8 +415,8 @@ export default function MyTickets() {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleCloseTicket(ticket._id)}
-                          disabled={updating[ticket._id]}
+                          onClick={() => handleCloseTicket(ticket.ticketId)}
+                          disabled={updating[ticket.ticketId]}
                         >
                           Close Ticket
                         </Button>

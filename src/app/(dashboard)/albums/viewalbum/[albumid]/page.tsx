@@ -42,6 +42,7 @@ interface LabelDetails {
   username: string;
   usertype: string;
   lable: string;
+  _id: string;
 }
 
 interface ApiResponse {
@@ -117,11 +118,12 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
 
   const fetchAlbumDetails = React.useCallback(async (albumId: string) => {
     try {
-      const response = await apiGet<ApiResponse>(
+      const response:any = await apiGet<ApiResponse>(
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
-      console.log("response from fetchAlbumDetails", response);
+      // console.log("response from fetchAlbumDetails", response);
+      console.log("response from fetchAlbumDetails", response.data.label);
 
       if (response?.data) {
         setAlbumDetails(response.data.album);
@@ -381,7 +383,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
               </span>
               {LabelDetails ? (
                 <Link
-                  href={`/labels/${btoa(LabelDetails.username)}`}
+                  href={`/labels/${btoa(LabelDetails._id)}`}
                   className="text-blue-500 hover:underline"
                 >
                   {LabelDetails.username} | {LabelDetails.lable}{" "}
