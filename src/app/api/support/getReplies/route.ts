@@ -16,8 +16,8 @@ export async function GET(request: Request) {
       });
     }
 
-    // Check if ticket exists
-    const ticket = await Support.findById(ticketId);
+    // Check if ticket exists using ticketId field instead of _id
+    const ticket = await Support.findOne({ ticketId: ticketId });
     if (!ticket) {
       return NextResponse.json({ 
         success: false, 
@@ -25,8 +25,8 @@ export async function GET(request: Request) {
       });
     }
 
-    // Get all replies for the ticket
-    const replies = await SupportReply.find({ supportId: ticketId })
+    // Get all replies for the ticket using the ticket's _id
+    const replies = await SupportReply.find({ supportId: ticket._id })
       .sort({ createdAt: 1 });
 
     return NextResponse.json({

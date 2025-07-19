@@ -106,7 +106,7 @@ export default function SupportThread({ ticketId, onClose, onUpdate }: SupportTh
         message: newMessage,
         senderType: 'admin',
         senderId: 'admin', // You might want to get this from context
-        senderName: 'Sushrita' // You might want to get this from context
+        senderName: 'SwaLay' // You might want to get this from context
       });
 
       if (response.success) {

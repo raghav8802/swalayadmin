@@ -48,35 +48,24 @@ const SupportSchema: Schema = new Schema({
 // Function to generate ticket ID
 async function generateTicketId() {
   try {
-    const date = new Date();
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const prefix = `SWLY${year}${month}`;
-    
-    console.log('Generating ticket ID with prefix:', prefix);
-    
-    // Find the latest ticket with this prefix
+    // Find the latest ticket
     const latestTicket = await mongoose.models.Support.findOne(
-      { ticketId: { $regex: `^${prefix}` } },
+      {},
       {},
       { sort: { ticketId: -1 } }
     );
 
-
-    console.log('Latest ticket found:', latestTicket);
-
-    let counter = 1;
+    let nextNumber = 20725; // Starting number
+    
     if (latestTicket && latestTicket.ticketId) {
-      // Extract the counter from the latest ticket ID and increment it
-      const latestCounter = parseInt(latestTicket.ticketId.slice(-4));
-      if (!isNaN(latestCounter)) {
-        counter = latestCounter + 1;
+      // Extract the number from the latest ticket ID and increment it
+      const latestNumber = parseInt(latestTicket.ticketId);
+      if (!isNaN(latestNumber)) {
+        nextNumber = latestNumber + 1;
       }
     }
 
-    const newTicketId = `${prefix}${counter.toString().padStart(4, '0')}`;
-    console.log('Generated new ticket ID:', newTicketId);
-    return newTicketId;
+    return nextNumber.toString();
   } catch (error) {
     console.error('Error generating ticket ID:', error);
     throw new Error(`Failed to generate ticket ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -106,7 +95,7 @@ SupportSchema.pre('save', async function(next) {
 // Create indexes for better query performance
 SupportSchema.index({ status: 1, createdAt: -1 });
 SupportSchema.index({ isClosed: 1, priority: 1 });
-SupportSchema.index({ ticketId: 1 }, { unique: true });
+
 
 
 
