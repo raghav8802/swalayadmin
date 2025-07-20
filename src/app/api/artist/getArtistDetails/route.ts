@@ -4,6 +4,10 @@ import { NextResponse, NextRequest } from 'next/server';
 import Track from '@/models/track';
 import Album from '@/models/albums';
 
+// Add dynamic configuration
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
     await connect();
 

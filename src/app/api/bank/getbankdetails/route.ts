@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
 import BankData from '@/models/Bank';
 
+// Add dynamic configuration
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
     try {

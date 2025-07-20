@@ -6,6 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Track from "@/models/track";
 import Label from "@/models/Label";
 
+// Add dynamic configuration
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Define the type for artistMap
 interface ArtistMap {
