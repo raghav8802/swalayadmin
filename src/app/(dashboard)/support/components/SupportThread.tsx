@@ -106,7 +106,7 @@ export default function SupportThread({ ticketId, onClose, onUpdate }: SupportTh
         message: newMessage,
         senderType: 'admin',
         senderId: 'admin', // You might want to get this from context
-        senderName: 'Sushrita' // You might want to get this from context
+        senderName: 'SwaLay' // You might want to get this from context
       });
 
       if (response.success) {
@@ -250,6 +250,9 @@ export default function SupportThread({ ticketId, onClose, onUpdate }: SupportTh
         <div className="flex justify-between items-center p-4 border-b">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-semibold">{ticket?.subject}</h2>
+            <Badge variant="outline" className="bg-gray-50">
+              #{ticket?.ticketId}
+            </Badge>
             <div className="flex gap-2">
               <Badge className={getStatusBadgeColor(ticket?.status)}>
                 {ticket?.status}

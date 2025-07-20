@@ -4,36 +4,48 @@ import Artist from '@/models/Artists';
 
 export async function POST(request: NextRequest) {
   try {
-    await connect();  // Connect to the database
+    await connect();
 
     const reqBody = await request.json();
+    const { _id, ...updateData } = reqBody;
 
     // Validate required fields
-    if (!reqBody.artistName) {
+    if (!updateData.artistName) {
       return NextResponse.json({
-        message: "Artist name required",
+        message: "Artist name is required",
         success: false,
         status: 400
       });
     }
 
-    // Create and save the new artist
-    const newArtist = new Artist(reqBody);
-    const savedArtist = await newArtist.save();
+    // Update the artist
+    const updatedArtist = await Artist.findByIdAndUpdate(
+      _id,
+      updateData,
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedArtist) {
+      return NextResponse.json({
+        message: "Artist not found",
+        success: false,
+        status: 404
+      });
+    }
 
     return NextResponse.json({
-      message: "Artist added successfully",
-      data: savedArtist,
+      message: "Artist updated successfully",
+      data: updatedArtist,
       success: true,
-      status: 201
+      status: 200
     });
 
   } catch (error: any) {
-    console.error('Error creating artist:', error);
+    console.error('Error updating artist:', error);
     return NextResponse.json({
       error: error.message || 'An unknown error occurred',
       success: false,
       status: 500
     }, { status: 500 });
   }
-}
+} 

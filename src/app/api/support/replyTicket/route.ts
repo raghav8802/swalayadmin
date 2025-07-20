@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Support from "@/models/Support";
 import SupportReply from "@/models/SupportReply";
+import sendMail from "@/helpers/sendMail";
+import EmailLayout from "@/components/email/EmailLayout";
+import SupportTicketEmailTemplate from "@/components/email/support-ticket";
+import React from "react";
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +20,7 @@ export async function POST(req: Request) {
     }
 
     // Check if ticket exists and is not closed
-    const ticket = await Support.findById(ticketId);
+    const ticket = await Support.findOne({ ticketId });
     if (!ticket) {
       return NextResponse.json({ 
         success: false, 
@@ -33,7 +37,7 @@ export async function POST(req: Request) {
 
     // Create new reply
     const newReply = new SupportReply({
-      supportId: ticketId,
+      supportId: ticket._id, // We still need to use _id for the database relationship
       senderType,
       senderId,
       senderName,
@@ -45,8 +49,27 @@ export async function POST(req: Request) {
 
     // Update ticket status to in-progress if it was pending
     if (ticket.status === 'pending') {
-      await Support.findByIdAndUpdate(ticketId, { status: 'in-progress' });
+      await Support.findByIdAndUpdate(ticket._id, { status: 'in-progress' });
     }
+
+    // Send email notification to the ticket creator
+    const emailTemplate = React.createElement(
+      EmailLayout as React.ElementType,
+      null,
+      React.createElement(SupportTicketEmailTemplate as React.ElementType, {
+        type: 'replied',
+        ticketId: ticket.ticketId,
+        subject: ticket.subject,
+        message: message,
+        name: ticket.name
+      })
+    );
+
+    await sendMail({
+      to: ticket.email,
+      subject: `New Reply - Support Ticket: ${ticket.subject}`,
+      emailTemplate
+    });
 
     return NextResponse.json({ 
       success: true, 

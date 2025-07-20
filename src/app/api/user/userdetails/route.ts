@@ -3,6 +3,10 @@ import Label from "@/models/Label";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
+// Add dynamic configuration
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface TokenPayload {
     id: string;
 }

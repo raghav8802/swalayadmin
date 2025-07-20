@@ -10,11 +10,6 @@ interface LabelData {
   usertype: string;
 }
 
-const extractID = (url: string) => {
-  const id = url.split("/").pop();
-  return id || "";
-};
-
 const ArtistModalForm = ({
   isVisible,
   onClose,
@@ -25,10 +20,10 @@ const ArtistModalForm = ({
   const [formData, setFormData] = useState({
     labelId: "",
     artistName: "",
-    spotifyID: "",
-    appleID: "",
-    instagramID: "",
-    facebookID: "",
+    spotify: "",
+    appleMusic: "",
+    instagram: "",
+    facebook: "",
     isIPRSMember: false,
     iprsNumber: "",
   });
@@ -60,29 +55,12 @@ const ArtistModalForm = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    const newFormData = {
+    // Remove leading @ symbol if present
+    const cleanValue = value.startsWith('@') ? value.substring(1) : value;
+    setFormData({
       ...formData,
-      [name]: value,
-    };
-
-    switch (name) {
-      case "spotify":
-        newFormData.spotifyID = extractID(value);
-        break;
-      case "apple":
-        newFormData.appleID = extractID(value);
-        break;
-      case "instagram":
-        newFormData.instagramID = extractID(value);
-        break;
-      case "facebook":
-        newFormData.facebookID = extractID(value);
-        break;
-      default:
-        break;
-    }
-
-    setFormData(newFormData);
+      [name]: cleanValue,
+    });
   };
 
   const handleSave = async () => {
@@ -91,10 +69,10 @@ const ArtistModalForm = ({
       artistName: formData.artistName,
       iprs: formData.isIPRSMember,
       iprsNumber: formData.iprsNumber,
-      facebook: formData.facebookID,
-      appleMusic: formData.appleID,
-      spotify: formData.spotifyID,
-      instagram: formData.instagramID,
+      facebook: formData.facebook,
+      appleMusic: formData.appleMusic,
+      spotify: formData.spotify,
+      instagram: formData.instagram,
       isSinger: artistType.singer,
       isLyricist: artistType.lyricist,
       isComposer: artistType.composer,
@@ -102,15 +80,15 @@ const ArtistModalForm = ({
     };
 
     const response = await apiPost("/api/artist/addArtist", data);
-    console.log("api response", response);
+    console.log("api response addArtist", response);
 
     setFormData({
       artistName: "",
       labelId: "",
-      spotifyID: "",
-      appleID: "",
-      instagramID: "",
-      facebookID: "",
+      spotify: "",
+      appleMusic: "",
+      instagram: "",
+      facebook: "",
       isIPRSMember: false,
       iprsNumber: "",
     });
@@ -179,13 +157,13 @@ const ArtistModalForm = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <label className="form-label" htmlFor="spotify">
-            Spotify ID
+            Spotify URL
           </label>
           <input
-            type="url"
+            type="text"
             id="spotify"
             name="spotify"
-            value={formData.spotifyID}
+            value={formData.spotify}
             onChange={handleInputChange}
             className="form-control"
             placeholder="Spotify url of artist"
@@ -193,14 +171,14 @@ const ArtistModalForm = ({
         </div>
 
         <div>
-          <label className="form-label" htmlFor="apple">
-            Apple Music
+          <label className="form-label" htmlFor="appleMusic">
+            Apple Music URL
           </label>
           <input
-            type="url"
-            id="apple"
-            name="apple"
-            value={formData.appleID}
+            type="text"
+            id="appleMusic"
+            name="appleMusic"
+            value={formData.appleMusic}
             onChange={handleInputChange}
             className="form-control"
             placeholder="Apple url of artist"
@@ -212,10 +190,10 @@ const ArtistModalForm = ({
             Instagram URL
           </label>
           <input
-            type="url"
+            type="text"
             id="instagram"
             name="instagram"
-            value={formData.instagramID}
+            value={formData.instagram}
             onChange={handleInputChange}
             className="form-control"
             placeholder="Instagram url of artist"
@@ -227,10 +205,10 @@ const ArtistModalForm = ({
             Facebook URL
           </label>
           <input
-            type="url"
+            type="text"
             id="facebook"
             name="facebook"
-            value={formData.facebookID}
+            value={formData.facebook}
             onChange={handleInputChange}
             className="form-control"
             placeholder="Facebook url of artist"

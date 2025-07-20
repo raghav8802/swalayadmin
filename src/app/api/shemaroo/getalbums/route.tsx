@@ -4,6 +4,10 @@ import Album from "@/models/albums";
 import { connect } from "@/dbConfig/dbConfig";
 // import { response } from '@/lib/response'; // Import the response function
 
+// Add dynamic configuration
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   await connect();
 

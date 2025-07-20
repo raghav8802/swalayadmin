@@ -13,19 +13,6 @@ export default function AlbumStatusEmailTemplate({
   status,
   message,
 }: EmailTemplateProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "#2196F3";
-      case "rejected":
-        return "#F44336";
-      case "live":
-        return "#4CAF50";
-      default:
-        return "#000000";
-    }
-  };
-
   return (
     <div
       style={{
@@ -46,8 +33,6 @@ export default function AlbumStatusEmailTemplate({
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         }}
       >
-      
-
         <div style={{ padding: "40px" }}>
           <p style={{ fontSize: "18px", marginBottom: "20px" }}>
             Dear{" "}
@@ -58,79 +43,63 @@ export default function AlbumStatusEmailTemplate({
           </p>
 
           {status === "approved" && (
-            <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              Were pleased to inform you that your album {albumName} is now
-              successfully approved by our team.
-            </p>
-          )}
-          {status === "live" && (
-            <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              Were pleased to inform you that your album {albumName} is
-              successfully Live Now.
-            </p>
-          )}
-
-          {status === "rejected" && (
-            <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              We are sorry to inform that your album {albumName} was rejected during our review process.
-            </p>
-          )}
-
-          <div
-            style={{
-              width: "100%",
-              padding: 20,
-              backgroundColor: getStatusColor(status),
-              color: "#fff",
-              textTransform: "uppercase",
-              borderRadius: "8px",
-              textAlign: "center",
-              fontSize: "20px",
-            }}
-          >
-            {status}
-          </div>
-
-          {status === "approved" && (
-            <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-              Your songs will be delivered to the platform shortly and will be
-              live in some time or on your scheduled release date. We cant wait
-              to get your music live! For promotions and marketing, kindly
-              utilize the SwaLay Plus platform.
-            </p>
-          )}
-
-          {status === "rejected" && (
-            <div>
+            <>
               <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-                Please review the specific feedback provided below. We recommend
-                carefully considering these points and making the necessary
-                revisions before resubmitting. To ensure a smooth submission in
-                the future, please refer to the content uploading guidelines
-                available on the SwaLay Plus platform.
+                We're excited to share that your album "{albumName}" has been successfully approved by our team!
+              </p>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                Your songs will be delivered to all platforms shortly and will be live very soon. We can't wait for the world to experience your music.
+              </p>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                To give your release the spotlight it deserves, we encourage you to use the Marketing feature on your SwaLay Plus dashboard.
+              </p>
+            </>
+          )}
+
+          {status === "live" && (
+            <>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                Congratulations! Your album "{albumName}" is now officially live on music platforms.
+                We're thrilled to be part of your musical journey!
+              </p>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                Let the world hear you! 🌍🎶
+              </p>
+            </>
+          )}
+
+          {status === "rejected" && (
+            <>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                We truly appreciate the time, effort, and creativity you've poured into your album "{albumName}".
+              </p>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                However, we're sorry to inform you that it was not approved in its current form during our review process.
               </p>
               <div
                 style={{
                   backgroundColor: "#f0f7ff",
                   borderLeft: "4px solid #007bff",
                   padding: "20px",
-                  marginTop: "30px",
-                  marginBottom: "30px",
+                  marginTop: "20px",
+                  marginBottom: "20px",
                 }}
               >
                 <p
-                  style={{ fontSize: "16px", marginBottom: "20px" }}
+                  style={{ fontSize: "16px", marginBottom: "0" }}
                   dangerouslySetInnerHTML={{
-                    __html: `<strong>Reason :</strong> ${message.replace(/'/g, "&apos;")}`,
+                    __html: `<strong>Reason:</strong> ${message.replace(/'/g, "&apos;")}`,
                   }}
                 ></p>
               </div>
-            </div>
+              <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                We encourage you to review the feedback carefully and refer to the content uploading guidelines available on your SwaLay Plus dashboard before resubmitting.
+              </p>
+            </>
           )}
 
           <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-            For any questions or assistance, please feel free to contact our
-            support team at{" "}
+            If you have any questions or need support, feel free to reach out to us at{" "}
             <a
               href="mailto:swalay.care@talantoncore.in"
               target="_blank"
@@ -142,23 +111,15 @@ export default function AlbumStatusEmailTemplate({
               }}
             >
               swalay.care@talantoncore.in
-            </a>{" "}
-            if you have any questions or require assistance.
+            </a>
+            . We're always here for you.
           </p>
 
+          <p style={{ fontSize: "16px", marginBottom: "20px" }}>Best regards,</p>
           <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-            Keep SwaLaying!
-          </p>
-
-          <p style={{ fontSize: "16px", marginBottom: "20px" }}>Sincerely,</p>
-          <p style={{ fontSize: "16px", marginBottom: "20px" }}>
-            {" "}
-            Team SwaLay India{" "}
+            Team SwaLay India
           </p>
         </div>
-
-        
-
       </div>
     </div>
   );

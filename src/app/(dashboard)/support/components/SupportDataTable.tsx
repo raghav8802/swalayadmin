@@ -33,6 +33,7 @@ export type supportData = {
     message: string;
     labelId?: string; 
     _id: string;
+    ticketId: string;
     __v: number;
     status: string;
     priority: 'low' | 'medium' | 'high';
@@ -48,6 +49,14 @@ export const supportColumns: ColumnDef<supportData>[] = [
         accessorKey: "srno",
         header: "Sr No",
         cell: (info) => info.row.index + 1,
+    },
+    {
+        accessorKey: "ticketId",
+        header: "Ticket ID",
+        cell: ({ row }) => {
+            const data = row.original;
+            return <div className="ms-2">#{data.ticketId}</div>;
+        },
     },
     {
         accessorKey: "name",
