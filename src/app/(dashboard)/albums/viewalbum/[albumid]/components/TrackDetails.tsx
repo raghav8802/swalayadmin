@@ -126,7 +126,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
       setLabelId(albumResponse.data.label._id);
 
       if (albumResponse.success) {
-        setAlbumDetails(albumResponse.data);
+        setAlbumDetails(albumResponse.data.album); // <-- FIXED: set to album object
       } else {
         setError(albumResponse.message);
       }
@@ -273,6 +273,15 @@ const TrackDetails: React.FC<TrackListProps> = ({
     const ytIsrc = trackDetails?.isrc;
     const ytstitle = trackDetails?.songName;
 
+    console.log({
+      trackLink,
+      ytLabel,
+      ytAlbum,
+      ytArtist,
+      ytIsrc,
+      ytstitle
+    });
+
     // Make sure required data is available
     if (
       !trackLink ||
@@ -304,6 +313,7 @@ const TrackDetails: React.FC<TrackListProps> = ({
       });
 
       const data = await response.json();
+      console.log("YT API response:", data); // <-- Added for debugging
 
       if (data.success) {
         toast.success("Track uploaded and published successfully.");
