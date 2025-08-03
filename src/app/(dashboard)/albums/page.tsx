@@ -42,6 +42,7 @@ interface AlbumsResponse {
 }
 
 const Albums = () => {
+  
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
 
@@ -51,9 +52,7 @@ const Albums = () => {
 
   const fetchAlbums = async (labelId: string) => {
     try {
-      const response = await apiGet<AlbumsResponse>(
-        `./api/albums/getAlbums?labelid=${labelId}`
-      );
+      const response = await apiGet<AlbumsResponse>(`./api/albums/getAlbums`);
       if (response?.success) {
         setAlbumList(response.data);
       } else {
@@ -61,7 +60,7 @@ const Albums = () => {
       }
     } catch (error) {
       console.error("Error fetching albums:", error);
-      toast.error("Internal server error");
+      toast.error("Internal server error albums");
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +87,8 @@ const Albums = () => {
         </div>
         <div className={Style.exportBtnGroup}>
           {/* <button className={`me-2 ${Style.ytExportButton}`}><i className={`bi bi-youtube ${Style.youtubeIcon} me-1`}></i> Exports</button>
-                    <button className={`me-2 ${Style.importButton}`}> Exports</button> */}
+
+          <button className={`me-2 ${Style.importButton}`}> Exports</button> */}
           <Link href={"./albums/new-release"} className={Style.importButton}>
             + New Release
           </Link>
@@ -127,7 +127,6 @@ const Albums = () => {
           )}
         </div>
       </div>
-
     </div>
   );
 };

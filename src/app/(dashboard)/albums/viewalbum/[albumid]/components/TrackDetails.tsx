@@ -120,9 +120,8 @@ const TrackDetails: React.FC<TrackListProps> = ({
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
-      console.log("Response from getAlbumsDetails API :::::->>>:", albumResponse);
-      
-      console.log(albumResponse.data.label._id);
+   
+
       setLabelId(albumResponse.data.label._id);
 
       if (albumResponse.success) {

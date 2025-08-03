@@ -33,7 +33,7 @@ export default function RootLayout({
         <UserProvider>
 
 
-        <Navbar />
+        {/* <Navbar /> */}
 
         {/* <main style={{ padding: "1rem", minHeight: "80vh" }}> */}
         <main style={{ padding: "0.7rem", minHeight: "80vh" }}>

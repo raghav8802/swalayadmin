@@ -21,7 +21,8 @@ interface NumberCountsResponse {
 
 const HomeStatsCard = () => {
   const context = useContext(UserContext);
-  const labelId = context?.user?._id;
+
+  
   const [stats, setStats] = useState<{ albums: number, artists: number, labels: number, upcomingReleases: number }>({
     albums: 0,
     artists: 0,

@@ -1,38 +1,73 @@
-'use client'
-import Link from "next/link"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import Style from "../../styles/Labels.module.css"
-import React from "react"
-import { apiGet } from "@/helpers/axiosRequest"
-import { LabelList } from "./components/LabelList"
-import { useQuery } from "@tanstack/react-query"
+import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import Style from "../../styles/Labels.module.css";
+import { apiGet } from "@/helpers/axiosRequest";
+import { LabelList } from "./components/LabelList";
+import { apiUrl } from "@/helpers/serverFetch";
 
+// This makes the page dynamically render on each request
+export const dynamic = "force-dynamic";
 
-const Labels = () => {
-  const { data: labelData, isLoading, error, refetch } = useQuery({
-    queryKey: ['labels'],
-    queryFn: async () => {
-      const response = await apiGet<{ success: boolean; data: any[] }>('/api/labels/getLabels')
-      if (response?.success) {
-        return response.data
-      }
-      throw new Error('Failed to fetch labels')
-    },
-    staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 1000 * 30, // 30 seconds
-    refetchOnWindowFocus: false,
-    retry: false,
-  })
+async function fetchLabels() {
+  try {
+    const res = await fetch(apiUrl("/api/labels/getLabels"), {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      // cache: "no-store"   // optional if you want to bypass fetch cache
+    });
+    if (!res.ok) throw new Error(res.statusText);
+    const data = await res.json();
+    // console.log("Fetched labels:", data); // Debug log
+    return data.success ? data.data : [];
+  } catch (e) {
+    console.error("fetchLabels error:", e);
+    return [];
+  }
+}
+
+// Update your page component
+// async function fetchLabels() {
+//   try {
+//     // Next.js fetch automatically handles server/client context
+//     const response = await fetch('local/api/labels/getLabels', {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     })
+
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`)
+//     }
+
+//     const data = await response.json()
+//     return data.success ? data.data : []
+//   } catch (error) {
+//     console.error('Error fetching labels:', error)
+//     return []
+//   }
+// }
+
+export default async function LabelsPage() {
+  const labelData = await fetchLabels();
 
   return (
-    <div className="w-full h-full p-6 bg-white rounded-sm" style={{ minHeight: "90vh" }} >
+    <div
+      className="w-full h-full p-6 bg-white rounded-sm"
+      style={{ minHeight: "90vh" }}
+    >
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink>
-              Home
-            </BreadcrumbLink>
+            <BreadcrumbLink>Home</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -43,29 +78,18 @@ const Labels = () => {
 
       <div className="flex justify-between items-center mt-3">
         <h3 className={Style.heading}>All Labels</h3>
-        <div className="flex gap-2">
-          <Button onClick={() => refetch()}>
-            Refresh Data
-          </Button>
-          <Button>
-            <Link href={'/labels/register'}>
-              New Label
-            </Link>
-          </Button>
-        </div>
+        <Button>
+          <Link href={"/labels/register"}>New Label</Link>
+        </Button>
       </div>
 
       <div className="mt-3 bg-white p-3">
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : error ? (
-          <div>Error loading labels</div>
+        {labelData && labelData.length > 0 ? (
+          <LabelList data={labelData} />
         ) : (
-          labelData && <LabelList data={labelData} />
+          <p>No labels found</p>
         )}
       </div>
     </div>
-  )
+  );
 }
-
-export default Labels

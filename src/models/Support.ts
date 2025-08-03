@@ -72,11 +72,11 @@ async function generateTicketId() {
   }
 }
 
+
 // Pre-save middleware
 SupportSchema.pre('save', async function(next) {
   try {
-    console.log('Pre-save hook triggered');
-    console.log('Current document:', this);
+    
     
     if (!this.ticketId) {
       console.log('No ticketId found, generating new one');

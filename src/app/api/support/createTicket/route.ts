@@ -6,6 +6,7 @@ import sendMail from "@/helpers/sendMail";
 import EmailLayout from "@/components/email/EmailLayout";
 import SupportTicketEmailTemplate from "@/components/email/support-ticket";
 import React from "react";
+import { invalidateCache } from '@/lib/cache';
 
 export async function POST(req: Request) {
   try {
@@ -65,6 +66,10 @@ export async function POST(req: Request) {
     console.log('Saving ticket...');
     const savedTicket = await newTicket.save();
     console.log('Ticket saved successfully:', savedTicket);
+
+    // Invalidate support-related caches
+    invalidateCache('support');
+    invalidateCache('tickets');
 
     // Verify the ticket was saved with a ticketId
     if (!savedTicket.ticketId) {

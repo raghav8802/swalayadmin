@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { connect } from "@/dbConfig/dbConfig";
 import Notification from "@/models/notification";
-
+import { invalidateCache } from "@/lib/cache";
 
 export async function POST(req: NextRequest) {
   try {
     await connect();
 
     const body = await req.json();
-
-
     const { labels, category, message } = body;
 
     // Ensure the message field is provided
@@ -34,6 +31,10 @@ export async function POST(req: NextRequest) {
     });
 
     const savedNotification = await newNotification.save();
+
+    // Invalidate notifications cache after creating new notification
+    invalidateCache('notifications-all');
+
     return NextResponse.json({
       message: "Success",
       success: true,

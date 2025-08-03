@@ -1,5 +1,15 @@
 import axios, { Method } from "axios";
 
+// Get the correct base URL depending on environment
+const getBaseUrl = () => {
+  if (typeof window === 'undefined') {
+    // Server-side: use absolute URL
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  }
+  // Client-side: use relative URL
+  return '';
+};
+
 interface ApiRequestParams<TRequest = unknown, TResponse = unknown> {
   endpoint: string;
   data?: TRequest;
@@ -13,8 +23,13 @@ export const apiRequest = async <TRequest = unknown, TResponse = unknown>({
   method,
   headers,
 }: ApiRequestParams<TRequest, TResponse>): Promise<TResponse> => {
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
+  
+  console.log('Making request to:', url); // Debug log
+  
   const response = await axios({
-    url: endpoint,
+    url: url, // Use full URL instead of relative
     method: method,
     data: data,
     headers: headers,
@@ -41,14 +56,13 @@ export const apiGet = <T = unknown>(endpoint: string, data: T | null = null): Pr
 };
 
 export const apiFormData = async <T = unknown>(endpoint: string, formDataObj: FormData): Promise<T> => {
-  const response = await axios.post(endpoint, formDataObj, {
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}${endpoint}`;
+  
+  const response = await axios.post(url, formDataObj, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
   return response.data;
 };
-
-
-
-

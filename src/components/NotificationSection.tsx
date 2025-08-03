@@ -1,18 +1,10 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { apiGet } from "@/helpers/axiosRequest";
 
-// Define the props type
-interface NotificationSectionProps {
-  labelId: string;
-}
+
 
 // Define a type for notification data
 interface Notification {
@@ -31,31 +23,38 @@ const categoryIcons: { [key: string]: string } = {
 };
 
 // Fallback icon for unknown or blank categories
-const fallbackIcon = "🎸"; 
+const fallbackIcon = "🎸";
 
-export const NotificationSection: React.FC<NotificationSectionProps> = ({ labelId }) => {
+export const NotificationSection: React.FC = () => {
+  
   const [notificationData, setNotificationData] = useState<Notification[]>([]);
 
   // Fetch notifications when the component mounts or when labelId changes
   useEffect(() => {
+
     const fetchNotifications = async () => {
       try {
-        const response = await apiGet(`/api/notification/getAll`) as { data: Notification[] };
+        const response = (await apiGet(`/api/notification/getAll`)) as {
+          data: Notification[];
+        };
 
         setNotificationData(response.data);
       } catch (error) {
-        console.error('An error occurred:', error);
+        console.error("An error occurred:", error);
       }
     };
 
-    if (labelId) {
-      fetchNotifications();
-    }
-  }, [labelId]);
+    fetchNotifications();
+
+  }, []);
 
   // Function to format the date
   const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
@@ -68,7 +67,8 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ labelI
         <div className="grid gap-2">
           {notificationData.map((notification) => {
             // Determine the icon based on the category
-            const icon = categoryIcons[notification.category || ''] || fallbackIcon;
+            const icon =
+              categoryIcons[notification.category || ""] || fallbackIcon;
 
             return (
               <div key={notification._id} className="flex items-start gap-2">
@@ -76,7 +76,10 @@ export const NotificationSection: React.FC<NotificationSectionProps> = ({ labelI
                   {icon}
                 </div>
                 <div>
-                  <div className="font-medium" dangerouslySetInnerHTML={{ __html: notification.message }} />
+                  <div
+                    className="font-medium"
+                    dangerouslySetInnerHTML={{ __html: notification.message }}
+                  />
                   <div className="text-xs text-muted-foreground">
                     {formatDate(notification.time)}
                   </div>

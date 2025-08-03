@@ -45,6 +45,8 @@ interface Label {
   subscriptionprice: string;
 }
 
+
+
 export default function SubscriptionPage() {
   const [labels, setLabels] = useState<Label[]>([]);
   const [loading, setLoading] = useState(true);

@@ -17,7 +17,7 @@ export enum ShemarooStatus {
 }
 
 // Define the interface for the Album document
-interface IAlbum extends Document {
+export interface IAlbum extends Document {
   labelId: mongoose.Schema.Types.ObjectId;
   title?: string | null;
   thumbnail?: string | null;

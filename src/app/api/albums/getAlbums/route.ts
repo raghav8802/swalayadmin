@@ -1,39 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-import Album from '@/models/albums';
-import { connect } from '@/dbConfig/dbConfig';
-// import { response } from '@/lib/response'; // Import the response function
+import Album from "@/models/albums";
+import { connect } from "@/dbConfig/dbConfig";
+import { createCachedQuery, createCachedResponse } from "@/lib/cache";
+
+// Cached database query
+const getCachedAlbums = createCachedQuery(
+  async (labelId?: string) => {
+    await connect();
+    const query = labelId ? { labelId, status: 2 } : { status: 2 };
+    return await Album.find(query).sort({ _id: -1 }).lean();
+  },
+  "albums-live",
+  300 // 5 minutes cache
+);
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-    await connect();
+  try {
+    
+    const { searchParams } = new URL(req.url);
+    const labelId = searchParams.get("labelid") ?? undefined;
 
+    const albums = await getCachedAlbums(labelId);
 
-    try {
-        // const albums = await Album.find({ status: 2 });
-        const albums = await Album.find({ status: 2 }).sort({ _id: -1 });
-
-        if (!albums) {
-            return NextResponse.json({
-                message: "Albums are found",
-                success: false,
-                status: 404,
-            })
-        }
-
-        return NextResponse.json({
-            message: "Albums are found admin",
-            success: true,
-            status: 200,
-            data: albums
-        })
-    } catch (error) {
-        console.error('Internal Server Error:', error);
-
-        return NextResponse.json({
-            message: "Internal server down",
-            success: false,
-            status: 500,
-        })
-
+    if (!albums?.length) {
+      return NextResponse.json({
+        message: "No albums found",
+        success: false,
+        status: 404,
+      });
     }
+
+    return createCachedResponse(albums, "Albums fetched successfully", 300);
+  } catch (error) {
+    console.error("Internal Server Error:", error);
+    return NextResponse.json({
+      message: "Internal server error",
+      success: false,
+      status: 500,
+    });
+  }
 }

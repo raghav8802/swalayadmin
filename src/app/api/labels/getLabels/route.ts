@@ -1,41 +1,43 @@
-import { connect } from "@/dbConfig/dbConfig"; // Assuming this is your database connection file
-import Label from "@/models/Label"; // Import the Label model
+import { connect } from "@/dbConfig/dbConfig";
+import Label from "@/models/Label";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  // Connect to the database
-  await connect();
 
+export async function GET() {
   try {
-    // Fetch all labels from the database
+    await connect(); // DB connection
+
+    console.log("Fetching labels..."); // Debug log
+
     const labels = await Label.find()
       .select("-password -verifyCode -verifyCodeExpiry -razor_contact")
-      .sort({ _id: -1 });
+      .sort({ _id: -1 })
+      .lean();
 
-
-    // If no labels found, return a message
-    if (!labels.length) {
-      return NextResponse.json({
-        status: 404,
-        message: "No labels found",
-        success: false,
-      });
+    if (!labels?.length) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: 404,
+          message: "No labels found",
+        },
+        { status: 404 }
+      );
     }
-
-    // Return the fetched labels
+    console.log("Labels fetched successfully:", labels); // Debug log
     return NextResponse.json({
-      status: 200,
-      data: labels,
-      message: "Labels fetched successfully",
       success: true,
+      data: labels,
     });
   } catch (error) {
-    console.error('Error fetching labels:', error);
-    // Handle any errors
-    return NextResponse.json({
-      status: 500,
-      message: "An error occurred while fetching labels",
-      success: false,
-    });
+    console.error("Error fetching labels:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        status: 500,
+        message: "An error occurred while fetching labels",
+      },
+      { status: 500 }
+    );
   }
 }

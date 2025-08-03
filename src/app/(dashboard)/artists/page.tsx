@@ -1,43 +1,59 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import React, { useEffect, useState } from 'react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import ArtistModalForm from "@/components/ArtistModalForm";
 import { apiGet } from "@/helpers/axiosRequest";
 import { ArtistDataTable } from "./components/ArtistDataTable";
+import useSWR from "swr";
 
-function ArtistForm() {
+// Create a fetcher function for SWR
+const fetcher = (url: string) =>
+  apiGet(url).then((res: any) => {
+    if (!res.success) throw new Error("Failed to fetch artists");
+    return res.data;
+  });
+
+function ArtistPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [artists, setArtists] = useState();
 
-  const fetchAllArtist = async () => {
-    setIsLoading(true);
-    try {
-      const response:any = await apiGet("/api/artist/getAllArtist");
-      if (response.success) {
-        setArtists(response.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      toast.error("🤔 Something went wrong");
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllArtist();
-  }, []);
+  // SWR hook for data fetching
+  const {
+    data: artists,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR("/api/artist/getAllArtist", fetcher, {
+    refreshInterval: 60000, // Auto-revalidate every 60 seconds
+    revalidateOnFocus: true, // Revalidate when window gains focus
+    revalidateOnReconnect: true, // Revalidate when regaining network connection
+    shouldRetryOnError: true, // Auto-retry failed requests
+  });
 
   const handleClose = () => {
     setIsModalVisible(false);
-    fetchAllArtist();
+    mutate(); // Trigger immediate revalidation after modal closes
   };
 
+  // Handle errors
+  if (error) {
+    toast.error("🤔 Failed to load artists");
+  }
+
   return (
-    <div className="w-full h-full p-6 bg-white rounded-sm" style={{ minHeight: "90vh" }} >
+    <div
+      className="w-full h-full p-6 bg-white rounded-sm"
+      style={{ minHeight: "90vh" }}
+    >
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -55,23 +71,19 @@ function ArtistForm() {
         <Button onClick={() => setIsModalVisible(true)}>New Artist</Button>
       </div>
 
-      {
-        artists && <div className="bg-white p-3">
+      {isLoading ? (
+        <h5 className="text-2xl mt-5 pt-3 text-center">Loading...</h5>
+      ) : artists ? (
+        <div className="bg-white p-3">
           <ArtistDataTable data={artists} />
         </div>
-      }
-
-      {
-        isLoading && <h5 className="text-2xl mt-5 pt-3 text-center">Loading...</h5>
-      }
-      {
-        !artists && !isLoading && <h5 className="text-2xl mt-5 pt-3 text-center">No Record Found</h5>
-      }
+      ) : (
+        <h5 className="text-2xl mt-5 pt-3 text-center">No Record Found</h5>
+      )}
 
       <ArtistModalForm isVisible={isModalVisible} onClose={handleClose} />
-
     </div>
   );
 }
 
-export default ArtistForm;
+export default ArtistPage;

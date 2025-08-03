@@ -4,6 +4,7 @@ import Lead from "@/models/leadModel";
 import sendMail from "@/helpers/sendMail";
 import EmailLayout from "@/components/email/EmailLayout";
 import LeadApprovalEmailTemplate from "@/components/email/lead-approval";
+import { invalidateCache } from "@/lib/cache";
 import React from "react";
 
 export async function POST(req: Request) {
@@ -23,6 +24,9 @@ export async function POST(req: Request) {
 
     // Create new lead
     const lead = await Lead.create(body);
+
+    // Invalidate leads cache after creating new lead
+    invalidateCache('leads-all');
 
     // Send email using sendMail
     const emailTemplate = React.createElement(

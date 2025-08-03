@@ -58,6 +58,7 @@ export async function GET() {
           };
         }
 
+
         // If no album is found, return a placeholder response
         return {
           marketingId: marketing._id, // Include the marketing ID even if no album is found

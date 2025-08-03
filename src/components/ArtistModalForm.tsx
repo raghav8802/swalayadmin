@@ -2,6 +2,7 @@ import { Modal } from "@/components/Modal";
 import { apiGet, apiPost } from "@/helpers/axiosRequest";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { mutate } from 'swr';
 
 interface LabelData {
   _id: string;
@@ -39,7 +40,7 @@ const ArtistModalForm = ({
 
   const fetchLabels = async () => {
     try {
-      const response = await apiGet("/api/labels/getLabels") as { success: boolean; data: LabelData[] };
+      const response:any = await apiGet("/api/labels/getLabels") as { success: boolean; data: LabelData[] };
 
       if (response.success) {
         setLabelData(response.data);
@@ -79,31 +80,44 @@ const ArtistModalForm = ({
       isProducer: artistType.producer,
     };
 
-    const response = await apiPost("/api/artist/addArtist", data);
-    console.log("api response addArtist", response);
+    try {
+      const response:any = await apiPost("/api/artist/addArtist", data);
+      console.log("api response addArtist", response);
 
-    setFormData({
-      artistName: "",
-      labelId: "",
-      spotify: "",
-      appleMusic: "",
-      instagram: "",
-      facebook: "",
-      isIPRSMember: false,
-      iprsNumber: "",
-    });
-    setArtistType({
-      singer: false,
-      lyricist: false,
-      composer: false,
-      producer: false,
-    });
+      if (response.success) {
+        // Trigger SWR revalidation for artists data
+        mutate('/api/artist/getAllArtist');
+        
+        // Reset form
+        setFormData({
+          artistName: "",
+          labelId: "",
+          spotify: "",
+          appleMusic: "",
+          instagram: "",
+          facebook: "",
+          isIPRSMember: false,
+          iprsNumber: "",
+        });
+        setArtistType({
+          singer: false,
+          lyricist: false,
+          composer: false,
+          producer: false,
+        });
 
-    onClose();
+        onClose();
 
-    setTimeout(() => {
-      toast.success("Success! New artist added");
-    }, 500);
+        setTimeout(() => {
+          toast.success("Success! New artist added");
+        }, 500);
+      } else {
+        toast.error(response.message || "Failed to add artist");
+      }
+    } catch (error) {
+      console.error("Error adding artist:", error);
+      toast.error("Failed to add artist. Please try again.");
+    }
   };
 
   return (

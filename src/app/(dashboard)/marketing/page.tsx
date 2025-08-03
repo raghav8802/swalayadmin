@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import MarketingCard from "./components/MarketingCard";
+import useSWR from "swr";
 
 interface Album {
   artist: string;
@@ -37,32 +38,38 @@ interface ApiResponse {
   data: Album[];
 }
 
+// Create a fetcher function for SWR
+const fetcher = (url: string) =>
+  apiGet(url).then((res: any) => {
+    console.log(" markeitng res :");
+    console.log(res);
+    if (!res.success) throw new Error("Failed to fetch marketing data");
+    return res.data;
+  });
+
 const Page = () => {
   const context = useContext(UserContext);
   const labelId = context?.user?._id ?? "";
-  const [marketingData, setMarketingData] = useState<Album[]>([]);
 
+  // SWR data fetching
+  const {
+    data: marketingData,
+    error,
+    isLoading,
+  } = useSWR(labelId ? "/api/marketing/fetchAlbumBymarketing" : null, fetcher, {
+    refreshInterval: 60000, // 60 seconds
+    revalidateOnFocus: true,
+    shouldRetryOnError: true,
+  });
 
-  // const fetchAlbumBymarketing = async () => {
-  const fetchAlbumBymarketing = async () => {
-    try {
+  if (error) {
+    console.error("Error fetching marketing data:", error);
+    return <div>Error loading marketing data</div>;
+  }
 
-      const response:any  = await apiGet(`/api/marketing/fetchAlbumBymarketing`);
-
-      if (response.success) {
-        setMarketingData(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    if (labelId) {
-      // fetchMarketingDetails();
-      fetchAlbumBymarketing();
-    }
-  }, [labelId]);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full min-h-screen p-6 bg-white rounded-sm">
@@ -82,20 +89,17 @@ const Page = () => {
         All marketings
       </h1>
 
-      
-
-      <div className="w-full flex items-center justify-start flex-wrap" >
-        {marketingData &&
-          marketingData.map((album) => (
-            <MarketingCard
-              albumId={album._id}
-              key={album._id}
-              imageSrc={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${album._id}ba3/cover/${album.thumbnail}`}
-              albumName={album.title}
-              albumArtist={album.artist}
-              status={album.marketingStatus}
-            />
-          ))}
+      <div className="w-full flex items-center justify-start flex-wrap">
+        {marketingData?.map((album: Album) => (
+          <MarketingCard
+            albumId={album._id}
+            key={album._id}
+            imageSrc={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${album._id}ba3/cover/${album.thumbnail}`}
+            albumName={album.title}
+            albumArtist={album.artist}
+            status={album.marketingStatus}
+          />
+        ))}
       </div>
     </div>
   );
