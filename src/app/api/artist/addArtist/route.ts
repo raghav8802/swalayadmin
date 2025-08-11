@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
 import Artist from '@/models/Artists';
-import { invalidateCache } from '@/lib/cache';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,10 +20,6 @@ export async function POST(request: NextRequest) {
     // Create and save the new artist
     const newArtist = new Artist(reqBody);
     const savedArtist = await newArtist.save();
-
-    // Invalidate all artist-related caches
-    invalidateCache('artists');
-    invalidateCache('all-labels'); // Also invalidate labels cache since artists are related
 
     return NextResponse.json({
       message: "Artist added successfully",

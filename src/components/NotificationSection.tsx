@@ -65,7 +65,7 @@ export const NotificationSection: React.FC = () => {
       </CardHeader>
       <CardContent className="h-[56vh] overflow-y-auto">
         <div className="grid gap-2">
-          {notificationData.map((notification) => {
+          {notificationData && notificationData.map((notification) => {
             // Determine the icon based on the category
             const icon =
               categoryIcons[notification.category || ""] || fallbackIcon;

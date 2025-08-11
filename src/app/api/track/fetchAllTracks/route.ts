@@ -1,88 +1,62 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import Track from "@/models/track";
 import { connect } from "@/dbConfig/dbConfig";
-import { createCachedQuery, createCachedResponse } from '@/lib/cache';
 
-// Cached all tracks query with pagination
-const getCachedAllTracks = createCachedQuery(
-  async (page: number, limit: number, search?: string) => {
-    await connect();
-    
-    const skip = (page - 1) * limit;
-    let query: any = {};
-    
-    // Add search functionality
-    if (search && search.trim() !== '') {
-      query = {
-        $or: [
-          { songName: { $regex: search, $options: 'i' } },
-          { isrc: { $regex: search, $options: 'i' } },
-          { version: { $regex: search, $options: 'i' } }
-        ]
-      };
-    }
-    
-    // Get total count for pagination
-    const totalCount = await Track.countDocuments(query);
-    
-    // Get paginated data
-    const tracks = await Track.find(query)
-      .select("_id songName isrc version")
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-    
-    return {
-      data: tracks,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(totalCount / limit),
-        totalCount,
-        hasNextPage: page < Math.ceil(totalCount / limit),
-        hasPreviousPage: page > 1,
-        limit
-      }
-    };
-  },
-  'tracks-paginated',
-  300 // 5 minutes cache
-);
 
-export async function GET(request: NextRequest) {
+export async function GET() {
+  await connect();
+
   try {
-    const { searchParams } = new URL(request.url);
-    
-    // Get pagination parameters
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search') || '';
-    
-    // Validate pagination parameters
-    if (page < 1 || limit < 1 || limit > 100) {
-        return NextResponse.json({
-            success: false,
-            message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1-100"
-        }, { status: 400 });
-    }
-    
-    const result = await getCachedAllTracks(page, limit, search);
+    // Fetch all tracks sorted by ID in descending order
+    const tracks = await Track.find().select("_id songName isrc version").sort({ _id: -1 });
+    // const tracks = await Track.find().select("_id songName isrc version").sort({ isrc: 1 });
+    // const tracks = await Track.find().select("_id songName isrc version");
 
-    if (!result.data?.length) {
+
+    if (!tracks || tracks.length === 0) {
       return NextResponse.json({
         message: "Tracks not found",
         success: false,
         status: 404,
-        pagination: result.pagination
       });
     }
 
+    // Helper function to fetch artist details for an array of IDs
+    // const fetchArtists = async (ids: string[] | null) => {
+    //   if (!ids || ids.length === 0) return [];
+    //   return await Artist.find({ _id: { $in: ids } }).select("_id artistName");
+    // };
+
+    // // Process each track to include artist details
+    // const trackDetails = await Promise.all(
+    //   tracks.map(async (track) => {
+    //     const primarySingerDetails = track.primarySinger
+    //       ? await Artist.findById(track.primarySinger).select("_id artistName")
+    //       : null;
+    //     const singersDetails = await fetchArtists(track.singers);
+    //     const composersDetails = await fetchArtists(track.composers);
+    //     const lyricistsDetails = await fetchArtists(track.lyricists);
+    //     const producersDetails = await fetchArtists(track.producers);
+
+    //     return {
+    //       ...track.toObject(),
+    //       primarySinger: primarySingerDetails,
+    //       singers: singersDetails,
+    //       composers: composersDetails,
+    //       lyricists: lyricistsDetails,
+    //       producers: producersDetails,
+    //     };
+    //   })
+    // );
+
     return NextResponse.json({
+      message: "Track details are fetched",
       success: true,
-      message: "Track details fetched successfully",
-      ...result
+      status: 200,
+    //   data: trackDetails,
+      data: tracks,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       message: "Internal server error",
       success: false,

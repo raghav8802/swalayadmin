@@ -6,7 +6,6 @@ import Label from "@/models/Label";
 import AccountActivationEmailTemplate from "@/components/email/account-activation";
 import sendMail from "@/helpers/sendMail";
 import EmailLayout from "@/components/email/EmailLayout";
-import { invalidateCache } from '@/lib/cache';
 
 
 interface RazorpayResponse {
@@ -119,10 +118,6 @@ export async function POST(request: NextRequest) {
     });
 
     await newUser.save();
-
-    // Invalidate all label-related caches
-    invalidateCache('all-labels');
-    invalidateCache('labels');
 
     const emailTemplate = (
       <EmailLayout>

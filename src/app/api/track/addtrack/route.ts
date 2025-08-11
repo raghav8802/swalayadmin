@@ -4,7 +4,6 @@ import { connect } from "@/dbConfig/dbConfig";
 import Track from "@/models/track";
 import { uploadTrackToS3 } from "@/dbConfig/uploadFileToS3";
 import Album from "@/models/albums";
-import { invalidateCache } from "@/lib/cache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -123,12 +122,6 @@ export async function POST(req: NextRequest) {
       $inc: { totalTracks: 1 }
     });
 
-    // Invalidate related caches after adding track
-    invalidateCache('tracks-by-album');
-    invalidateCache('tracks-all');
-    invalidateCache('albums-');
-    invalidateCache('dashboard-stats');
-
     return NextResponse.json({
       message: "Success! Track saved",
       // data: savedTrack,
@@ -148,6 +141,5 @@ export async function POST(req: NextRequest) {
     
   }
 }
-
 
 

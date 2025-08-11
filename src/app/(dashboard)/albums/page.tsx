@@ -76,6 +76,8 @@ const Albums = () => {
     return <AlbumsLoading />;
   }
 
+ 
+
   return (
     <div className=" w-100">
       <div className={Style.topbar}>

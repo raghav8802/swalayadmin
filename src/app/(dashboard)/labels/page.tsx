@@ -9,55 +9,21 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import Style from "../../styles/Labels.module.css";
-import { apiGet } from "@/helpers/axiosRequest";
+import React from "react";
 import { LabelList } from "./components/LabelList";
-import { apiUrl } from "@/helpers/serverFetch";
+import { api } from "@/lib/apiRequest";
 
-// This makes the page dynamically render on each request
+// Add this export to disable static generation
 export const dynamic = "force-dynamic";
 
-async function fetchLabels() {
-  try {
-    const res = await fetch(apiUrl("/api/labels/getLabels"), {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      // cache: "no-store"   // optional if you want to bypass fetch cache
-    });
-    if (!res.ok) throw new Error(res.statusText);
-    const data = await res.json();
-    // console.log("Fetched labels:", data); // Debug log
-    return data.success ? data.data : [];
-  } catch (e) {
-    console.error("fetchLabels error:", e);
-    return [];
-  }
-}
+const Labels = async () => {
+  const apiResponse = await api.get<{ data: any }>(
+    "/api/labels/getLabels"
+  );
 
-// Update your page component
-// async function fetchLabels() {
-//   try {
-//     // Next.js fetch automatically handles server/client context
-//     const response = await fetch('local/api/labels/getLabels', {
-//       method: 'GET',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     })
 
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! status: ${response.status}`)
-//     }
-
-//     const data = await response.json()
-//     return data.success ? data.data : []
-//   } catch (error) {
-//     console.error('Error fetching labels:', error)
-//     return []
-//   }
-// }
-
-export default async function LabelsPage() {
-  const labelData = await fetchLabels();
+  let Labels = apiResponse.data;
+  
 
   return (
     <div
@@ -78,18 +44,18 @@ export default async function LabelsPage() {
 
       <div className="flex justify-between items-center mt-3">
         <h3 className={Style.heading}>All Labels</h3>
-        <Button>
-          <Link href={"/labels/register"}>New Label</Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button>
+            <Link href={"/labels/register"}>New Label</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mt-3 bg-white p-3">
-        {labelData && labelData.length > 0 ? (
-          <LabelList data={labelData} />
-        ) : (
-          <p>No labels found</p>
-        )}
+        <LabelList data={Labels} />
       </div>
     </div>
   );
-}
+};
+
+export default Labels;

@@ -47,6 +47,8 @@ export default function MyTickets() {
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   // SWR data fetching
+
+  
   const { data: tickets, error, isLoading } = useSWR<SupportTicket[]>(
     '/api/support/getAllTickets',
     fetcher,

@@ -1,32 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Lyrics from "@/models/Lyrics";
-import { createCachedQuery, createCachedResponse } from '@/lib/cache';
-
-// Cached lyrics query
-const getCachedLyrics = createCachedQuery(
-  async (trackId: string) => {
-    await connect();
-    return await Lyrics.findOne({ trackId }).lean();
-  },
-  'lyrics-by-track',
-  900 // 15 minutes cache for lyrics
-);
 
 export async function GET(req: NextRequest) {
   try {
+    await connect();
+
     const url = new URL(req.url);
-    const trackid = url.searchParams.get("trackid");
+    const trackid = url.searchParams.get("trackid"); // Get the 'trackid' query parameter
 
     if (!trackid) {
       return NextResponse.json({
         message: "Trackid is required",
         success: false,
-        status: 400,
+        status: 500,
       });
     }
 
-    const lyrics = await getCachedLyrics(trackid);
+    const lyrics = await Lyrics.findOne({ trackId: trackid });
 
     if (!lyrics) {
       return NextResponse.json({
@@ -36,12 +27,20 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    return createCachedResponse(lyrics, "Lyrics fetched successfully", 900);
-  } catch (error) {
+    return NextResponse.json({
+      message: "success! lyrics fetched",
+      success: true,
+      status: 200,
+      data: lyrics
+    });
+
+  } catch {
+
     return NextResponse.json({
       message: "Internal server error",
       success: false,
       status: 500,
     });
   }
+  
 }

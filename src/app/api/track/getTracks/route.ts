@@ -5,23 +5,42 @@ import Track from "@/models/track"; // Adjust the path as necessary
 import Artist from "@/models/Artists"; // Adjust the path as necessary
 import { connect } from "@/dbConfig/dbConfig"; // A utility to connect to MongoDB
 import mongoose from "mongoose";
-import { createCachedQuery, createCachedResponse } from '@/lib/cache';
 
 // Define the type for artistNameMap
 interface ArtistNameMap {
   [key: string]: string;
 }
 
-// Cached tracks query
-const getCachedTracks = createCachedQuery(
-  async (albumId: string) => {
-    await connect();
 
+
+export async function GET(req: NextRequest) {
+  await connect();
+
+  const albumId = req.nextUrl.searchParams.get("albumId");
+
+  // console.log("albumId :->", albumId);
+
+  if (!albumId || !mongoose.Types.ObjectId.isValid(albumId)) {
+    return NextResponse.json({
+      message: "Invalid albumId 1",
+      success: false,
+      status: 400,
+    });
+  }
+
+  try {
     // Fetch tracks
-    const tracks = await Track.find({ albumId: albumId }).sort({ _id: -1 }).lean();
+    
+    const tracks = await Track.find({ albumId: albumId }).sort({ _id: -1 }).exec();
+
+    // console.log("tracks :->", tracks);
 
     if (!tracks || tracks.length === 0) {
-      return null;
+      return NextResponse.json({
+        message: "No tracks found for this album 2",
+        success: false,
+        status: 400,
+      });
     }
 
     // Collect all unique artist IDs
@@ -39,7 +58,7 @@ const getCachedTracks = createCachedQuery(
     });
 
     // Fetch artists
-    const artists = await Artist.find({ '_id': { $in: Array.from(artistIds) } }).lean();
+    const artists = await Artist.find({ '_id': { $in: Array.from(artistIds) } }).exec();
 
     // Create a map of artist IDs to artist names
     const artistNameMap: ArtistNameMap = artists.reduce((map, artist) => {
@@ -50,7 +69,7 @@ const getCachedTracks = createCachedQuery(
 
     // Replace artist IDs with names in tracks
     const tracksWithArtistNames = tracks.map((track) => ({
-      ...track,
+      ...track.toObject(),
       // Keep primarySinger as is since it's already a name
       primarySinger: track.primarySinger,
       singers: track.singers
@@ -67,36 +86,14 @@ const getCachedTracks = createCachedQuery(
         : null,
     }));
 
-    return tracksWithArtistNames;
-  },
-  'tracks-by-album',
-  300 // 5 minutes cache
-);
-
-export async function GET(req: NextRequest) {
-  const albumId = req.nextUrl.searchParams.get("albumId");
-
-  if (!albumId || !mongoose.Types.ObjectId.isValid(albumId)) {
     return NextResponse.json({
-      message: "Invalid albumId 1",
-      success: false,
-      status: 400,
+      message: "Tracks are fetched",
+      success: true,
+      status: 200,
+      data: tracksWithArtistNames,
     });
-  }
-
-  try {
-    const tracksWithArtistNames = await getCachedTracks(albumId);
-
-    if (!tracksWithArtistNames) {
-      return NextResponse.json({
-        message: "No tracks found for this album 2",
-        success: false,
-        status: 400,
-      });
-    }
-
-    return createCachedResponse(tracksWithArtistNames, "Tracks are fetched", 300);
   } catch (error: unknown) {
+
     console.log("error :->", error);
     
     return NextResponse.json({
@@ -104,5 +101,6 @@ export async function GET(req: NextRequest) {
       success: false,
       status: 500,
     });
+
   }
 }

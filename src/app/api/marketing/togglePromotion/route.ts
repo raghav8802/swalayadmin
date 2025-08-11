@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 import Marketing from "@/models/Marketing";
 import { connect } from "@/dbConfig/dbConfig";
-import { invalidateCache } from '@/lib/cache';
 
 export async function POST(req: Request) {
   try {
@@ -30,8 +29,7 @@ export async function POST(req: Request) {
     marketing.isSelectedForPromotion = !marketing.isSelectedForPromotion;
     const updatedMarketing = await marketing.save();
 
-    // Invalidate marketing-related caches
-    invalidateCache('marketing');
+ 
 
     return NextResponse.json({
       success: true,

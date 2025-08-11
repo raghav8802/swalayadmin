@@ -1,32 +1,35 @@
-import { NextResponse } from 'next/server';
 import { connect } from '@/dbConfig/dbConfig';
 import Label from '@/models/Label';
 import Subscription from '@/models/Subscription';
 import ApiResponse from '@/lib/apiResponse';
 
+
+export const revalidate = 0;
+
+
 export async function GET() {
   try {
     await connect();
 
-    const labels = await Label.find({}).select('_id lable username').sort({ createdAt: -1 });
+ // 1. Fetch all subscriptions
+    const subscriptions = await Subscription.find({}).sort({ startDate: -1 }).lean();
 
-    // Fetch subscriptions for each label
-    const results = await Promise.all(labels.map(async (label) => {
-      // Find the latest subscription for this label
-      const subscription = await Subscription.findOne({ userId: label._id })
-        .sort({ startDate: -1 });
-
-      return {
-        _id: label._id,
-        lable: label.lable || label.username,
-        subscriptionPlan: subscription?.planName || 'no plan ',
-        subscriptionStatus: subscription?.status || 'Deactive',
-        subscriptionStartDate: subscription?.startDate || null,
-        subscriptionEndDate: subscription?.endDate || null,
-        subscriptionprice: subscription?.price || 0,
-        subscriptionpaymentId: subscription?.paymentId || 'N/A',
-      };
-    }));  
+    // 2. For each subscription, find the corresponding label
+    const results = await Promise.all(
+      subscriptions.map(async (subscription) => {
+        const label = await Label.findById(subscription.userId).select('lable username');
+        return {
+          _id: subscription._id,
+          lable: label ? (label.lable || label.username) : 'Unknown',
+          subscriptionPlan: subscription.planName || 'no plan',
+          subscriptionStatus: subscription.status || 'Deactive',
+          subscriptionStartDate: subscription.startDate || null,
+          subscriptionEndDate: subscription.endDate || null,
+          subscriptionprice: subscription.price || 0,
+          subscriptionpaymentId: subscription.paymentId || 'N/A',
+        };
+      })
+    );
 
     return ApiResponse(200, results, true, 'Labels with subscriptions fetched successfully').nextResponse;
   } catch (error: any) {

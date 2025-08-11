@@ -18,6 +18,7 @@ const ArtistModalForm = ({
   isVisible: boolean;
   onClose: () => void;
 }) => {
+  
   const [formData, setFormData] = useState({
     labelId: "",
     artistName: "",

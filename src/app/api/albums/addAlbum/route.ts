@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Album from "@/models/albums";
 import { uploadFileToS3 } from "@/dbConfig/uploadFileToS3";
-import { invalidateCache } from "@/lib/cache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -74,11 +73,6 @@ export async function POST(req: NextRequest) {
     // Update the album with the S3 file name
     savedAlbum.thumbnail = uploadResult.fileName; // Set the thumbnail field to the S3 file name
     await savedAlbum.save(); // Save the updated album
-
-    // Invalidate related caches after adding album
-    invalidateCache('albums-');
-    invalidateCache('dashboard-stats');
-    invalidateCache('marketing-albums');
 
     return NextResponse.json({
       message: "Suceess album saved",

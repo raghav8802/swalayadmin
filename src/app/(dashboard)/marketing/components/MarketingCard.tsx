@@ -19,12 +19,7 @@ const MarketingCard: React.FC<NewReleaseItemProps> = ({
   albumId,
   status,
 }) => {
-  console.log("marketing card");
-  console.log( "imageSrc", imageSrc);
-  console.log( "albumName", albumName);
-  console.log( "albumArtist", albumArtist);
-  console.log( "albumId", albumId);
-  console.log( "status", status); 
+
 
   let label = "Unknown";
   let color = "yellow"; // Default values

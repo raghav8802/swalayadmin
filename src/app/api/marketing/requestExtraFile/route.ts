@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Marketing from "@/models/Marketing";
 import Notification from "@/models/notification";
-import { invalidateCache } from '@/lib/cache';
 
 export async function POST(request: NextRequest) {
   await connect();
@@ -23,9 +22,6 @@ export async function POST(request: NextRequest) {
       message: `Extra file requested for marketing: ${reqBody.albumName}`,
     });
     await newNotification.save();
-
-    // Invalidate marketing-related caches
-    invalidateCache('marketing');
 
     if (result) {
       return NextResponse.json({

@@ -2,30 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import Album from "@/models/albums";
 import Track from "@/models/track";
-import { createCachedQuery, createCachedResponse } from '@/lib/cache';
 
-// Cached search query
-const getCachedSearchResults = createCachedQuery(
-  async (query: string) => {
+// Connect to the database
+export async function GET(req: NextRequest) {
+  const query = req.nextUrl.searchParams.get("query");
+
+
+  try {
     await connect();
-    const searchTerm = new RegExp(query, "i");
+    const searchTerm = new RegExp(query as string, "i"); // Case-insensitive search
 
-    // Parallel search queries
-    const [albums, tracks] = await Promise.all([
-      Album.find({ title: searchTerm })
-        .select("_id title")
-        .lean(),
-      Track.find({ songName: searchTerm })
-        .populate({
-          path: "albumId",
-          model: "Album",
-          select: "_id title",
-        })
-        .select("_id songName albumId")
-        .lean()
-    ]);
+    // Search for albums by title and labelId
+    const albums = await Album.find({
+      title: searchTerm
+    })
+      .select("_id title") // Select _id and title
+      .lean(); // Lean for better performance
 
-    // Format results
+    // Get album IDs for filtering tracks
+    const albumIds = albums.map((album) => album._id);
+
+    // Search for tracks by songName and filter by albumId (matching the labelId)
+    const tracks = await Track.find({
+      songName: searchTerm,
+      albumId: { $in: albumIds }, // Only include tracks under albums with the specified labelId
+    })
+      .populate({
+        path: "albumId", // Populate the albumId field
+        model: "Album", // Reference the correct model name
+        select: "_id title", // Select _id and title from Album
+      })
+      .select("_id songName albumId") // Select _id, songName, and albumId
+      .lean();
+
+    // Combine and format the search results
     const results = [
       ...albums.map((album) => ({
         type: "album",
@@ -43,31 +53,16 @@ const getCachedSearchResults = createCachedQuery(
       })),
     ];
 
-    return results;
-  },
-  'search-results',
-  120 // 2 minutes cache for search results
-);
-
-export const dynamic = 'force-dynamic';
-
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const query = searchParams.get("query");
-    
-    if (!query) {
-      return NextResponse.json({
-        message: "Search query is required",
-        success: false,
-        status: 400,
-      });
-    }
-
-    const results = await getCachedSearchResults(query);
-    return createCachedResponse(results, "Search completed successfully", 120);
+    return NextResponse.json({
+      message: "Success",
+      success: true,
+      status: 200,
+      data: results,
+    });
   } catch (error) {
-    console.error('Search error:', error);
+    console.error("------------------------");
+    console.error("Error in search API:", error);
+
     return NextResponse.json({
       message: "Internal server error",
       success: false,

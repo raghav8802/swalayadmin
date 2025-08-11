@@ -114,6 +114,7 @@ export const artistColumns: ColumnDef<Label>[] = [
 ];
 
 export function LabelList({ data }: { data: Label[] }) {
+  
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

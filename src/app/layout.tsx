@@ -1,16 +1,4 @@
-'use client'
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import CacheDebugger from '@/components/CacheDebugger';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: false,
-    },
-  },
-})
 
 export default function RootLayout({
   children,
@@ -20,10 +8,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider client={queryClient}>
-          {children}
-          <CacheDebugger />
-        </QueryClientProvider>
+          {children}   
       </body>
     </html>
   )

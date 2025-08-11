@@ -1,7 +1,4 @@
-"use client";
-import UserContext from "@/context/userContext";
-import { apiGet } from "@/helpers/axiosRequest";
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 // import { MarketingList } from "./components/MarketingList";
 import {
   Breadcrumb,
@@ -12,7 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import MarketingCard from "./components/MarketingCard";
-import useSWR from "swr";
+import { api } from "@/lib/apiRequest";
 
 interface Album {
   artist: string;
@@ -39,37 +36,15 @@ interface ApiResponse {
 }
 
 // Create a fetcher function for SWR
-const fetcher = (url: string) =>
-  apiGet(url).then((res: any) => {
-    console.log(" markeitng res :");
-    console.log(res);
-    if (!res.success) throw new Error("Failed to fetch marketing data");
-    return res.data;
-  });
 
-const Page = () => {
-  const context = useContext(UserContext);
-  const labelId = context?.user?._id ?? "";
 
-  // SWR data fetching
-  const {
-    data: marketingData,
-    error,
-    isLoading,
-  } = useSWR(labelId ? "/api/marketing/fetchAlbumBymarketing" : null, fetcher, {
-    refreshInterval: 60000, // 60 seconds
-    revalidateOnFocus: true,
-    shouldRetryOnError: true,
-  });
+const Page = async () => {
+ 
+ const response = await api.get<ApiResponse>("/api/marketing/fetchAlbumBymarketing");
+ console.log("marketing data response");
+ console.log(response.data);
+ const marketingData = response.data;
 
-  if (error) {
-    console.error("Error fetching marketing data:", error);
-    return <div>Error loading marketing data</div>;
-  }
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="w-full min-h-screen p-6 bg-white rounded-sm">
@@ -100,6 +75,7 @@ const Page = () => {
             status={album.marketingStatus}
           />
         ))}
+
       </div>
     </div>
   );
