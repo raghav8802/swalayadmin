@@ -8,7 +8,7 @@ export async function GET() {
 
   try {
     // Fetch all marketing entries
-    const marketingEntries = await Marketing.find().sort({ _id: -1 });
+    const marketingEntries = await Marketing.find().sort({ _id: -1 }).lean();
 
     if (!marketingEntries || marketingEntries.length === 0) {
       return NextResponse.json({
@@ -57,6 +57,7 @@ export async function GET() {
             
           };
         }
+
 
         // If no album is found, return a placeholder response
         return {

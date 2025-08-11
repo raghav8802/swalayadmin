@@ -95,27 +95,28 @@ const Page = ({ params }: { params: { albumid: string } }) => {
 
   useEffect(() => {
     const albumIdParams = params.albumid;
-  
+
     try {
       const decodedAlbumId = atob(albumIdParams);
-  
+
       setAlbumId(decodedAlbumId);
     } catch (e) {
       setError("Invalid Url");
       console.error("Decoding error:", e);
     }
   }, [params.albumid]);
-  
-  const fetchDetails = useCallback(async () => {
-    if (!albumId) return;  // Avoid making API calls if albumId is null
-    setIsLoading(true);
-    
-    try {
-      const response: any = await apiGet(`/api/marketing/details?albumId=${albumId}`);
-      
-      if (response.success) {
 
-        
+  const fetchDetails = useCallback(async () => {
+    if (!albumId) return; // Avoid making API calls if albumId is null
+    setIsLoading(true);
+
+    try {
+      const response: any = await apiGet(
+        `/api/marketing/details?albumId=${albumId}`
+      );
+
+
+      if (response.success) {
         setMarketingDetails(response.data);
         setAlbumDetails(response.data.albumDetails);
         setTrackDetails(response.data.tracks);
@@ -127,14 +128,13 @@ const Page = ({ params }: { params: { albumid: string } }) => {
       setIsLoading(false);
     }
   }, [albumId]);
-  
+
   // Call fetchDetails when albumId is set
   useEffect(() => {
     if (albumId) {
       fetchDetails();
     }
-  }, [albumId, fetchDetails]);  // Fetch details only after albumId is set
-  
+  }, [albumId, fetchDetails]); // Fetch details only after albumId is set
 
   const [albumDetails, setAlbumDetails] = useState<AlbumDetailsType | null>(
     null
@@ -163,11 +163,11 @@ const Page = ({ params }: { params: { albumid: string } }) => {
       const marketingId = MarketingData?._id;
       const message = requestData?.message;
 
-      const response:any = await apiPost("/api/marketing/requestExtraFile", {
+      const response: any = await apiPost("/api/marketing/requestExtraFile", {
         marketingId,
         message,
         albumName: albumDetails?.title,
-        labelId: albumDetails?.labelId
+        labelId: albumDetails?.labelId,
       });
       toast.dismiss();
       setIsLoading(false);
@@ -184,7 +184,7 @@ const Page = ({ params }: { params: { albumid: string } }) => {
 
   const handleTogglePromotion = async () => {
     if (!MarketingData?._id) return;
-    
+
     toast.loading("Updating promotion status...");
     try {
       const response: any = await apiPost("/api/marketing/togglePromotion", {
@@ -218,8 +218,17 @@ const Page = ({ params }: { params: { albumid: string } }) => {
       {MarketingData?.isSelectedForPromotion && (
         <div className="mb-4 p-4 border rounded-lg bg-green-50 border-green-200">
           <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-green-600 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
             <p className="text-green-700 font-medium">
               This album has been selected for promotion
@@ -384,18 +393,21 @@ const Page = ({ params }: { params: { albumid: string } }) => {
                   <TableRow key={track.index + track.title}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell className="text-blue-500">
-                      <Link href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${albumId}ba3/tracks/${track.audioFile}`}
-                      target="_blank"
-                      title="Click to Download"
+                      <Link
+                        href={`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${albumId}ba3/tracks/${track.audioFile}`}
+                        target="_blank"
+                        title="Click to Download"
                       >
-                      {track.title}
+                        {track.title}
                       </Link>
-                      </TableCell>
+                    </TableCell>
                     <TableCell>{track.singer.join(", ")}</TableCell>
                     <TableCell>{track.producer.join(", ")}</TableCell>
                     <TableCell>{track.lyricist.join(", ")}</TableCell>
                     <TableCell>{track.composer.join(", ")}</TableCell>
-                    <TableCell>{formatDuration(parseFloat(track.duration))}</TableCell>
+                    <TableCell>
+                      {formatDuration(parseFloat(track.duration))}
+                    </TableCell>
                     <TableCell>{track.isrc}</TableCell>
                   </TableRow>
                 ))}
@@ -410,11 +422,17 @@ const Page = ({ params }: { params: { albumid: string } }) => {
             Marketing Details
           </h2>
           <div className="flex gap-2">
-            <Button 
-              variant={MarketingData?.isSelectedForPromotion ? "destructive" : "default"}
+            <Button
+              variant={
+                MarketingData?.isSelectedForPromotion
+                  ? "destructive"
+                  : "default"
+              }
               onClick={handleTogglePromotion}
             >
-              {MarketingData?.isSelectedForPromotion ? "Remove from Promotion" : "Select for Promotion"}
+              {MarketingData?.isSelectedForPromotion
+                ? "Remove from Promotion"
+                : "Select for Promotion"}
             </Button>
             <Button onClick={() => setIsModalVisible(true)}>
               Request Extra File{" "}
@@ -458,12 +476,16 @@ const Page = ({ params }: { params: { albumid: string } }) => {
               <TableRow>
                 <TableCell className="font-medium">Promotion Status</TableCell>
                 <TableCell>
-                  <span className={`px-2 py-1 rounded-full text-sm ${
-                    MarketingData.isSelectedForPromotion 
-                      ? "bg-green-100 text-green-800" 
-                      : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {MarketingData.isSelectedForPromotion ? "Selected for Promotion" : "Not Selected"}
+                  <span
+                    className={`px-2 py-1 rounded-full text-sm ${
+                      MarketingData.isSelectedForPromotion
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {MarketingData.isSelectedForPromotion
+                      ? "Selected for Promotion"
+                      : "Not Selected"}
                   </span>
                 </TableCell>
               </TableRow>

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import UserContext from "@/context/userContext";
-import { apiGet, apiPost } from "@/helpers/axiosRequest";
+import useSWR, { mutate } from 'swr';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Plus, Filter, Search } from "lucide-react";
 import SupportThread from "./components/SupportThread";
 import Link from "next/link";
+import { apiGet, apiPost } from "@/helpers/axiosRequest";
+
 
 interface SupportTicket {
   _id: string;
@@ -29,12 +30,13 @@ interface SupportTicket {
   labelId: string;
 }
 
+// Create a fetcher function for SWR
+const fetcher = (url: string) => apiGet(url).then((res:any) => {
+  if (!res.success) throw new Error('Failed to fetch tickets');
+  return res.data;
+});
+
 export default function MyTickets() {
-  const context = useContext(UserContext);
-  const [tickets, setTickets] = useState<SupportTicket[]>([]);
-  const [filteredTickets, setFilteredTickets] = useState<SupportTicket[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<string | null>(null);
   const [updating, setUpdating] = useState<{ [key: string]: boolean }>({});
 
@@ -44,30 +46,23 @@ export default function MyTickets() {
   const [closedFilter, setClosedFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
+  // SWR data fetching
 
-  useEffect(() => {
-    applyFilters();
-  }, [tickets, statusFilter, priorityFilter, closedFilter, searchTerm]);
-
-  const fetchTickets = async () => {
-    try {
-      const response: any = await apiGet('/api/support/getAllTickets');
-      if (response.success) {
-        setTickets(response.data);
-      } else {
-        setError(response.message);
-      }
-    } catch (err) {
-      setError("Failed to fetch tickets");
-    } finally {
-      setLoading(false);
+  
+  const { data: tickets, error, isLoading } = useSWR<SupportTicket[]>(
+    '/api/support/getAllTickets',
+    fetcher,
+    {
+      refreshInterval: 30000, // 30 seconds
+      revalidateOnFocus: true,
+      shouldRetryOnError: true,
     }
-  };
+  );
 
-  const applyFilters = () => {
+  // Filter tickets based on current filter states
+  const filteredTickets = React.useMemo(() => {
+    if (!tickets) return [];
+    
     let filtered = [...tickets];
 
     // Status filter
@@ -97,8 +92,8 @@ export default function MyTickets() {
       );
     }
 
-    setFilteredTickets(filtered);
-  };
+    return filtered;
+  }, [tickets, statusFilter, priorityFilter, closedFilter, searchTerm]);
 
   const clearFilters = () => {
     setStatusFilter("all");
@@ -109,55 +104,63 @@ export default function MyTickets() {
 
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     try {
-      setUpdating({ ...updating, [ticketId]: true });
+      setUpdating(prev => ({ ...prev, [ticketId]: true }));
       const response: any = await apiPost('/api/support/updateTicket', {
         ticketId,
         status: newStatus
       });
       
       if (response.success) {
-        setTickets(tickets.map(ticket => 
-          ticket.ticketId === ticketId 
-            ? { ...ticket, status: newStatus }
-            : ticket
-        ));
+        // Optimistic update
+        mutate('/api/support/getAllTickets', (currentData: SupportTicket[] | undefined) => {
+          if (!currentData) return;
+          return currentData.map(ticket => 
+            ticket.ticketId === ticketId 
+              ? { ...ticket, status: newStatus }
+              : ticket
+          );
+        }, false);
       } else {
-        setError(response.message);
+        throw new Error(response.message);
       }
     } catch (err) {
-      setError("Failed to update ticket status");
+      console.error("Failed to update ticket status:", err);
     } finally {
-      setUpdating({ ...updating, [ticketId]: false });
+      setUpdating(prev => ({ ...prev, [ticketId]: false }));
     }
   };
 
   const handlePriorityChange = async (ticketId: string, newPriority: string) => {
     try {
-      setUpdating({ ...updating, [ticketId]: true });
+      setUpdating(prev => ({ ...prev, [ticketId]: true }));
       const response: any = await apiPost('/api/support/updateTicket', {
         ticketId,
         priority: newPriority
       });
       
       if (response.success) {
-        setTickets(tickets.map(ticket => 
-          ticket.ticketId === ticketId 
-            ? { ...ticket, priority: newPriority as 'low' | 'medium' | 'high' }
-            : ticket
-        ));
+        // Optimistic update
+        mutate('/api/support/getAllTickets', (currentData: SupportTicket[] | undefined) => {
+          if (!currentData) return;
+          return currentData.map(ticket => 
+            ticket.ticketId === ticketId 
+              ? { ...ticket, priority: newPriority as 'low' | 'medium' | 'high' }
+              : ticket
+          );
+        }, false);
       } else {
-        setError(response.message);
+        throw new Error(response.message);
       }
     } catch (err) {
-      setError("Failed to update ticket priority");
+      console.error("Failed to update ticket priority:", err);
     } finally {
-      setUpdating({ ...updating, [ticketId]: false });
+      setUpdating(prev => ({ ...prev, [ticketId]: false }));
     }
   };
 
   const handleCloseTicket = async (ticketId: string) => {
     try {
-      setUpdating({ ...updating, [ticketId]: true });
+      setUpdating(prev => ({ ...prev, [ticketId]: true }));
       const response: any = await apiPost('/api/support/updateTicket', {
         ticketId,
         isClosed: true,
@@ -165,27 +168,31 @@ export default function MyTickets() {
       });
       
       if (response.success) {
-        setTickets(tickets.map(ticket => 
-          ticket.ticketId === ticketId 
-            ? { ...ticket, isClosed: true, status: 'resolved' }
-            : ticket
-        ));
+        // Optimistic update
+        mutate('/api/support/getAllTickets', (currentData: SupportTicket[] | undefined) => {
+          if (!currentData) return;
+          return currentData.map(ticket => 
+            ticket.ticketId === ticketId 
+              ? { ...ticket, isClosed: true, status: 'resolved' }
+              : ticket
+          );
+        }, false);
       } else {
-        setError(response.message);
+        throw new Error(response.message);
       }
     } catch (err) {
-      setError("Failed to close ticket");
+      console.error("Failed to close ticket:", err);
     } finally {
-      setUpdating({ ...updating, [ticketId]: false });
+      setUpdating(prev => ({ ...prev, [ticketId]: false }));
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="p-6">Loading...</div>;
   }
 
   if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
+    return <div className="p-6 text-red-500">Error loading tickets</div>;
   }
 
   return (
@@ -288,20 +295,20 @@ export default function MyTickets() {
       {/* Results Summary */}
       <div className="mb-4 flex justify-between items-center">
         <p className="text-sm text-gray-600">
-          Showing {filteredTickets.length} of {tickets.length} tickets
+          Showing {filteredTickets.length} of {tickets?.length || 0} tickets
         </p>
         <div className="flex gap-2">
           <Badge variant="outline">
-            Total: {tickets.length}
+            Total: {tickets?.length || 0}
           </Badge>
           <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
-            Pending: {tickets.filter(t => t.status === 'pending').length}
+            Pending: {tickets?.filter(t => t.status === 'pending').length || 0}
           </Badge>
           <Badge variant="outline" className="bg-blue-50 text-blue-700">
-            In Progress: {tickets.filter(t => t.status === 'in-progress').length}
+            In Progress: {tickets?.filter(t => t.status === 'in-progress').length || 0}
           </Badge>
           <Badge variant="outline" className="bg-green-50 text-green-700">
-            Resolved: {tickets.filter(t => t.status === 'resolved').length}
+            Resolved: {tickets?.filter(t => t.status === 'resolved').length || 0}
           </Badge>
         </div>
       </div>
@@ -310,9 +317,9 @@ export default function MyTickets() {
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-gray-500">
-              {tickets.length === 0 ? "No support tickets found." : "No tickets match the current filters."}
+              {tickets?.length === 0 ? "No support tickets found." : "No tickets match the current filters."}
             </p>
-            {tickets.length > 0 && (
+            {tickets && tickets.length > 0 && (
               <Button variant="outline" onClick={clearFilters} className="mt-2">
                 Clear Filters
               </Button>
@@ -459,9 +466,9 @@ export default function MyTickets() {
         <SupportThread
           ticketId={selectedTicket}
           onClose={() => setSelectedTicket(null)}
-          onUpdate={fetchTickets}
+          onUpdate={() => mutate('/api/support/getAllTickets')}
         />
       )}
     </div>
   );
-} 
+}

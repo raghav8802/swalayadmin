@@ -1,43 +1,47 @@
-"use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import React, { useEffect, useState } from 'react';
-import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
-import ArtistModalForm from "@/components/ArtistModalForm";
-import { apiGet } from "@/helpers/axiosRequest";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import React from "react";
 import { ArtistDataTable } from "./components/ArtistDataTable";
+import { api } from "@/lib/apiRequest";
+import NewArtistButton from "./components/NewArtistButton";
 
-function ArtistForm() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [artists, setArtists] = useState();
+interface Artist {
+  _id: string;
+  labelId: string;
+  artistName: string;
+  iprs: boolean;
+  iprsNumber: string;
+  isComposer: boolean;
+  isLyricist: boolean;
+  isProducer: boolean;
+  isSinger: boolean;
+}
 
-  const fetchAllArtist = async () => {
-    setIsLoading(true);
-    try {
-      const response:any = await apiGet("/api/artist/getAllArtist");
-      if (response.success) {
-        setArtists(response.data);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      toast.error("🤔 Something went wrong");
-      setIsLoading(false);
-    }
-  };
+interface ArtistsResponse {
+  success: boolean;
+  data: Artist[];
+  message?: string;
+}
 
-  useEffect(() => {
-    fetchAllArtist();
-  }, []);
+export const dynamic = 'force-dynamic';
 
-  const handleClose = () => {
-    setIsModalVisible(false);
-    fetchAllArtist();
-  };
+const ArtistPage = async () => {
+
+  const response = await api.get<ArtistsResponse>("/api/artist/getAllArtist");
+  const artists = response.data;
 
   return (
-    <div className="w-full h-full p-6 bg-white rounded-sm" style={{ minHeight: "90vh" }} >
+    <div
+      className="w-full h-full p-6 bg-white rounded-sm"
+      style={{ minHeight: "90vh" }}
+    >
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -52,26 +56,15 @@ function ArtistForm() {
 
       <div className="flex justify-between items-center mt-3">
         <h3 className="text-3xl font-bold mb-2 text-blue-500">All Artists</h3>
-        <Button onClick={() => setIsModalVisible(true)}>New Artist</Button>
+        {/* <Button onClick={() => setIsModalVisible(true)}>New Artist</Button> */}
+        <NewArtistButton />
       </div>
 
-      {
-        artists && <div className="bg-white p-3">
-          <ArtistDataTable data={artists} />
-        </div>
-      }
+      <ArtistDataTable data={artists} />
 
-      {
-        isLoading && <h5 className="text-2xl mt-5 pt-3 text-center">Loading...</h5>
-      }
-      {
-        !artists && !isLoading && <h5 className="text-2xl mt-5 pt-3 text-center">No Record Found</h5>
-      }
-
-      <ArtistModalForm isVisible={isModalVisible} onClose={handleClose} />
-
+      {/* <ArtistModalForm isVisible={isModalVisible} onClose={handleClose} /> */}
     </div>
   );
-}
+};
 
-export default ArtistForm;
+export default ArtistPage;

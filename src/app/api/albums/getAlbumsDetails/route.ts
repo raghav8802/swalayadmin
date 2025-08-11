@@ -7,13 +7,19 @@ import Label from '@/models/Label';
 export async function GET(req: NextRequest) {
     await connect();
 
-    const albumId = req.nextUrl.searchParams.get("albumId")
+    const {searchParams} = new URL(req.url);
+
+    const albumId = searchParams.get("albumId")
+
+
 
     try {
         const album = await Album.findById(albumId)
 
         const labelId =  album?.labelId;
         const labelDetails = await Label.findById(labelId).select('username usertype lable');
+
+  
 
         if (!labelDetails) {
             album.labelDetails = {

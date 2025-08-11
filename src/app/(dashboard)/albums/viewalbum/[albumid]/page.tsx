@@ -122,8 +122,7 @@ const Albums = ({ params }: { params: { albumid: string } }) => {
         `/api/albums/getAlbumsDetails?albumId=${albumId}`
       );
 
-      // console.log("response from fetchAlbumDetails", response);
-      console.log("response from fetchAlbumDetails", response.data.label);
+   
 
       if (response?.data) {
         setAlbumDetails(response.data.album);

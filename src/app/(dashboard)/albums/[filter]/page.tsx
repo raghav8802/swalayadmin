@@ -9,18 +9,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import React, { useContext, useEffect, useState, useCallback } from "react";
 
-// import Style from '../'
 import Style from "../../../styles/Albums.module.css";
 
-// import MusicPlayer from './components/MusicPlayer'
-// import NewReleaseItem from './components/NewReleaseItem'
 import { AlbumDataTable } from "../components/AlbumDataTable";
 import UserContext from "@/context/userContext";
 import toast from "react-hot-toast";
 import { apiGet } from "@/helpers/axiosRequest";
 import AlbumsLoading from "@/components/AlbumsLoading";
 import ErrorSection from "@/components/ErrorSection";
-// import DataTableUi from '../components/DataTable'
 
 interface AlbumResponse {
   success: boolean;
@@ -29,9 +25,12 @@ interface AlbumResponse {
 }
 
 const Albums = ({ params }: { params: { filter: string } }) => {
+
   const filter = params.filter.charAt(0).toUpperCase() + params.filter.slice(1).toLowerCase();
+
   const context = useContext(UserContext);
   const labelId = context?.user?._id;
+
   const [albumList, setAlbumList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInvalidFilter, setIsInvalidFilter] = useState(false);
@@ -47,7 +46,7 @@ const Albums = ({ params }: { params: { filter: string } }) => {
   const fetchAlbums = useCallback(async (labelId: string) => {
     try {
       const response = await apiGet<AlbumResponse>(
-        `/api/albums/filter?labelid=${labelId}&status=${filter}`
+        `/api/albums/filter?status=${filter}`
       );
       if (response?.success) {
         setAlbumList(response.data);

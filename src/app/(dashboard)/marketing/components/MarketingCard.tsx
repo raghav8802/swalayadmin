@@ -20,6 +20,7 @@ const MarketingCard: React.FC<NewReleaseItemProps> = ({
   status,
 }) => {
 
+
   let label = "Unknown";
   let color = "yellow"; // Default values
 
@@ -54,10 +55,10 @@ const MarketingCard: React.FC<NewReleaseItemProps> = ({
         />
         <div className="p-1">
           <p className={`m-0 ${Style.albumName}`}>
-            {albumName.length > 15 ? `${albumName.slice(0, 12)}...` : albumName}
+            {albumName && albumName.length > 15 ? `${albumName.slice(0, 12)}...` : albumName || 'Unknown Album'}
           </p>
           <p className={`m-0 ${Style.albumArtistName}`}>
-            {albumArtist.length > 10 ? `${albumArtist.slice(0, 10)}...` : albumArtist}
+            {albumArtist && albumArtist.length > 10 ? `${albumArtist.slice(0, 10)}...` : albumArtist || 'Unknown Artist'}
           </p>
         </div>
       </Link>

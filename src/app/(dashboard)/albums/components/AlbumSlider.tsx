@@ -33,9 +33,12 @@ const AlbumSlider: React.FC<AlbumSliderProps> = ({ labelId }) => {
   const fetchAlbums = async (labelId: string) => {
     try {
       const response:any = await apiGet(
-        `/api/albums/filter?labelid=${labelId}&status=Processing&limit=6`
+        `/api/albums/filter?labelid=status=Processing&limit=6`
       );
     
+      console.log("response from album slider");
+      console.log(response);
+
 
       if (response.success) {
         setAlbumList(response.data);

@@ -2,6 +2,9 @@ import { connect } from "@/dbConfig/dbConfig"; // Assuming this is your database
 import Label from "@/models/Label"; // Import the Label model
 import { NextResponse } from "next/server";
 
+
+export const revalidate = 0; 
+
 export async function GET() {
   // Connect to the database
   await connect();
@@ -10,8 +13,7 @@ export async function GET() {
     // Fetch all labels from the database
     const labels = await Label.find()
       .select("-password -verifyCode -verifyCodeExpiry -razor_contact")
-      .sort({ _id: -1 });
-
+      .sort({ _id: -1 }).lean(); 
 
     // If no labels found, return a message
     if (!labels.length) {

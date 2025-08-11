@@ -24,19 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* <Head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
-      </Head> */}
-
-      <body className={`dashboardBody ${inter.className}`} >
+    
+      <body className={`dashboardBody ${inter.className}`} suppressHydrationWarning>
         <UserProvider>
 
-
         <Navbar />
-
-        {/* <main style={{ padding: "1rem", minHeight: "80vh" }}> */}
-        <main style={{ padding: "0.7rem", minHeight: "80vh" }}>
+        <main style={{ padding: "1rem", minHeight: "80vh" }} suppressHydrationWarning>
+        {/* <main style={{ padding: "0.7rem", minHeight: "80vh" }}> */}
           {/* <section style={{ border: "2px solid green" }}> */}
           <Toaster position="top-center" 
             reverseOrder={false} 
