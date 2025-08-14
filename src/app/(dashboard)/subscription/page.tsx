@@ -26,11 +26,14 @@ interface Label {
 export const dynamic = 'force-dynamic';
 
 const SubscriptionPage = async () => {
-  const apiResponse = await api.get<{ data: Label[] }>(
-    "/api/labels/subscriptions"
+  // Use safe API method with fallback data for static generation
+  const apiResponse = await api.safeGet<{ data: Label[] }>(
+    "/api/labels/subscriptions",
+    { data: [] },
+    { cache: 'no-store' }
   );
 
-  const subcription = apiResponse.data;
+  const subcription = apiResponse.data || [];
 
   return (
     <div

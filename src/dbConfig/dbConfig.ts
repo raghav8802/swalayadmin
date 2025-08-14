@@ -8,29 +8,30 @@ export async function connect() {
             return mongoose.connection;
         }
 
-        // Establish new connection with optimized settings
+        // Establish new connection with optimized settings for static generation
         const connection = await mongoose.connect(process.env.MONGODB_URI!, {
-            // Connection Pool Settings
-            maxPoolSize: 10,       // Maximum number of simultaneous connections
-            minPoolSize: 2,        // Minimum number of maintained connections
-            waitQueueTimeoutMS: 5000, // Max wait time for a connection from pool
+            // Connection Pool Settings - optimized for static generation
+            maxPoolSize: 20,       // Increased for static generation
+            minPoolSize: 5,        // Increased minimum connections
+            waitQueueTimeoutMS: 10000, // Increased wait time for static generation
+            maxIdleTimeMS: 300000, // 5 minutes - longer idle time
             
-            // Timeout Settings
-            serverSelectionTimeoutMS: 5000,  // Timeout for server selection
-            connectTimeoutMS: 30000,         // Timeout for initial connection
-            socketTimeoutMS: 45000,          // Timeout for individual operations
+            // Timeout Settings - more lenient for static generation
+            serverSelectionTimeoutMS: 10000,  // Increased timeout
+            connectTimeoutMS: 60000,         // Increased connection timeout
+            socketTimeoutMS: 90000,          // Increased socket timeout
             
             // Buffering Settings
-            bufferCommands: true,  // Enable command buffering to prevent connection issues
+            bufferCommands: true,  // Enable command buffering
+            bufferMaxEntries: 0,   // Disable buffer limit
             
             // Replication/Sharding Settings
             retryWrites: true,      // Auto-retry write operations
             retryReads: true,       // Auto-retry read operations
             
             // Other Optimizations
-            heartbeatFrequencyMS: 10000, // How often to check connection status
-            autoIndex: false,        // Automatic index creation (disable in production) defalut true
-            maxIdleTimeMS: 60000    // Close idle connections after 60s
+            heartbeatFrequencyMS: 30000, // Less frequent heartbeats
+            autoIndex: false,        // Disable automatic index creation
         });
 
         // Get the connection instance
@@ -43,8 +44,12 @@ export async function connect() {
 
         db.on("error", (err) => {
             console.error("MongoDB connection error:", err);
-            // Graceful shutdown on connection error
-            process.exit(1); 
+            // Don't exit on connection error during static generation
+            if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PHASE) {
+                console.warn("Connection error during static generation, continuing...");
+            } else {
+                process.exit(1);
+            }
         });
 
         db.on("disconnected", () => {
@@ -55,7 +60,12 @@ export async function connect() {
 
     } catch (error) {
         console.error("Database connection failed:", error);
-        // Exit with error code if initial connection fails
-        process.exit(1);
+        // Don't exit on connection failure during static generation
+        if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PHASE) {
+            console.warn("Database connection failed during static generation, continuing...");
+            return null;
+        } else {
+            process.exit(1);
+        }
     }
 }

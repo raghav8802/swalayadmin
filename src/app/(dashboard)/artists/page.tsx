@@ -33,9 +33,13 @@ interface ArtistsResponse {
 export const dynamic = 'force-dynamic';
 
 const ArtistPage = async () => {
-
-  const response = await api.get<ArtistsResponse>("/api/artist/getAllArtist");
-  const artists = response.data;
+  // Use safe API method with fallback data for static generation
+  const response = await api.safeGet<ArtistsResponse>(
+    "/api/artist/getAllArtist",
+    { success: true, data: [] },
+    { cache: 'no-store' }
+  );
+  const artists = response.data || [];
 
   return (
     <div

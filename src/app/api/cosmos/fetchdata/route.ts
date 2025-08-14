@@ -1,25 +1,24 @@
-import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import { connect } from '@/dbConfig/dbConfig';
-import Album from '@/models/albums';
-import Artist from '@/models/Artists';
-import Label from '@/models/Label';
-import Track from '@/models/track';
-import ApiResponse from '@/lib/apiResponse';
-import crypto from 'crypto';
+import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+import { connect } from "@/dbConfig/dbConfig";
+import Album from "@/models/albums";
+import Artist from "@/models/Artists";
+import Label from "@/models/Label";
+import Track from "@/models/track";
+import ApiResponse from "@/lib/apiResponse";
+import crypto from "crypto";
 
-
-import axios from 'axios';
-
-
+import axios from "axios";
 
 // Function to generate MD5 checksum
 const generateMD5Checksum = (buffer: Buffer): string => {
-  return crypto.createHash('md5').update(buffer).digest('hex');
+  return crypto.createHash("md5").update(buffer).digest("hex");
 };
 
 // Function to fetch image from URL and generate checksum and size
-const fetchImageAndGenerateChecksum = async (url: string): Promise<{ checksum: string, size: number }> => {
+const fetchImageAndGenerateChecksum = async (
+  url: string
+): Promise<{ checksum: string; size: number }> => {
   console.log(`Fetching image from URL: ${url}`);
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to fetch image from URL: ${url}`);
@@ -32,25 +31,31 @@ const fetchImageAndGenerateChecksum = async (url: string): Promise<{ checksum: s
 };
 
 // Function to upload file using a PUT request to the signed URL
-const uploadFileToSignedUrl = async (signedUrl: string, fileBuffer: Buffer, contentType: string) => {
+const uploadFileToSignedUrl = async (
+  signedUrl: string,
+  fileBuffer: Buffer,
+  contentType: string
+) => {
   const fileSize = fileBuffer.length;
 
   const response = await fetch(signedUrl, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': contentType,
-      'Content-Length': fileSize.toString(),
-      'Accept': 'application/json, text/plain, */*',
-      'Origin': 'http://localhost:9000',
-      'Connection': 'keep-alive',
-      'Pragma': 'no-cache',
-      'Cache-Control': 'no-cache',
+      "Content-Type": contentType,
+      "Content-Length": fileSize.toString(),
+      Accept: "application/json, text/plain, */*",
+      Origin: "http://localhost:9000",
+      Connection: "keep-alive",
+      Pragma: "no-cache",
+      "Cache-Control": "no-cache",
     },
     body: fileBuffer,
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to upload file to ${signedUrl}. Status: ${response.status}`);
+    throw new Error(
+      `Failed to upload file to ${signedUrl}. Status: ${response.status}`
+    );
   }
   console.log(`File uploaded successfully to ${signedUrl}`);
 };
@@ -64,31 +69,35 @@ const fetchFileFromS3 = async (s3Url: string): Promise<Buffer> => {
   return Buffer.from(arrayBuffer);
 };
 
-
 const verifyAlbumMeta = async (token: string, albumId: string) => {
   try {
-    const verifyMetaResponse = await axios.get('https://apicms.infinitesoul.in/v2.0/album/verify/meta', {
-      params: {
-        album_id: "",
-        label_id: '61b990392d56b657a5c186d7',  // Replace with the actual label_id
-        token: token,
-      },
-       
-      headers: {
-        Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiTGFiZWwiLCJBZHZhbmNlTWV0YWRhdGEiXSwiZXh0cmEiOnt9LCJleHAiOjE3NTk1NjUwOTcsImlhdCI6MTcyODQ2MTA5NywiaXNzIjoiVFNNIiwic3ViIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIn0.AEXW0dWbb90qLRjFYvw3phhpj-eqbcfErCs8gDgEC8_oM9Ogig1tbxbMUdDGwSjHdWdw8dpM_PUW1ZBW-FpRhZoSRtm-9TrfIqvXBEHq8GKXdTNwe3OXjGg8qmeqH_bm-lPMWVr7WWvkS6kqaftptPziXKJWhK0ZIH1dVOqjwFw6itlqVZw1LUKKge4Idsb9wKsafBQixXaz9bH92LTIlnOuTbf5HhfiFiKuG33KnYAKLwd1o6lYTv0ZNYgGdXVGHyTxkaarCV2Kw7URfq0dUV2Nln-lk8iI-JBqrzECCk7NL8y5Vy9Ez9yBxTP_FjEA_5pje0cbqX1dE6lETBjLZQ`,  // Replace with your Bearer token
-      },
+    const verifyMetaResponse = await axios.get(
+      "https://apicms.infinitesoul.in/v2.0/album/verify/meta",
+      // "http://pdl.gaonaweb.com/v2.0/album/verify/meta",
+      {
+        params: {
+          album_id: "",
+          label_id: "61b990392d56b657a5c186d7", // Replace with the actual label_id
+          token: token,
+        },
+        
+        headers: {
+          // Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiRHVwbGljYXRlVXBsb2FkZXIiLCJMYWJlbCIsIkFkdmFuY2VNZXRhZGF0YSJdLCJleHRyYSI6e30sImV4cCI6MTc4NjEyNTkzNCwiaWF0IjoxNzU1MDIxOTM0LCJpc3MiOiJUU00iLCJzdWIiOiI2MWI5OTIxZDJkNTZiNjU3YTVjMTg5ZmMifQ.FJbiWwk1BS8HiqZ6PDj5TSlFU30AXJ7rT33Y_BBKQI__YJEejWJdEXR8ab-p2p0C7wR6AIi2CnhEvLpNZX_3hkEpNuNf8hsFrBKRtjDXVb79OEh5TM7HLLMI62Sm8mC4m_Bk6e5uqaGHHQ73vTFtQ4p5e10T_FBiI_r0Ogm80HJJ_JmCunx5iT90nR2o2WdgZtn7oaqYUacqVvufAV9OvaMVDGB3uzzhFhdhut9VpA8KF3Xtsbwn8d14PuqaeQvi5b7z_ehoTocmocGLw_QMa52aw_W9AbfmNkdDx9HRYb9iMUMHBZf_--pV7BOXxiCP2fzdXL5h1100YCti4NZt4w`, 
 
-    });
-    console.log('Verify Meta Response:', verifyMetaResponse.data);
+          //new production token
+          Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiTGFiZWwiLCJBZHZhbmNlTWV0YWRhdGEiXSwiZXh0cmEiOnt9LCJleHAiOjE3ODYyNjQ3NTAsImlhdCI6MTc1NTE2MDc1MCwiaXNzIjoiVFNNIiwic3ViIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIn0.TuSLeyxPzmS1Y6Ab9_QChGDwg2-ypiKfNAAokgOtDGPJ5JIv3G4Q8WdFTPvRXXZYfRnjzKdk3BGOWiozIHP_AWUG1m12RuRa2Jzh6x-KH90_xg5A9AL0ojT3kWqAi5mZSi_tgJAyMk_yh7HzY1M7zFzlR81EA8IT5DX3MBv4-7Q4hivGW8TUwwSA5f3PnUvRc9Z9c_AEKqIcyxKIGDuegLzkpcsedLmjfPM5D_O-T6BYmE17E4U8KXJc8MagiIaKFiXFSOMroAydhTllWp8BeQBlkJnuvA9UjyTRPAas2gmpPQuSYk7whpY_aSbbaQ4xS5DwkgEW-yfMaCUeJnNFYg`, 
+
+
+        },
+      }
+    );
+    console.log("Verify Meta Response:", verifyMetaResponse.data);
     return verifyMetaResponse.data;
   } catch (error) {
-    console.error('Error during verification:', error);
-    throw new Error('Failed to verify album metadata');
+    console.error("Error during verification:", error);
+    throw new Error("Failed to verify album metadata");
   }
 };
-
-
-
 
 export async function POST(req: Request) {
   try {
@@ -97,51 +106,49 @@ export async function POST(req: Request) {
     const { albumId }: { albumId?: string } = await req.json();
 
     if (!albumId) {
-      return ApiResponse(400, null, false, 'Album ID is required').nextResponse;
+      return ApiResponse(400, null, false, "Album ID is required").nextResponse;
     }
 
     const albumObjectId = new mongoose.Types.ObjectId(albumId);
 
-    const album = await Album.findById(albumObjectId).select('_id labelId title artist thumbnail language genre releasedate status totalTracks cline pline tags comment');
+    const album = await Album.findById(albumObjectId).select(
+      "_id labelId title artist thumbnail language genre releasedate status totalTracks cline pline tags comment"
+    );
 
-      console.log('Album details:', album);
-      console.log('-----------');
+    // console.log("Fetch Album details from mongodb:", album);
+    // console.log("-----------");
 
     if (!album) {
-      return ApiResponse(404, null, false, 'Album not found').nextResponse;
-      
+      return ApiResponse(404, null, false, "Album not found").nextResponse;
     }
 
-    console.log(album.labelId);
-   
+    // console.log(album.labelId);
 
     let labelDetails = null;
     if (album.labelId && mongoose.Types.ObjectId.isValid(album.labelId)) {
-      labelDetails = await Label.findById(album.labelId).select('_id lable');
+      labelDetails = await Label.findById(album.labelId).select("_id lable");
     }
-
-    
-
 
     let artistDetails = null;
     if (album.artist && mongoose.Types.ObjectId.isValid(album.artist)) {
-      artistDetails = await Artist.findById(album.artist).select('_id artistName profileImage isSinger isLyricist isComposer isProducer');
+      artistDetails = await Artist.findById(album.artist).select(
+        "_id artistName profileImage isSinger isLyricist isComposer isProducer"
+      );
     }
-
-
 
     const tracks = await Track.find({ albumId: album._id });
 
     const fetchArtistDetails = async (artistId: string) => {
       if (mongoose.Types.ObjectId.isValid(artistId)) {
-        return await Artist.findById(artistId).select('_id labelId artistName iprs iprsNumber facebook appleMusic spotify instagram ');
+        return await Artist.findById(artistId).select(
+          "_id labelId artistName iprs iprsNumber facebook appleMusic spotify instagram "
+        );
       }
       return null;
     };
 
     const tracksWithDetails = await Promise.all(
       tracks.map(async (track) => {
-        
         const singersDetails = await Promise.all(
           track.singers.map(fetchArtistDetails)
         );
@@ -162,100 +169,103 @@ export async function POST(req: Request) {
 
         const audioFileUrl = `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${track.albumId}ba3/tracks/${track.audioFile}`;
         console.log(`Track file URL: ${audioFileUrl}`);
-        const { checksum: audioFileChecksum, size: audioFileSize } = await fetchImageAndGenerateChecksum(audioFileUrl);
+        const { checksum: audioFileChecksum, size: audioFileSize } =
+          await fetchImageAndGenerateChecksum(audioFileUrl);
 
-        console.log("album.language", album.language);
+        // console.log("album.language", album.language);
         return {
-          isrc: track.isrc || "",  
-          data : {
-            crbt_cut_name : track.songName || "",
+          isrc: track.isrc || "",
+          data: {
+            crbt_cut_name: track.songName || "",
             song_name: track.songName || "",
-            album_name : album.title || "",
-            language : album.language || "",
-            album_type : "Album",  
-            content_type : "Single",
-            genre:  "Indie",
-            sub_genre : "Indie Pop",
+            album_name: album.title || "",
+            language: album.language || "",
+            album_type: "Album",
+            content_type: "Single",
+            genre: "Indie",
+            sub_genre: "Indie Pop",
             mood: album.tags[0] || "",
             isrc: track.isrc || "",
-            label : labelDetails?.lable || "",
-            publisher : labelDetails?.lable || "",
-            track_duration : "" , 
+            label: labelDetails?.lable || "",
+            publisher: labelDetails?.lable || "",
+            track_duration: "",
             time_for_crbt_cut: track.crbt || "",
-            original_release_date_of_movie : album.releasedate || "",
-            original_release_date_of_music : album.releasedate || "",
+            original_release_date_of_movie: album.releasedate || "",
+            original_release_date_of_music: album.releasedate || "",
             go_live_date: album.releasedate || "",
-            date_of_expiry : "",
+            date_of_expiry: "",
             c_line: album.cline || "",
             p_line: album.pline || "",
-            parental_advisory : "Not Explicit",
-            upc_id : "" ,
+            parental_advisory: "Not Explicit",
+            upc_id: "",
           },
-          lyricists: lyricistsDetails.filter(Boolean).map(lyricist => ({
-            id: lyricist._id,
-            name : lyricist.artistName,
-            apple_id: "",
-            facebook_artist_page_url: lyricist.facebook,
-            insta_artist_page_url: lyricist.instagram,
-            spotify_id: lyricist.spotify,
-            is_iprs_member: lyricist.iprs,
-            ipi_number: lyricist.iprsNumber,
-          })) || [],
-          composers: composersDetails.filter(Boolean).map(composer => ({
-            id: composer._id,
-            name : composer.artistName,
-            apple_id: "",
-            facebook_artist_page_url: composer.facebook,
-            insta_artist_page_url: composer.instagram,
-            spotify_id: composer.spotify,
-            is_iprs_member: composer.iprs,
-            ipi_number: composer.iprsNumber,
-          })) || [],
-          producers: producersDetails.filter(Boolean).map(producer => ({
-            id: producer._id,
-            name : producer.artistName,
-            apple_id: "",
-            facebook_artist_page_url: producer.facebook,
-            insta_artist_page_url: producer.instagram,
-            spotify_id: producer.spotify,
-            is_iprs_member: producer.iprs,
-            ipi_number: producer.iprsNumber,
-          })) || [],
+          lyricists:
+            lyricistsDetails.filter(Boolean).map((lyricist) => ({
+              id: lyricist._id,
+              name: lyricist.artistName,
+              apple_id: "",
+              facebook_artist_page_url: lyricist.facebook,
+              insta_artist_page_url: lyricist.instagram,
+              spotify_id: lyricist.spotify,
+              is_iprs_member: lyricist.iprs,
+              ipi_number: lyricist.iprsNumber,
+            })) || [],
+          composers:
+            composersDetails.filter(Boolean).map((composer) => ({
+              id: composer._id,
+              name: composer.artistName,
+              apple_id: "",
+              facebook_artist_page_url: composer.facebook,
+              insta_artist_page_url: composer.instagram,
+              spotify_id: composer.spotify,
+              is_iprs_member: composer.iprs,
+              ipi_number: composer.iprsNumber,
+            })) || [],
+          producers:
+            producersDetails.filter(Boolean).map((producer) => ({
+              id: producer._id,
+              name: producer.artistName,
+              apple_id: "",
+              facebook_artist_page_url: producer.facebook,
+              insta_artist_page_url: producer.instagram,
+              spotify_id: producer.spotify,
+              is_iprs_member: producer.iprs,
+              ipi_number: producer.iprsNumber,
+            })) || [],
 
-          track_main_artist : singersDetails.filter(Boolean).map(singer => ({
-            id: singer._id,
-            name : singer.artistName,
-            apple_id: "",
-            facebook_artist_page_url: singer.facebook,
-            insta_artist_page_url: singer.instagram,
-            spotify_id: singer.spotify,
-            is_iprs_member: singer.iprs,
-            ipi_number: singer.iprsNumber,
-
-          })) || [],
+          track_main_artist:
+            singersDetails.filter(Boolean).map((singer) => ({
+              id: singer._id,
+              name: singer.artistName,
+              apple_id: "",
+              facebook_artist_page_url: singer.facebook,
+              insta_artist_page_url: singer.instagram,
+              spotify_id: singer.spotify,
+              is_iprs_member: singer.iprs,
+              ipi_number: singer.iprsNumber,
+            })) || [],
           media: {
-            id : "",
-            size : audioFileSize || "",
+            id: "",
+            size: audioFileSize || "",
             md5: audioFileChecksum || "",
             filename: track.audioFile || "",
-          }
+          },
         };
       })
     );
 
     const thumbnailUrl = `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${album._id}ba3/cover/${album.thumbnail}`;
-    console.log(`Thumbnail URL: ${thumbnailUrl}`);
-    const { checksum: thumbnailChecksum, size: thumbnailSize } = await fetchImageAndGenerateChecksum(thumbnailUrl);
+    // console.log(`Thumbnail URL: ${thumbnailUrl}`);
+    const { checksum: thumbnailChecksum, size: thumbnailSize } =
+      await fetchImageAndGenerateChecksum(thumbnailUrl);
 
     const formattedResponse = {
-      
       version: "2",
       albums: [
         {
-          
           is_update: false,
           name: "Gangster-Raju-1724771189421-32",
-          label:  labelDetails?.lable || "",
+          label: labelDetails?.lable || "",
           c_line: album.cline || "",
           upc_id: "",
           songs: tracksWithDetails || [],
@@ -264,63 +274,74 @@ export async function POST(req: Request) {
             size: thumbnailSize || "",
             md5: thumbnailChecksum || "",
             filename: album.thumbnail || "",
-          }, 
-          album_main_artist: [
-               {
-                 
-               }
-          ]
-        }
-      ]
+          },
+          album_main_artist: [{}],
+        },
+      ],
     };
 
     // Log the formatted request body
-    console.log("Data sent to the external API:", JSON.stringify(formattedResponse, null, 2));
+    console.log(
+      "Data sent to the external API:",
+      // JSON.stringify(formattedResponse, null, 2)
+      JSON.stringify(formattedResponse)
+    );
 
     // Send the formatted data to the external API and get signed URLs
-    const externalApiResponse = await fetch('https://apicms.infinitesoul.in/v2.0/album/add/meta', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiTGFiZWwiLCJBZHZhbmNlTWV0YWRhdGEiXSwiZXh0cmEiOnt9LCJleHAiOjE3NTk1NjUwOTcsImlhdCI6MTcyODQ2MTA5NywiaXNzIjoiVFNNIiwic3ViIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIn0.AEXW0dWbb90qLRjFYvw3phhpj-eqbcfErCs8gDgEC8_oM9Ogig1tbxbMUdDGwSjHdWdw8dpM_PUW1ZBW-FpRhZoSRtm-9TrfIqvXBEHq8GKXdTNwe3OXjGg8qmeqH_bm-lPMWVr7WWvkS6kqaftptPziXKJWhK0ZIH1dVOqjwFw6itlqVZw1LUKKge4Idsb9wKsafBQixXaz9bH92LTIlnOuTbf5HhfiFiKuG33KnYAKLwd1o6lYTv0ZNYgGdXVGHyTxkaarCV2Kw7URfq0dUV2Nln-lk8iI-JBqrzECCk7NL8y5Vy9Ez9yBxTP_FjEA_5pje0cbqX1dE6lETBjLZQ',
-        'Content-Type': 'application/json;charset=UTF-8',
-        'Origin': 'http://localhost:9000',
-        'Referer': 'http://localhost:9000/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-      },
-      body: JSON.stringify(formattedResponse),
-    });
+    const externalApiResponse = await fetch(
+      "https://apicms.infinitesoul.in/v2.0/album/add/meta",
+      // "http://pdl.gaonaweb.com/v2.0/album/add/meta",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          Authorization:
+            "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIiwic2NvcGUiOlsiTGFiZWwiLCJBZHZhbmNlTWV0YWRhdGEiXSwiZXh0cmEiOnt9LCJleHAiOjE3ODYyNjQ3NTAsImlhdCI6MTc1NTE2MDc1MCwiaXNzIjoiVFNNIiwic3ViIjoiNjFiOTkyMWQyZDU2YjY1N2E1YzE4OWZjIn0.TuSLeyxPzmS1Y6Ab9_QChGDwg2-ypiKfNAAokgOtDGPJ5JIv3G4Q8WdFTPvRXXZYfRnjzKdk3BGOWiozIHP_AWUG1m12RuRa2Jzh6x-KH90_xg5A9AL0ojT3kWqAi5mZSi_tgJAyMk_yh7HzY1M7zFzlR81EA8IT5DX3MBv4-7Q4hivGW8TUwwSA5f3PnUvRc9Z9c_AEKqIcyxKIGDuegLzkpcsedLmjfPM5D_O-T6BYmE17E4U8KXJc8MagiIaKFiXFSOMroAydhTllWp8BeQBlkJnuvA9UjyTRPAas2gmpPQuSYk7whpY_aSbbaQ4xS5DwkgEW-yfMaCUeJnNFYg",
 
-    const responseData :any = await externalApiResponse.json();
+          "Content-Type": "application/json;charset=UTF-8",
+          Origin: "http://localhost:9000",
+          Referer: "http://localhost:9000/",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        },
+        body: JSON.stringify(formattedResponse),
+      }
+    );
 
-        // Add logging to see the actual response structure
-    console.log('Response Data:', responseData);
+    const responseData: any = await externalApiResponse.json();
+
+    // Add logging to see the actual response structure
+    console.log("Response Data 1:", responseData);
 
     if (!externalApiResponse.ok) {
-      return NextResponse.json(responseData, { status: externalApiResponse.status });
+      return NextResponse.json(responseData, {
+        status: externalApiResponse.status,
+      });
     }
-
-
 
     // Check if data and signed_albums exist and have content
     if (!responseData.data?.signed_albums?.length) {
-      throw new Error('No signed albums data received from the API');
+      throw new Error("No signed albums data received from the API");
     }
 
     const { signed_albums } = responseData.data;
 
     // Add additional safety checks before accessing the data
     if (!signed_albums[0]?.inlay?.signed_url) {
-      throw new Error('Missing inlay signed URL in the response');
+      throw new Error("Missing inlay signed URL in the response");
     }
 
     // Fetch the album art and upload it using the signed URL
     const albumArtBuffer = await fetchFileFromS3(thumbnailUrl);
-    await uploadFileToSignedUrl(signed_albums[0].inlay.signed_url, albumArtBuffer, 'image/jpeg');
+    await uploadFileToSignedUrl(
+      signed_albums[0].inlay.signed_url,
+      albumArtBuffer,
+      "image/jpeg"
+    );
 
     // Add safety check for songs array
     if (!signed_albums[0]?.songs?.length) {
-      throw new Error('No signed URLs received for songs');
+      throw new Error("No signed URLs received for songs");
     }
 
     // Fetch and upload each track using the signed URLs
@@ -328,16 +349,23 @@ export async function POST(req: Request) {
       if (!signed_albums[0].songs[i]?.media?.signed_url) {
         throw new Error(`Missing signed URL for track ${i}`);
       }
-      const trackBuffer = await fetchFileFromS3(`${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${tracks[i].albumId}ba3/tracks/${tracks[i].audioFile}`);
-      await uploadFileToSignedUrl(signed_albums[0].songs[i].media.signed_url, trackBuffer, 'audio/mp4');
+      const trackBuffer = await fetchFileFromS3(
+        `${process.env.NEXT_PUBLIC_AWS_S3_FOLDER_PATH}albums/07c1a${tracks[i].albumId}ba3/tracks/${tracks[i].audioFile}`
+      );
+      await uploadFileToSignedUrl(
+        signed_albums[0].songs[i].media.signed_url,
+        trackBuffer,
+        "audio/mp4"
+      );
     }
 
-
-    console.log('externalApiResponse' , responseData);
+    console.log("externalApiResponse", responseData);
 
     const token = responseData.data?.token;
+    console.log("Token received: ======", token);
+
     if (!token) {
-      throw new Error('Token not found in the response');
+      throw new Error("Token not found in the response");
     }
 
     const verifiedMeta = await verifyAlbumMeta(token, albumId);
@@ -345,15 +373,22 @@ export async function POST(req: Request) {
     // Update the album with the UPC from the API response
     if (verifiedMeta.data?.albumRes?.upc) {
       await Album.findByIdAndUpdate(albumObjectId, {
-        $set: { upc: verifiedMeta.data.albumRes.upc }
+        $set: { upc: verifiedMeta.data.albumRes.upc },
       });
-      console.log('Updated album UPC:', verifiedMeta.data.albumRes.upc);
+      console.log("Updated album UPC:", verifiedMeta.data.albumRes.upc);
     }
 
-    return NextResponse.json({ message: 'Success', data: verifiedMeta, success: true, status: 201 });
-  
+    return NextResponse.json({
+      message: "Success",
+      data: verifiedMeta,
+      success: true,
+      status: 201,
+    });
   } catch (error: any) {
-    console.error('Internal Server Error:', error.message);
-    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    console.error("Internal Server Error:", error.message);
+    return NextResponse.json(
+      { message: "Internal Server Error", error: error.message },
+      { status: 500 }
+    );
   }
 }
