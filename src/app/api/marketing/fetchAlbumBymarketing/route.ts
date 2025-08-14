@@ -94,4 +94,5 @@ export async function GET() {
       data: []
     });
   }
+
 }
