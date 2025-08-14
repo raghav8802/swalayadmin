@@ -23,7 +23,7 @@ export async function connect() {
             
             // Buffering Settings
             bufferCommands: true,  // Enable command buffering
-            bufferMaxEntries: 0,   // Disable buffer limit
+           // bufferMaxEntries: 0,   // Disable buffer limit
             
             // Replication/Sharding Settings
             retryWrites: true,      // Auto-retry write operations
@@ -68,4 +68,5 @@ export async function connect() {
             process.exit(1);
         }
     }
+
 }
