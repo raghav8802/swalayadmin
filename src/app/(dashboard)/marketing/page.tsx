@@ -35,16 +35,21 @@ interface ApiResponse {
   data: Album[];
 }
 
-// Create a fetcher function for SWR
-
+// Add dynamic configuration to prevent static generation issues
+export const dynamic = 'force-dynamic';
 
 const Page = async () => {
- 
- const response = await api.get<ApiResponse>("/api/marketing/fetchAlbumBymarketing");
- console.log("marketing data response");
- console.log(response.data);
- const marketingData = response.data;
-
+  // Use safe API method with fallback data for static generation
+  const response = await api.safeGet<ApiResponse>("/api/marketing/fetchAlbumBymarketing", {
+    success: true,
+    data: []
+  }, {
+    cache: 'no-store' // Explicitly set no-store for this dynamic page
+  });
+  
+  console.log("marketing data response");
+  console.log(response.data);
+  const marketingData = response.data || [];
 
   return (
     <div className="w-full min-h-screen p-6 bg-white rounded-sm">
@@ -75,7 +80,6 @@ const Page = async () => {
             status={album.marketingStatus}
           />
         ))}
-
       </div>
     </div>
   );

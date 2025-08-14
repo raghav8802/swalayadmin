@@ -76,6 +76,27 @@ export async function apiFetch<T = any>(
 }
 
 /**
+ * Safe API fetch for static generation - returns fallback data on error
+ * @template T - The expected response type
+ * @param {string} endpoint - The API endpoint
+ * @param {T} fallbackData - Data to return if request fails
+ * @param {ApiOptions} [options={}] - Fetch options
+ * @returns {Promise<T>} Resolves with response data or fallback data
+ */
+export async function safeApiFetch<T = any>(
+  endpoint: string,
+  fallbackData: T,
+  options: ApiOptions = {}
+): Promise<T> {
+  try {
+    return await apiFetch<T>(endpoint, options);
+  } catch (error) {
+    console.warn(`API request failed for ${endpoint}, using fallback data:`, error);
+    return fallbackData;
+  }
+}
+
+/**
  * Convenience methods for common HTTP verbs with TypeScript support
  * @namespace api
  */
@@ -130,6 +151,17 @@ export const api = {
    */
   delete: <T = any>(endpoint: string, options?: Omit<ApiOptions, "method">) =>
     apiFetch<T>(endpoint, { ...options, method: "DELETE" }),
+
+  /**
+   * Safe GET request that returns fallback data on error
+   * @template T - Expected response type
+   * @param {string} endpoint - The API endpoint
+   * @param {T} fallbackData - Data to return if request fails
+   * @param {ApiOptions} [options={}] - Fetch options
+   * @returns {Promise<T>} Response data or fallback data
+   */
+  safeGet: <T = any>(endpoint: string, fallbackData: T, options?: Omit<ApiOptions, "method">) =>
+    safeApiFetch<T>(endpoint, fallbackData, { ...options, method: "GET" }),
 };
 
 // ============================ Usage Examples =============================
@@ -274,6 +306,9 @@ const revalidatedData = await api.get('/api/data', {
 
 'only-if-cached' – Only from cache, no network
 
+7. Safe API Request for Static Generation
 
+// Use safeGet for pages that need to work during static generation
+const marketingData = await api.safeGet('/api/marketing/fetchAlbumBymarketing', []);
 
 */
