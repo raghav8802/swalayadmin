@@ -68,7 +68,7 @@ export async function GET() {
             marketingStatus, // Add the marketing status
             message: `No album found for albumId: ${marketing.albumId}`,
           };
-        } catch (error) {
+        } catch (error:any) {
           console.error(`Error processing marketing entry ${marketing._id}:`, error);
           return {
             marketingId: marketing._id,
