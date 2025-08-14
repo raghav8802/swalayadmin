@@ -17,13 +17,14 @@ import { api } from "@/lib/apiRequest";
 export const dynamic = "force-dynamic";
 
 const Labels = async () => {
-  const apiResponse = await api.get<{ data: any }>(
-    "/api/labels/getLabels"
+  // Use safe API method with fallback data for static generation
+  const apiResponse = await api.safeGet<{ data: any }>(
+    "/api/labels/getLabels",
+    { data: [] },
+    { cache: 'no-store' }
   );
 
-
-  let Labels = apiResponse.data;
-  
+  let Labels = apiResponse.data || [];
 
   return (
     <div
