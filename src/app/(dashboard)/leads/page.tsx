@@ -8,7 +8,7 @@ import LeadModalForm from "@/components/leadmodalform";
 
 import { safeApiGet } from "@/helpers/axiosRequest";
 import UserContext from "@/context/userContext";
-import { LeadDataTable } from "./components/leaddatatable";
+import { LeadDataTable, Lead } from "./components/leaddatatable";
 
 function LeadsPage() {
   const context = useContext(UserContext);
@@ -16,18 +16,21 @@ function LeadsPage() {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [leads, setLeads] = useState();
+  const [leads, setLeads] = useState<Lead[]>([]);
 
   const fetchAllLeads = async (labelId: any) => {
     setIsLoading(true);
     try {
       const response:any = await safeApiGet(`/api/leads/getLeads`, { success: false, data: [] });
       if (response.success) {
-        setLeads(response.data);
+        setLeads(response.data || []);
+      } else {
+        setLeads([]);
       }
       setIsLoading(false);
     } catch (error) {
       toast.error("Something went wrong");
+      setLeads([]);
       setIsLoading(false);
     }
     
